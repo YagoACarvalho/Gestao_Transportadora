@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Transportador.Api.Data;
 using Transportador.Api.Dtos;
 using Transportador.Api.Models;
 
@@ -8,27 +10,32 @@ namespace Transportador.Api.Controllers;
 [Route("api/[controller]")]
 public class MotoristasController : ControllerBase
 {
-    private static readonly List<Motorista> motoristas = [];
+    private readonly AppDbContext _context;
 
-    [HttpGet]
-    public ActionResult<IEnumerable<Motorista>> Get()
+    public MotoristasController(AppDbContext context)
     {
-        return Ok(motoristas);
+        _context = context;
     }
 
     [HttpGet("{id:guid}")]
-    public ActionResult<Motorista> ObterPorId(Guid id)
+    public async Task<ActionResult<Motorista>> ObterPorId(Guid id)
     {
-        Motorista? motorista = motoristas.FirstOrDefault(m => m.Id == id);
-        if (motorista == null)
+        Motorista? motorista = await _context.Motoristas
+            .AsNoTracking()
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (motorista is null)
         {
             return NotFound();
         }
-        return Ok(motorista);  
+
+        return Ok(motorista);
     }
 
     [HttpPost]
-    public ActionResult<Motorista> Cadastrar(CriarMotoristaDto dto)
+    public async Task<ActionResult<Motorista>> Cadastrar(
+        CriarMotoristaDto dto
+    )
     {
         Motorista motorista = new()
         {
@@ -37,15 +44,83 @@ public class MotoristasController : ControllerBase
             NumeroCnh = dto.NumeroCnh,
             CategoriaCnh = dto.CategoriaCnh,
             DataValidadeCnh = dto.DataValidadeCnh,
-            Telefone = dto.Telefone,
+            Telefone = dto.Telefone
         };
 
-        motoristas.Add(motorista);
+        _context.Motoristas.Add(motorista);
+
+        await _context.SaveChangesAsync();
 
         return CreatedAtAction(
-            nameof(ObterPorId), 
-            new { id = motorista.Id }, 
+            nameof(ObterPorId),
+            new { id = motorista.Id },
             motorista
         );
     }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Atualizar(
+        Guid id,
+        AtualizarMotoristaDto dto
+    )
+    {
+        Motorista? motorista = await _context.Motoristas
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (motorista is null)
+        {
+            return NotFound();
+        }
+
+        motorista.Nome = dto.Nome;
+        motorista.Cpf = dto.Cpf;
+        motorista.NumeroCnh = dto.NumeroCnh;
+        motorista.CategoriaCnh = dto.CategoriaCnh;
+        motorista.DataValidadeCnh = dto.DataValidadeCnh;
+        motorista.Telefone = dto.Telefone;
+        motorista.Ativo = dto.Ativo;
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Desativar(Guid id)
+    {
+        Motorista? motorista = await _context.Motoristas
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (motorista is null)
+        {
+            return NotFound();
+        }
+
+        motorista.Ativo = false;
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+   [HttpGet]
+    public async Task<ActionResult<IEnumerable<Motorista>>> Listar(
+        [FromQuery] bool incluirInativos = false
+    )
+    {
+        IQueryable<Motorista> consulta = _context.Motoristas
+            .AsNoTracking();
+
+        if (!incluirInativos)
+        {
+            consulta = consulta.Where(m => m.Ativo);
+        }
+
+        List<Motorista> motoristas = await consulta
+            .OrderBy(m => m.Nome)
+            .ToListAsync();
+
+        return Ok(motoristas);
+    }
 }
+

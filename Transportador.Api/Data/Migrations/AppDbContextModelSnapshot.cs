@@ -22,6 +22,38 @@ namespace Transportador.Api.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Transportador.Api.Models.Caminhao", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_cadastro");
+
+                    b.Property<string>("Modelo")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("modelo");
+
+                    b.Property<string>("Placa")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("placa");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("caminhoes", (string)null);
+                });
+
             modelBuilder.Entity("Transportador.Api.Models.Motorista", b =>
                 {
                     b.Property<Guid>("Id")
@@ -70,6 +102,75 @@ namespace Transportador.Api.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("motoristas", (string)null);
+                });
+
+            modelBuilder.Entity("Transportador.Api.Models.Viagem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("CaminhaoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("caminhao_id");
+
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_cadastro");
+
+                    b.Property<DateOnly?>("DataViagem")
+                        .HasColumnType("date")
+                        .HasColumnName("data_viagem");
+
+                    b.Property<string>("Destino")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("destino");
+
+                    b.Property<Guid?>("MotoristaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("motorista_id");
+
+                    b.Property<string>("Origem")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("origem");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("status");
+
+                    b.Property<decimal?>("ValorFrete")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("valor_frete");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaminhaoId");
+
+                    b.HasIndex("MotoristaId");
+
+                    b.ToTable("viagens", (string)null);
+                });
+
+            modelBuilder.Entity("Transportador.Api.Models.Viagem", b =>
+                {
+                    b.HasOne("Transportador.Api.Models.Caminhao", "Caminhao")
+                        .WithMany()
+                        .HasForeignKey("CaminhaoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Transportador.Api.Models.Motorista", "Motorista")
+                        .WithMany()
+                        .HasForeignKey("MotoristaId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Caminhao");
+
+                    b.Navigation("Motorista");
                 });
 #pragma warning restore 612, 618
         }
