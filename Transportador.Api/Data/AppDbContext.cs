@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<Motorista> Motoristas => Set<Motorista>();
     public DbSet<Caminhao> Caminhoes => Set<Caminhao>();
     public DbSet<Viagem> Viagens => Set<Viagem>();
+    public DbSet<Despesa> Despesas => Set<Despesa>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -136,6 +137,44 @@ public class AppDbContext : DbContext
         viagem.HasOne(v => v.Caminhao)
             .WithMany()
             .HasForeignKey(v => v.CaminhaoId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        
+        var despesa = modelBuilder.Entity<Despesa>();
+
+        despesa.ToTable("despesas");
+
+        despesa.HasKey(d => d.Id);
+
+        despesa.Property(d => d.Id)
+            .HasColumnName("id");
+
+        despesa.Property(d => d.ViagemId)
+            .HasColumnName("viagem_id");
+
+        despesa.Property(d => d.Descricao)
+            .HasColumnName("descricao")
+            .HasMaxLength(200);
+
+        despesa.Property(d => d.Categoria)
+            .HasColumnName("categoria")
+            .HasMaxLength(50);
+
+        despesa.Property(d => d.Valor)
+            .HasColumnName("valor")
+            .HasPrecision(12, 2);
+
+        despesa.Property(d => d.DataDespesa)
+            .HasColumnName("data_despesa");
+
+        despesa.Property(d => d.DataCadastro)
+            .HasColumnName("data_cadastro")
+            .HasColumnType("timestamp with time zone")
+            .IsRequired();
+
+        despesa.HasOne(d => d.Viagem)
+            .WithMany()
+            .HasForeignKey(d => d.ViagemId)
             .OnDelete(DeleteBehavior.SetNull);
     } 
 }

@@ -54,6 +54,47 @@ namespace Transportador.Api.Data.Migrations
                     b.ToTable("caminhoes", (string)null);
                 });
 
+            modelBuilder.Entity("Transportador.Api.Models.Despesa", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Categoria")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("categoria");
+
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_cadastro");
+
+                    b.Property<DateOnly?>("DataDespesa")
+                        .HasColumnType("date")
+                        .HasColumnName("data_despesa");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("descricao");
+
+                    b.Property<decimal?>("Valor")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("valor");
+
+                    b.Property<Guid?>("ViagemId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("viagem_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ViagemId");
+
+                    b.ToTable("despesas", (string)null);
+                });
+
             modelBuilder.Entity("Transportador.Api.Models.Motorista", b =>
                 {
                     b.Property<Guid>("Id")
@@ -154,6 +195,16 @@ namespace Transportador.Api.Data.Migrations
                     b.HasIndex("MotoristaId");
 
                     b.ToTable("viagens", (string)null);
+                });
+
+            modelBuilder.Entity("Transportador.Api.Models.Despesa", b =>
+                {
+                    b.HasOne("Transportador.Api.Models.Viagem", "Viagem")
+                        .WithMany()
+                        .HasForeignKey("ViagemId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Viagem");
                 });
 
             modelBuilder.Entity("Transportador.Api.Models.Viagem", b =>
