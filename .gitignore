@@ -1,0 +1,21 @@
+# .NET
+**/bin/
+**/obj/
+*.user
+*.suo
+
+# React / Vite
+**/node_modules/
+**/dist/
+
+# Variáveis locais
+**/.env
+**/.env.local
+
+# Editores
+.vscode/
+.idea/
+
+# Sistema
+.DS_Store
+Thumbs.db
