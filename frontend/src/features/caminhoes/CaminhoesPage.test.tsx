@@ -1,0 +1,83 @@
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { expect, it, vi } from 'vitest';
+import { CaminhoesPage } from '../../pages/CaminhoesPage';
+import { caminhoesApi } from './caminhoesApi';
+import { HttpError } from '../../api/http';
+import type { Caminhao } from './types';
+
+const item: Caminhao = { id: 'teste', placa: 'TESTE01', modelo: 'Modelo teste', ativo: true, dataCadastro: '2026-01-01T00:00:00Z' };
+it('lista e busca sem novas chamadas e filtra ativos/inativos/todos', async () => {
+  const listar = vi.spyOn(caminhoesApi, 'listar').mockResolvedValue([item, { ...item, id: 'inativo', placa: 'INATIVO', ativo: false }]);
+  render(<CaminhoesPage />);
+  await screen.findByText('TESTE01');
+  fireEvent.change(screen.getByLabelText('Buscar por placa ou modelo'), { target: { value: 'ausente' } });
+  expect(screen.getByText('Nenhum resultado para esta busca.')).toBeTruthy();
+  expect(listar).toHaveBeenCalledTimes(1);
+  fireEvent.change(screen.getByLabelText('Buscar por placa ou modelo'), { target: { value: '' } });
+  fireEvent.change(screen.getByLabelText('Situação'), { target: { value: 'inativos' } });
+  await screen.findByText('INATIVO');
+  expect(screen.queryByText('TESTE01')).toBeNull();
+  expect(listar).toHaveBeenLastCalledWith(true, expect.any(AbortSignal));
+  fireEvent.change(screen.getByLabelText('Situação'), { target: { value: 'todos' } });
+  expect(screen.getByText('TESTE01')).toBeTruthy();
+  expect(screen.getByText('INATIVO')).toBeTruthy();
+});
+it('cadastra e atualiza a lista apos sucesso', async () => {
+  const listar = vi.spyOn(caminhoesApi, 'listar').mockResolvedValue([]);
+  const cadastrar = vi.spyOn(caminhoesApi, 'cadastrar').mockResolvedValue(item);
+  render(<CaminhoesPage />);
+  fireEvent.click(screen.getByRole('button', { name: 'Cadastrar caminhão' }));
+  const dialog = screen.getByRole('dialog');
+  fireEvent.change(within(dialog).getByLabelText('Placa'), { target: { value: 'TESTE01' } });
+  fireEvent.change(within(dialog).getByLabelText('Modelo'), { target: { value: 'Modelo teste' } });
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Cadastrar caminhão' }));
+  await screen.findByText('Caminhão cadastrado como ativo.');
+  expect(cadastrar).toHaveBeenCalledWith({ placa: 'TESTE01', modelo: 'Modelo teste' });
+  await waitFor(() => expect(listar).toHaveBeenCalledTimes(2));
+});
+it('edita inativo sem reativar', async () => {
+  vi.spyOn(caminhoesApi, 'listar').mockResolvedValue([{ ...item, ativo: false }]);
+  vi.spyOn(caminhoesApi, 'obter').mockResolvedValue({ ...item, ativo: false });
+  const atualizar = vi.spyOn(caminhoesApi, 'atualizar').mockResolvedValue();
+  render(<CaminhoesPage />);
+  fireEvent.change(screen.getByLabelText('Situação'), { target: { value: 'inativos' } });
+  fireEvent.click(await screen.findByRole('button', { name: 'Editar caminhão TESTE01' }));
+  const dialog = await screen.findByRole('dialog');
+  fireEvent.change(within(dialog).getByLabelText('Modelo'), { target: { value: 'Editado' } });
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar alterações' }));
+  await screen.findByText('Alterações salvas.');
+  expect(atualizar).toHaveBeenCalledWith('teste', { placa: 'TESTE01', modelo: 'Editado', ativo: false });
+});
+it('permite cancelar e exige confirmacao para desativar', async () => {
+  vi.spyOn(caminhoesApi, 'listar').mockResolvedValue([item]);
+  const desativar = vi.spyOn(caminhoesApi, 'desativar').mockResolvedValue();
+  render(<CaminhoesPage />);
+  fireEvent.click(await screen.findByRole('button', { name: 'Desativar caminhão TESTE01' }));
+  expect(desativar).not.toHaveBeenCalled();
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancelar' }));
+  expect(screen.queryByRole('dialog')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Desativar caminhão TESTE01' }));
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Desativar caminhão' }));
+  await screen.findByText('Caminhão desativado.');
+  expect(desativar).toHaveBeenCalledTimes(1);
+});
+it('mantem dados e associa validacao ao campo na falha', async () => {
+  vi.spyOn(caminhoesApi, 'listar').mockResolvedValue([]);
+  vi.spyOn(caminhoesApi, 'cadastrar').mockRejectedValue(new HttpError(400, 'Revise os campos informados.', { Placa: ['Mensagem de teste.'] }));
+  render(<CaminhoesPage />);
+  fireEvent.click(screen.getByRole('button', { name: 'Cadastrar caminhão' }));
+  const dialog = screen.getByRole('dialog');
+  const placa = within(dialog).getByLabelText('Placa') as HTMLInputElement;
+  fireEvent.change(placa, { target: { value: 'Preservado' } });
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Cadastrar caminhão' }));
+  await within(dialog).findByText('Mensagem de teste.');
+  expect(placa.value).toBe('Preservado');
+  expect(placa.getAttribute('aria-invalid')).toBe('true');
+});
+it('recupera falha de consulta sem apresentar dados ficticios', async () => {
+  vi.spyOn(caminhoesApi, 'listar').mockRejectedValueOnce(new Error('Sem conexão.')).mockResolvedValue([]);
+  render(<CaminhoesPage />);
+  await screen.findByText('Sem conexão.');
+  fireEvent.click(screen.getByRole('button', { name: 'Atualizar lista' }));
+  await screen.findByText('Nenhum caminhão encontrado neste filtro.');
+});

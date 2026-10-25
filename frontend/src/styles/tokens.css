@@ -1,0 +1,23 @@
+:root {
+  --color-deep: #172b3a;
+  --color-primary: #24647a;
+  --color-background: #f4f6f8;
+  --color-surface: #fff;
+  --color-accent: #ea9149;
+  --color-text-muted: #52616b;
+  --color-border: #647682;
+  --color-success: #166534;
+  --color-warning: #854d0e;
+  --color-error: #b91c1c;
+  --radius-control: 8px;
+  --radius-panel: 12px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --font-family: Inter, system-ui, sans-serif;
+}

@@ -12,110 +12,93 @@ public class ViagensController : ControllerBase
 {
     private readonly AppDbContext _context;
 
-    public ViagensController(AppDbContext context)
-    {
-        _context = context;
-    }
+    public ViagensController(AppDbContext context) => _context = context;
+
+    private IQueryable<Viagem> Consulta() => _context.Viagens.AsNoTracking()
+        .Include(v => v.Motorista).Include(v => v.Caminhao);
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Viagem>>> Listar()
-    {
-        List<Viagem> viagens = await _context.Viagens
-            .AsNoTracking()
-            .Include(v => v.Motorista)
-            .Include(v => v.Caminhao)
-            .OrderByDescending(v => v.DataViagem)
-            .ToListAsync();
-
-        return Ok(viagens);
-    }
+        => Ok(await Consulta().OrderByDescending(v => v.DataViagem).ToListAsync());
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<Viagem>> ObterPorId(Guid id)
     {
-        Viagem? viagem = await _context.Viagens
-            .AsNoTracking()
-            .Include(v => v.Motorista)
-            .Include(v => v.Caminhao)
-            .FirstOrDefaultAsync(v => v.Id == id);
-
-        if (viagem is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(viagem);
+        var viagem = await Consulta().FirstOrDefaultAsync(v => v.Id == id);
+        return viagem is null ? NotFound() : Ok(viagem);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Viagem>> Cadastrar(
-        CriarViagemDto dto
-    )
+    public async Task<ActionResult<Viagem>> Cadastrar(CriarViagemDto dto)
     {
-        Viagem viagem = new()
-        {
-            MotoristaId = dto.MotoristaId,
-            CaminhaoId = dto.CaminhaoId,
-            Origem = dto.Origem,
-            Destino = dto.Destino,
-            DataViagem = dto.DataViagem,
-            ValorFrete = dto.ValorFrete,
-            Status = dto.Status
-        };
-
+        await ValidarVinculos(dto);
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+        Viagem viagem = new() { Status = "Planejada" };
+        AplicarDados(viagem, dto);
         _context.Viagens.Add(viagem);
-
         await _context.SaveChangesAsync();
-
-        return CreatedAtAction(
-            nameof(ObterPorId),
-            new { id = viagem.Id },
-            viagem
-        );
+        return CreatedAtAction(nameof(ObterPorId), new { id = viagem.Id }, viagem);
     }
 
     [HttpPut("{id:guid}")]
-public async Task<IActionResult> Atualizar(
-    Guid id,
-    AtualizarViagemDto dto
-    )
+    public async Task<IActionResult> Atualizar(Guid id, AtualizarViagemDto dto)
     {
-    Viagem? viagem = await _context.Viagens
-        .FirstOrDefaultAsync(v => v.Id == id);
-
-    if (viagem is null)
-    {
-        return NotFound();
+        var viagem = await _context.Viagens.FirstOrDefaultAsync(v => v.Id == id);
+        if (viagem is null) return NotFound();
+        if (!TransicaoPermitida(viagem.Status, dto.Status))
+            ModelState.AddModelError(nameof(dto.Status), "Transição de situação não permitida.");
+        bool dadosAlterados = viagem.Origem != dto.Origem || viagem.Destino != dto.Destino ||
+            viagem.DataViagem != dto.DataViagem || viagem.MotoristaId != dto.MotoristaId ||
+            viagem.CaminhaoId != dto.CaminhaoId || viagem.ValorFrete != dto.ValorFrete;
+        if (viagem.Status != "Planejada" && dadosAlterados)
+            ModelState.AddModelError("Viagem", "Os dados só podem ser editados enquanto a viagem está planejada.");
+        await ValidarVinculos(dto, viagem);
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+        AplicarDados(viagem, dto);
+        viagem.Status = dto.Status;
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
 
-    viagem.MotoristaId = dto.MotoristaId;
-    viagem.CaminhaoId = dto.CaminhaoId;
-    viagem.Origem = dto.Origem;
-    viagem.Destino = dto.Destino;
-    viagem.DataViagem = dto.DataViagem;
-    viagem.ValorFrete = dto.ValorFrete;
-    viagem.Status = dto.Status;
-
-    await _context.SaveChangesAsync();
-
-    return NoContent();
-    }
-
+    // Mantem a rota da main remota e aplica as regras aprovadas de cancelamento.
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Cancelar(Guid id)
     {
-    Viagem? viagem = await _context.Viagens
-        .FirstOrDefaultAsync(v => v.Id == id);
-
-    if (viagem is null)
+        var viagem = await _context.Viagens.FirstOrDefaultAsync(v => v.Id == id);
+        if (viagem is null) return NotFound();
+        if (!TransicaoPermitida(viagem.Status, "Cancelada"))
+        {
+            ModelState.AddModelError(nameof(viagem.Status), "Esta viagem não pode ser cancelada nesta situação.");
+            return ValidationProblem(ModelState);
+        }
+        viagem.Status = "Cancelada";
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+    private async Task ValidarVinculos(CriarViagemDto dto, Viagem? atual = null)
     {
-        return NotFound();
+        // Manter um vinculo existente inativo preserva o historico. Nova atribuicao exige ativo.
+        if (atual is null || atual.MotoristaId != dto.MotoristaId)
+            if (!await _context.Motoristas.AnyAsync(m => m.Id == dto.MotoristaId && m.Ativo))
+                ModelState.AddModelError(nameof(dto.MotoristaId), "Selecione um motorista ativo existente.");
+        if (atual is null || atual.CaminhaoId != dto.CaminhaoId)
+            if (!await _context.Caminhoes.AnyAsync(c => c.Id == dto.CaminhaoId && c.Ativo))
+                ModelState.AddModelError(nameof(dto.CaminhaoId), "Selecione um caminhão ativo existente.");
     }
 
-    viagem.Status = "Cancelada";
+    private static bool TransicaoPermitida(string? atual, string? novo) => atual switch
+    {
+        "Planejada" => novo is "Planejada" or "Em andamento" or "Cancelada",
+        "Em andamento" => novo is "Em andamento" or "Concluída" or "Cancelada",
+        "Concluída" => novo == "Concluída",
+        "Cancelada" => novo == "Cancelada",
+        _ => false,
+    };
 
-    await _context.SaveChangesAsync();
-
-    return NoContent();
+    private static void AplicarDados(Viagem viagem, CriarViagemDto dto)
+    {
+        viagem.Origem = dto.Origem; viagem.Destino = dto.Destino;
+        viagem.DataViagem = dto.DataViagem; viagem.MotoristaId = dto.MotoristaId;
+        viagem.CaminhaoId = dto.CaminhaoId; viagem.ValorFrete = dto.ValorFrete;
     }
 }
