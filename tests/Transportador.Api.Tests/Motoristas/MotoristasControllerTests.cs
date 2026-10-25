@@ -26,6 +26,7 @@ public class MotoristasControllerTests
         var resposta = Assert.IsType<CreatedAtActionResult>((await controller.Cadastrar(dto)).Result);
         DateTime fim = DateTime.UtcNow;
         var criado = Assert.IsType<Motorista>(resposta.Value);
+        Assert.True(criado.Ativo);
 
         Assert.Equal(201, resposta.StatusCode);
         Assert.Equal(nameof(MotoristasController.ObterPorId), resposta.ActionName);
@@ -36,6 +37,7 @@ public class MotoristasControllerTests
         Assert.InRange(criado.DataCadastro, inicio, fim);
         await using var verificacao = database.CriarContexto();
         var salvo = await verificacao.Motoristas.SingleAsync();
+        Assert.True(salvo.Ativo);
         Assert.Equal(criado.Id, salvo.Id);
         Assert.Equal(dto.Nome, salvo.Nome);
         Assert.Equal(dto.Cpf, salvo.Cpf);
@@ -47,19 +49,18 @@ public class MotoristasControllerTests
     }
 
     [Fact]
-    public async Task Cadastrar_CaracterizacaoAtualPendenteDeDecisao_CriaInativoEOmiteDaListagemPadrao()
+    public async Task Cadastrar_CriaAtivoEIncluiNaListagemPadrao()
     {
-        // Caracterizacao do codigo atual, nao uma regra de negocio aprovada.
         await using var database = await SqliteTestDatabase.CriarAsync();
         await using (var context = database.CriarContexto())
         {
             var resposta = await new MotoristasController(context).Cadastrar(new() { Nome = "Teste" });
-            Assert.False(Assert.IsType<Motorista>(Assert.IsType<CreatedAtActionResult>(resposta.Result).Value).Ativo);
+            Assert.True(Assert.IsType<Motorista>(Assert.IsType<CreatedAtActionResult>(resposta.Result).Value).Ativo);
         }
         await using var verificacao = database.CriarContexto();
-        Assert.False((await verificacao.Motoristas.SingleAsync()).Ativo);
+        Assert.True((await verificacao.Motoristas.SingleAsync()).Ativo);
         var controller = new MotoristasController(verificacao);
-        Assert.Empty(Itens(await controller.Listar()));
+        Assert.Single(Itens(await controller.Listar()));
         Assert.Single(Itens(await controller.Listar(true)));
     }
 

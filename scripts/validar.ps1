@@ -20,14 +20,15 @@ $environmentValues = @{
     DOTNET_NOLOGO = '1'
     DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE = 'true'
     DOTNET_GENERATE_ASPNET_CERTIFICATE = 'false'
+    npm_config_cache = Join-Path $harnessRoot 'npm-cache'
 }
 $originalEnvironment = @{}
 $originalLocation = Get-Location
 $failureCategory = 'infraestrutura'
 $exitCode = 10
 
-function Invoke-DotnetStep {
-    param([string]$Name, [string[]]$Arguments)
+function Invoke-NativeStep {
+    param([string]$Name, [string]$Command, [string[]]$Arguments)
 
     Write-Host "Etapa: $Name"
     # Windows PowerShell pode representar stderr nativo como ErrorRecord.
@@ -38,7 +39,7 @@ function Invoke-DotnetStep {
             throw 'Diretorio de resultados inexistente ou invalido.'
         }
         $ErrorActionPreference = 'Continue'
-        & dotnet @Arguments 2>&1 | Tee-Object -FilePath (Join-Path $runDirectory "$Name.log") -ErrorAction Stop
+        & $Command @Arguments 2>&1 | Tee-Object -FilePath (Join-Path $runDirectory "$Name.log") -ErrorAction Stop
         $nativeExitCode = $LASTEXITCODE
     }
     catch {
@@ -55,6 +56,11 @@ function Invoke-DotnetStep {
     }
 }
 
+function Invoke-DotnetStep {
+    param([string]$Name, [string[]]$Arguments)
+    Invoke-NativeStep -Name $Name -Command 'dotnet' -Arguments $Arguments
+}
+
 try {
     foreach ($name in $environmentValues.Keys) {
         $originalEnvironment[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
@@ -66,10 +72,16 @@ try {
         throw 'Projeto de testes nao encontrado.'
     }
     Get-Command dotnet -ErrorAction Stop | Out-Null
+    $npmCommand = if ($env:OS -eq 'Windows_NT') { 'npm.cmd' } else { 'npm' }
+    Get-Command $npmCommand -ErrorAction Stop | Out-Null
+    $frontendPath = Join-Path $repositoryRoot 'frontend'
+    if (-not (Test-Path -LiteralPath (Join-Path $frontendPath 'package-lock.json') -PathType Leaf)) {
+        throw 'Lockfile do frontend ausente; gere-o em ambiente autorizado.'
+    }
     foreach ($directory in @(
         $environmentValues.NUGET_PACKAGES, $environmentValues.NUGET_HTTP_CACHE_PATH,
         $environmentValues.NUGET_SCRATCH, $environmentValues.TEMP,
-        $environmentValues.DOTNET_CLI_HOME, $runDirectory
+        $environmentValues.DOTNET_CLI_HOME, $environmentValues.npm_config_cache, $runDirectory
     )) {
         New-Item -ItemType Directory -Path $directory -Force -ErrorAction Stop | Out-Null
     }
@@ -138,7 +150,40 @@ try {
     if ($summary.outcome -ne 'Completed' -or [int]$counters.passed -ne [int]$counters.executed) {
         throw 'Resultado TRX inconclusivo; revise o relatorio.'
     }
-    Write-Host 'Validacao concluida. Revise warnings, testes ignorados, diff e arquivos novos antes de concluir a tarefa.'
+    Set-Location -LiteralPath $frontendPath
+    $failureCategory = 'frontend dependencias'
+    $exitCode = 10
+    Invoke-NativeStep -Name 'frontend-ci' -Command $npmCommand -Arguments @('ci', '--fetch-retries=0', '--fetch-timeout=15000')
+    $failureCategory = 'frontend tipos'
+    $exitCode = 20
+    Invoke-NativeStep -Name 'frontend-tipos' -Command $npmCommand -Arguments @('run', 'typecheck')
+    $failureCategory = 'frontend testes'
+    $exitCode = 30
+    $frontendReport = Join-Path $runDirectory 'frontend-tests.json'
+    $frontendTestFailure = $null
+    try {
+        Invoke-NativeStep -Name 'frontend-testes' -Command $npmCommand -Arguments @('test', '--', '--reporter=default', '--reporter=json', "--outputFile=$frontendReport")
+    }
+    catch {
+        if ($_.Exception.Data['HarnessInfrastructure']) { throw }
+        $frontendTestFailure = $_
+    }
+    $failureCategory = 'frontend relatorio'
+    $exitCode = 10
+    if (-not (Test-Path -LiteralPath $frontendReport -PathType Leaf)) { throw 'Relatorio frontend ausente.' }
+    $frontendResults = Get-Content -LiteralPath $frontendReport -Raw | ConvertFrom-Json
+    $executedFrontend = [int]$frontendResults.numPassedTests + [int]$frontendResults.numFailedTests
+    if ([int]$frontendResults.numTotalTests -le 0 -or $executedFrontend -le 0) { throw 'Nenhum teste frontend executado.' }
+    Write-Host "Frontend: total=$($frontendResults.numTotalTests); executados=$executedFrontend; aprovados=$($frontendResults.numPassedTests); reprovados=$($frontendResults.numFailedTests); ignorados=$($frontendResults.numPendingTests)"
+    if ([int]$frontendResults.numFailedTests -gt 0) {
+        $failureCategory = 'frontend testes'; $exitCode = 30
+        throw 'Relatorio frontend indica testes reprovados.'
+    }
+    if (-not $frontendResults.success -or $null -ne $frontendTestFailure) { throw 'Execucao frontend inconclusiva; revise logs e relatorio.' }
+    $failureCategory = 'frontend build'
+    $exitCode = 20
+    Invoke-NativeStep -Name 'frontend-build' -Command $npmCommand -Arguments @('run', 'build')
+    Write-Host 'Validacao isolada concluida. PostgreSQL externo e navegador nao foram validados. Revise warnings, testes ignorados, diff e arquivos novos.'
     $exitCode = 0
 }
 catch {
