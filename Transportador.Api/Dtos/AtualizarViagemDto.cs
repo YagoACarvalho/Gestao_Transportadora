@@ -1,18 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Transportador.Api.Dtos;
 
-public class AtualizarViagemDto
+public class AtualizarViagemDto : CriarViagemDto
 {
-    public Guid? MotoristaId { get; set; }
-
-    public Guid? CaminhaoId { get; set; }
-
-    public string? Origem { get; set; }
-
-    public string? Destino { get; set; }
-
-    public DateOnly? DataViagem { get; set; }
-
-    public decimal? ValorFrete { get; set; }
-
-    public string? Status { get; set; }
+    [Required, StringLength(50)]
+    public override string? Status { get; set; }
 }

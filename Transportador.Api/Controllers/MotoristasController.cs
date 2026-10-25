@@ -39,6 +39,7 @@ public class MotoristasController : ControllerBase
     {
         Motorista motorista = new()
         {
+            Ativo = true,
             Nome = dto.Nome,
             Cpf = dto.Cpf,
             NumeroCnh = dto.NumeroCnh,

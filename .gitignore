@@ -1,21 +1,77 @@
-# .NET
-**/bin/
-**/obj/
-*.user
-*.suo
+# Compilacao, publicacao e caches .NET
+[Bb]in/
+[Oo]bj/
+artifacts/
+publish/
+*.cache
 
-# React / Vite
-**/node_modules/
-**/dist/
+# Dependencias, builds e caches JavaScript/TypeScript
+node_modules/
+dist/
+.vite/
+.vite-temp/
+.npm/
+*.tsbuildinfo
 
-# Variáveis locais
-**/.env
-**/.env.local
-
-# Editores
+# IDEs e arquivos temporarios locais
+.vs/
 .vscode/
 .idea/
-
-# Sistema
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
 .DS_Store
 Thumbs.db
+
+# Testes, cobertura e logs
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.trx
+logs/
+*.log
+
+# Configuracoes locais e segredos (exemplos podem ser versionados)
+.env
+.env.*
+!.env.example
+!.env.sample
+appsettings.Local.json
+appsettings.*.Local.json
+appsettings.*.local.json
+appsettings.local.json
+secrets.json
+*.pubxml.user
+
+# Certificados e chaves
+*.pfx
+*.p12
+*.pem
+*.key
+*.crt
+*.cer
+
+# Dados locais PostgreSQL, bancos e backups
+.local/
+pgdata/
+postgres-data/
+postgresql-data/
+backups/
+*.dump
+*.backup
+*.bak
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Codigo, migrations, projetos e configuracoes compartilhadas permanecem elegiveis.
+# Revisar appsettings, launchSettings e arquivos HTTP antes do primeiro commit.
