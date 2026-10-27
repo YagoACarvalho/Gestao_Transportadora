@@ -10,7 +10,7 @@ import { moeda } from '../features/despesas/types';
 import { dadosCompletos, dadosDaViagem, filtrarViagens, proximasSituacoes, situacoes, semSituacao } from '../features/viagens/types';
 import type { DadosViagem, SituacaoViagem, Viagem } from '../features/viagens/types';
 import { HttpError } from '../api/http';
-import { Button, Card } from '../ui';
+import { Button, Card, CollectionSummary, CollectionHeader, EmptyState, Tabs } from '../ui';
 import styles from '../components/Cadastro.module.css';
 
 export function ViagensPage() {
@@ -75,10 +75,18 @@ export function ViagensPage() {
   }
   const filtered = filtrarViagens(items, busca, status, inicio, fim);
   return <>
-    <PageHeader title="Viagens" description="Percursos, equipe e andamento da operação." action={<Button disabled={busy} onClick={() => { setSelected(undefined); setFeedback(''); setPanel('create'); }}>Cadastrar viagem</Button>} />
+    <PageHeader title="Viagens" description="Percursos, equipe e andamento da operação." action={<Button icon={<span aria-hidden="true">＋</span>} disabled={busy} onClick={() => { setSelected(undefined); setFeedback(''); setPanel('create'); }}>Cadastrar viagem</Button>} />
     <p role="status" className={feedback ? styles.feedback : undefined}>{feedback}</p>
     {busy && !panel && <p role="status" className={styles.message}>Carregando viagem…</p>}
+    <CollectionSummary loading={loading} error={error} items={[
+      { title: 'Viagens planejadas', value: items.filter(item => item.status === 'Planejada').length, description: 'Prontas para organizar a saída' },
+      { title: 'Em andamento', value: items.filter(item => item.status === 'Em andamento').length, description: 'Percursos em execução' },
+      { title: 'Pausadas', value: items.filter(item => item.status === 'Pausada').length, description: 'Aguardando retomada da operação' },
+      { title: 'Concluídas', value: items.filter(item => item.status === 'Concluída').length, description: 'Percursos finalizados no histórico' },
+    ]} />
     <Card span={12} className={styles.workspace} aria-label="Viagens">
+      <CollectionHeader title="Acompanhamento de viagens" count={loading || error ? undefined : filtered.length} description="Organize o percurso e acompanhe cada etapa da operação." />
+      <div className={styles.statusFilters}><Tabs label="Filtrar andamento" value={status} onChange={setStatus} options={[{ value: '', label: 'Todas' }, ...situacoes.map(s => ({ value: s, label: s }))]} /></div>
       <div className={styles.toolbar}>
         <div className={styles.field}><label htmlFor="busca">Buscar percurso, motorista ou placa</label><input id="busca" type="search" value={busca} onChange={e => setBusca(e.target.value)} /></div>
         <div className={styles.field}><label htmlFor="situacao">Situação</label><select id="situacao" value={status} onChange={e => setStatus(e.target.value)}><option value="">Todas</option>{situacoes.map(s => <option key={s}>{s}</option>)}</select></div>
@@ -86,8 +94,8 @@ export function ViagensPage() {
         <div className={styles.field}><label htmlFor="fim">Data final</label><input id="fim" type="date" value={fim} onChange={e => setFim(e.target.value)} /></div>
       </div>
       {inicio && fim && inicio > fim && <p role="alert" className={styles.message}>A data inicial está depois da data final. Ajuste o período.</p>}
-      {error && panel !== 'status' && <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <button onClick={() => setRevision(v => v + 1)}>Atualizar lista</button></div>}
-      {loading ? <p role="status" className={styles.message}>Carregando viagens…</p> : !error && (filtered.length ? <ViagensTable items={filtered} busy={busy} onEdit={item => open(item)} onStatus={open} onDetails={viewDetails} onExpense={launchExpense} /> : <p className={styles.message}>Nenhuma viagem encontrada neste filtro.</p>)}
+      {error && panel !== 'status' && <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <Button variant="secondary" onClick={() => setRevision(v => v + 1)}>Atualizar lista</Button></div>}
+      {loading ? <p role="status" className={styles.message}>Carregando viagens…</p> : !error && (filtered.length ? <ViagensTable items={filtered} busy={busy} onEdit={item => open(item)} onStatus={open} onDetails={viewDetails} onExpense={launchExpense} /> : <EmptyState title="Nenhuma viagem encontrada neste filtro." description="Ajuste os filtros ou cadastre uma viagem para organizar o próximo percurso." />)}
     </Card>
     {(panel === 'create' || panel === 'edit' || panel === 'regularize') && <SidePanel title={panel === 'regularize' ? 'Regularizar viagem' : panel === 'create' ? 'Cadastrar viagem' : 'Editar viagem'} busy={busy} onClose={() => setPanel(null)}>{panel === 'regularize' && <p>Complete os dados para salvar esta viagem como Planejada. As despesas existentes e suas escolhas financeiras serão preservadas, sem remuneração retroativa.</p>}<ViagemForm viagem={selected} busy={busy} onSave={save} regularizando={panel === 'regularize'} /></SidePanel>}
     {panel === 'details' && selected && <SidePanel title="Detalhes da viagem" busy={busy} onClose={() => setPanel(null)}><ViagemDetails viagem={selected} onExpense={() => launchExpense(selected)} /></SidePanel>}
@@ -103,7 +111,7 @@ export function ViagensPage() {
         </fieldset>}
       </>}
       {error && <p role="alert" className={styles.error}>{error}</p>}
-      <div className={styles.actions}><button disabled={busy} onClick={() => setPanel(null)}>Voltar</button><button className={styles.primary} disabled={busy || (target === 'Cancelada' ? !cancelamento || cancelamento.quantidadeDespesas > 0 && !manterDespesas : !dadosCompletos(selected))} onClick={changeStatus}>{busy ? 'Salvando…' : 'Confirmar alteração'}</button></div>
+      <div className={styles.actions}><Button variant="secondary" disabled={busy} onClick={() => setPanel(null)}>Voltar</Button><Button disabled={busy || (target === 'Cancelada' ? !cancelamento || cancelamento.quantidadeDespesas > 0 && !manterDespesas : !dadosCompletos(selected))} onClick={changeStatus}>{busy ? 'Salvando…' : 'Confirmar alteração'}</Button></div>
     </SidePanel>}
   </>;
 }

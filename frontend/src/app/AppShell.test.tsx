@@ -3,6 +3,7 @@ import { beforeEach, expect, it, vi } from 'vitest';
 import { AppShell } from './AppShell';
 
 vi.mock('../pages/MotoristasPage', () => ({ MotoristasPage: () => <h1>Motoristas teste</h1> }));
+vi.mock('../pages/MotoristaPerfilPage', () => ({ MotoristaPerfilPage: ({ motoristaId, aba }: { motoristaId: string; aba: string }) => <h1>Perfil {motoristaId}: {aba}</h1> }));
 vi.mock('../pages/CaminhoesPage', () => ({ CaminhoesPage: () => <h1>Caminhões teste</h1> }));
 vi.mock('../pages/ViagensPage', () => ({ ViagensPage: () => <h1>Viagens teste</h1> }));
 vi.mock('../pages/DespesasPage', () => ({ DespesasPage: () => <h1>Despesas teste</h1> }));
@@ -55,4 +56,24 @@ it('reconhece o modulo despesas em URL com viagem preselecionada', () => {
   render(<AppShell />);
   expect(screen.getByRole('heading', { name: 'Despesas teste' })).toBeTruthy();
   expect(screen.getByRole('link', { name: 'Despesas' }).getAttribute('aria-current')).toBe('page');
+});
+
+it('abre perfil e aba por URL preservando navegacao do modulo e historico', async () => {
+  window.history.replaceState(null, '', '#/motoristas?motoristaId=id%2Fteste&aba=viagens');
+  render(<AppShell />);
+  expect(screen.getByRole('heading', { name: 'Perfil id/teste: viagens' })).toBeTruthy();
+  expect(screen.getByRole('link', { name: 'Motoristas' }).getAttribute('aria-current')).toBe('page');
+  expect(document.title).toBe('Perfil do motorista | Gestão de Transportadora');
+  act(() => { window.location.hash = '#/motoristas?motoristaId=id%2Fteste&aba=remuneracao'; });
+  await screen.findByRole('heading', { name: 'Perfil id/teste: remuneracao' });
+  act(() => window.history.back());
+  await screen.findByRole('heading', { name: 'Perfil id/teste: viagens' });
+  fireEvent.click(screen.getByRole('link', { name: 'Motoristas' }));
+  await screen.findByRole('heading', { name: 'Motoristas teste' });
+});
+
+it('usa cadastro quando a URL informa uma aba desconhecida', () => {
+  window.history.replaceState(null, '', '#/motoristas?motoristaId=m1&aba=inexistente');
+  render(<AppShell />);
+  expect(screen.getByRole('heading', { name: 'Perfil m1: cadastro' })).toBeTruthy();
 });

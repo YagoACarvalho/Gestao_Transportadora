@@ -1,3 +1,4 @@
+import { Button } from '../../ui';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { HttpError } from '../../api/http';
@@ -30,6 +31,6 @@ export function CaminhaoForm({ caminhao, busy, onSave }: { caminhao?: Caminhao; 
       })}
     </fieldset>
     {caminhao ? <fieldset disabled={busy}><legend>Situação</legend><label><input type="checkbox" checked={ativo} onChange={e => setAtivo(e.target.checked)} /> Cadastro ativo</label><p>Marque para reativar ou desmarque para desativar. O histórico é preservado.</p></fieldset> : <p>O caminhão será cadastrado como ativo.</p>}
-    <button className={styles.primary} type="submit" disabled={busy}>{busy ? 'Salvando…' : caminhao ? 'Salvar alterações' : 'Cadastrar caminhão'}</button>
+    <Button type="submit" disabled={busy}>{busy ? 'Salvando…' : caminhao ? 'Salvar alterações' : 'Cadastrar caminhão'}</Button>
   </form>;
 }

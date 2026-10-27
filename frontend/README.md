@@ -46,16 +46,24 @@ registros carregados, sem paginação no servidor. Não há validação de dígi
 unicidade de CPF/CNH. A API normaliza CPF e valida os limites existentes dos campos.
 Falhas de persistência recebem feedback genérico sem expor detalhes internos.
 
-Inter usa fallback do sistema até a distribuição da fonte ser definida. Menu móvel
-e painéis usam dialog nativo; teclado, foco, responsividade e movimento reduzido
-precisam de revisão em navegador real. Os testes jsdom adaptam showModal/close e
-não comprovam foco nativo ou apresentação visual. Motion permanece no feedback do
-menu. A validação real com PostgreSQL continua separada e pendente.
+A interface usa o kit de `src/ui/`, com Plus Jakarta Sans e fallback local, sem
+requisições a fontes externas. Navegação móvel e painéis usam dialog nativo.
+Os testes jsdom não comprovam foco nativo ou apresentação visual; a revisão
+isolada no Chrome cobre desktop e mobile. Autenticação real e PostgreSQL continuam
+como validações separadas. Detalhes em [design system](../docs/design-system.md).
+
+## Cards e perfil de motoristas
+
+Motoristas agora é exibido em cards. `Ver perfil` abre Cadastro, Viagens e
+Remuneração; o atalho `Viagens` abre diretamente os percursos vinculados.
+Remuneração mostra valores previstos registrados, conforme inclusão financeira,
+sem representar pagamentos. Regras, limites de atribuição e validação em
+[perfil de motoristas](../docs/perfil-motoristas.md).
 
 ## Caminhões e navegação
 
 Os endereços #/motoristas e #/caminhoes permitem acesso direto e navegação pelo
-histórico do navegador. Sidebar, cabeçalho e título acompanham o módulo atual.
+histórico do navegador. Navegação, cabeçalho e título acompanham o módulo atual.
 Viagens está disponível em #/viagens; regras e contratos em ../docs/viagens.md.
 
 Caminhões usa os contratos existentes de /api/Caminhoes: GET com incluirInativos,
@@ -92,7 +100,7 @@ configuração da API e limitações de publicação: [publicação](../docs/pub
 
 ## Kit visual e situações de viagem
 
-`src/ui/` cont?m os componentes adaptados do kit visual aprovado, com CSS Modules
+`src/ui/` contém os componentes adaptados do kit visual aprovado, com CSS Modules
 e tokens `--ul-*`. Os originais estão em `../src/ui/`, sem importação na aplicação.
 A fonte usa fallback local; não há download de fontes de terceiros.
 

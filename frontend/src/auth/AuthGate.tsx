@@ -1,3 +1,4 @@
+import { AppShell, Button, Card, PageHeader } from '../ui';
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode, FormEvent } from 'react';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
@@ -101,14 +102,14 @@ export function AuthGate({ client, intent = 'login', children }: {
   const pending = view === 'loading' || view === 'checking';
   const blocked = view === 'forbidden' || view === 'error';
   const title = !client ? 'Acesso em preparação' : pending ? 'Verificando acesso' : view === 'forbidden' ? 'Acesso não autorizado' : view === 'error' ? 'Não foi possível abrir o sistema' : mode === 'password' ? 'Definir senha' : mode === 'recover' ? 'Recuperar senha' : 'Entrar';
-  return <main className={styles.page}>
-    <section className={styles.identity} aria-label="Gestão de Transportadora"><div className={styles.brand}>Gestão de Transportadora</div><div className={styles.route}><h2>Acesso à operação</h2><p>Cadastros, viagens e despesas da sua transportadora, em um só lugar.</p></div><p>Acesso exclusivo para usuários convidados e autorizados.</p></section>
-    <section className={styles.content}><div>
-      <h1 ref={heading} tabIndex={-1}>{title}</h1>
+  return <AppShell className={styles.shell}><main className={styles.page}>
+    <section className={styles.identity} aria-label="Gestão de Transportadora"><div className={styles.brand}><span className={styles.brandMark} aria-hidden="true">GT</span>Gestão de Transportadora</div><div className={styles.route}><span className={styles.routeLine} aria-hidden="true"><span /> <span /> <span /></span><h2>Sua operação.<br />Um caminho mais claro.</h2><p>Cadastros, viagens e despesas da sua transportadora, em um só lugar.</p><div className={styles.tags}><span>Equipe</span><span>Viagens</span><span>Financeiro</span></div></div><p>Acesso exclusivo para usuários convidados e autorizados.</p></section>
+    <section className={styles.content}><Card span={12} className={styles.accessCard}>
+      <PageHeader title={title} headingRef={heading} />
       {!client ? <p className={styles.description}>O acesso ainda não foi configurado. Solicite ao responsável a configuração do sistema.</p> : pending ? <p role="status">Verificando sua sessão e sua autorização…</p> : blocked ? <>
         <p className={styles.description}>{view === 'forbidden' ? 'Seu usuário não está autorizado a acessar esta transportadora. Solicite acesso ao responsável.' : 'Não foi possível confirmar a comunicação com o sistema.'}</p>
-        {view === 'error' && <button onClick={() => setRevision(v => v + 1)}>Tentar novamente</button>}
-        <div className={styles.actions}><button onClick={signOut}>Sair</button></div>
+        {view === 'error' && <Button variant="secondary" onClick={() => setRevision(v => v + 1)}>Tentar novamente</Button>}
+        <div className={styles.actions}><Button variant="secondary" onClick={signOut}>Sair</Button></div>
       </> : <>
         <p className={styles.description}>{mode === 'recover' ? 'Informe seu e-mail para receber as instruções.' : mode === 'password' ? 'Defina a senha para acessar sua conta.' : 'Use o e-mail e a senha da sua conta convidada.'}</p>
         {error && <p role="alert" className={styles.error}>{error}</p>}
@@ -118,10 +119,10 @@ export function AuthGate({ client, intent = 'login', children }: {
           {mode !== 'password' && <div className={styles.field}><label htmlFor="auth-email">E-mail</label><input id="auth-email" type="email" autoComplete="username" required disabled={busy} value={email} onChange={e => setEmail(e.target.value)} /></div>}
           {mode !== 'recover' && <div className={styles.field}><label htmlFor="auth-password">{mode === 'password' ? 'Nova senha' : 'Senha'}</label><input id="auth-password" type="password" autoComplete={mode === 'password' ? 'new-password' : 'current-password'} required disabled={busy} value={password} onChange={e => setPassword(e.target.value)} /></div>}
           {mode === 'password' && <div className={styles.field}><label htmlFor="auth-confirm">Confirmar nova senha</label><input id="auth-confirm" type="password" autoComplete="new-password" required disabled={busy} value={confirm} onChange={e => setConfirm(e.target.value)} /></div>}
-          <button className={styles.primary} disabled={busy || mode === 'password' && !session}>{busy ? 'Aguarde…' : mode === 'recover' ? 'Enviar instruções' : mode === 'password' ? 'Definir senha' : 'Entrar'}</button>
+          <Button type="submit" disabled={busy || mode === 'password' && !session}>{busy ? 'Aguarde…' : mode === 'recover' ? 'Enviar instruções' : mode === 'password' ? 'Definir senha' : 'Entrar'}</Button>
         </form>
-        <div className={styles.actions}><button disabled={busy} onClick={async () => { if (mode === 'password') await signOut(); setMode(mode === 'recover' ? 'login' : 'recover'); setError(''); setFeedback(''); setPassword(''); setConfirm(''); }}>{mode === 'recover' ? 'Voltar para entrar' : mode === 'password' ? 'Solicitar novo link' : 'Esqueci minha senha'}</button></div>
+        <div className={styles.actions}><Button variant="secondary" disabled={busy} onClick={async () => { if (mode === 'password') await signOut(); setMode(mode === 'recover' ? 'login' : 'recover'); setError(''); setFeedback(''); setPassword(''); setConfirm(''); }}>{mode === 'recover' ? 'Voltar para entrar' : mode === 'password' ? 'Solicitar novo link' : 'Esqueci minha senha'}</Button></div>
       </>}
-    </div></section>
-  </main>;
+    </Card></section>
+  </main></AppShell>;
 }

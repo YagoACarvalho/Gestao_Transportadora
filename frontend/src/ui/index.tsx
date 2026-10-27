@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, HTMLAttributes, ReactNode, Ref } from 'react';
 import styles from './components.module.css';
 
 type Span = 3 | 4 | 5 | 6 | 7 | 12;
@@ -9,16 +9,15 @@ export function AppShell({ children, className }: { children: ReactNode; classNa
   return <div className={join(styles.shell, className)}>{children}</div>;
 }
 
-export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
-  return <header className={styles.header}><div><h1>{title}</h1>{subtitle && <p className={styles.subtitle}>{subtitle}</p>}</div>{actions && <div className={styles.actions}>{actions}</div>}</header>;
+export function PageHeader({ title, subtitle, actions, headingRef }: { title: string; subtitle?: string; actions?: ReactNode; headingRef?: Ref<HTMLHeadingElement> }) {
+  return <header className={styles.header}><div><h1 ref={headingRef} tabIndex={headingRef ? -1 : undefined}>{title}</h1>{subtitle && <p className={styles.subtitle}>{subtitle}</p>}</div>{actions && <div className={styles.actions}>{actions}</div>}</header>;
 }
 
 export function Grid({ children }: { children: ReactNode }) { return <div className={styles.grid}>{children}</div>; }
 
 export function Card({ title, variant, span = 4, onMenu, className, children, ...rest }: {
   title?: string; variant?: 'navy'; span?: Span; onMenu?: () => void; className?: string; children: ReactNode;
-  'aria-label'?: string;
-}) {
+} & Omit<HTMLAttributes<HTMLElement>, 'title'>) {
   return <section {...rest} className={join(styles.card, styles[`span${span}`], variant && styles.navy, className)}>
     {title && <div className={styles.cardHead}><h2>{title}</h2>{onMenu && <Button variant="icon" aria-label={`Opções de ${title}`} onClick={onMenu}>⋯</Button>}</div>}{children}
   </section>;
@@ -28,13 +27,37 @@ export function Badge({ tone = 'neutral', children }: { tone?: 'positive' | 'neg
   return <span className={join(styles.badge, styles[tone])}>{children}</span>;
 }
 
-export function Button({ variant = 'primary', icon, children, className, type = 'button', ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'icon'; icon?: ReactNode }) {
+export function Button({ variant = 'primary', icon, children, className, type = 'button', ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'icon'; icon?: ReactNode; ref?: Ref<HTMLButtonElement> }) {
   return <button {...rest} type={type} className={join(styles.button, styles[variant], className)}>{icon}{children}</button>;
+}
+
+export function LinkButton({ children, className, variant = 'secondary', ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { variant?: 'primary' | 'secondary' }) {
+  return <a {...rest} className={join(styles.button, styles[variant], className)}>{children}</a>;
+}
+
+export function CollectionHeader({ title, count, description }: { title: string; count?: number; description: string }) {
+  return <div className={styles.collectionHeader}><div><h2>{title}</h2><p>{description}</p></div>{count !== undefined && <Badge>{count} {count === 1 ? 'registro' : 'registros'}</Badge>}</div>;
+}
+
+export function EmptyState({ title, description }: { title: string; description: string }) {
+  return <div className={styles.emptyState}><span className={styles.emptyMark} aria-hidden="true">⌕</span><h3>{title}</h3><p>{description}</p></div>;
+}
+
+/** Forma SVG compartilhada pelos gráficos; aceita barras em ambos os sentidos. */
+export function ChartBar({ x = 0, y = 0, width = 0, height = 0, fill }: { x?: number; y?: number; width?: number; height?: number; fill?: string }) {
+  return <rect x={width < 0 ? x + width : x} y={height < 0 ? y + height : y} width={Math.abs(width)} height={Math.abs(height)} rx="var(--ul-radius-sm)" fill={fill} />;
+}
+
+/** Totais do conjunto carregado, sem mostrar zero durante carregamento ou falha. */
+export function CollectionSummary({ items, loading, error }: { items: { title: string; value: number; description: string }[]; loading: boolean; error: string }) {
+  return <div className={styles.collectionSummary}><Grid>{items.map((item, index) => <Card key={item.title} span={items.length === 4 ? 3 : 4} variant={index === 0 ? 'navy' : undefined}>
+    <div className={styles.cardHead}><h2>{item.title}</h2></div><strong className={styles.value}>{loading || error ? '—' : item.value.toLocaleString('pt-BR')}</strong><p className={styles.caption}>{loading ? 'Carregando registros…' : error ? 'Dados indisponíveis' : item.description}</p>
+  </Card>)}</Grid></div>;
 }
 
 /** Grupo de filtros, sem simular tabpanels que não existem. */
 export function Tabs<T extends string>({ options, value, onChange, label }: { options: { value: T; label: string }[]; value: T; onChange: (value: T) => void; label: string }) {
-  return <div className={styles.tabs} role="group" aria-label={label}>{options.map(option => <Button key={option.value} className={styles.pill} aria-pressed={option.value === value} onClick={() => onChange(option.value)}>{option.label}</Button>)}</div>;
+  return <div className={styles.tabs} role="group" aria-label={label}>{options.map(option => <Button key={option.value} variant="secondary" className={styles.pill} aria-pressed={option.value === value} onClick={() => onChange(option.value)}>{option.label}</Button>)}</div>;
 }
 
 export function Avatar({ src, name }: { src?: string; name: string }) {

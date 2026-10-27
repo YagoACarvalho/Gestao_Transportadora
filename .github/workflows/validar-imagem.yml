@@ -1,0 +1,88 @@
+name: Validar imagem de publicacao
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [consolidation/workspace-unificado]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: imagem-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  imagem-isolada:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Construir imagem com configuracao ficticia, sem secrets
+        run: |
+          docker build \
+            --build-arg VITE_SUPABASE_URL=https://example.supabase.co \
+            --build-arg VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_placeholder \
+            --tag transportador-validacao:local .
+      - name: Conferir inicializacao e pipeline sem banco externo
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .local/harness/imagem
+          container_gateway=$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}')
+          if [[ -z "$container_gateway" || "$container_gateway" == *:* ]]; then
+            echo 'Gateway IPv4 de teste nao identificado.'
+            exit 1
+          fi
+          docker run --detach --name transportador-validacao \
+            --publish 127.0.0.1:18080:8080 \
+            --env Supabase__Url=https://example.supabase.co \
+            --env 'ConnectionStrings__DefaultConnection=Host=127.0.0.1;Database=ci_unused;Username=ci_unused;Password=ci_unused;Timeout=1' \
+            --env "Proxy__RedesConfiaveis__0=$container_gateway/32" \
+            --env ASPNETCORE_HTTPS_PORT=443 \
+            transportador-validacao:local
+          ready=false
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error --header 'X-Forwarded-Proto: https' \
+              http://127.0.0.1:18080/ --output .local/harness/imagem/index.html; then
+              ready=true
+              break
+            fi
+            sleep 1
+          done
+          test "$ready" = true
+          grep -q 'id="root"' .local/harness/imagem/index.html
+          curl --fail --silent --show-error --header 'X-Forwarded-Proto: https' --header 'Host: transportador.example' \
+            --dump-header .local/harness/imagem/headers.txt \
+            http://127.0.0.1:18080/ --output /dev/null
+          grep -qi 'Content-Security-Policy:' .local/harness/imagem/headers.txt
+          grep -qi 'Strict-Transport-Security:' .local/harness/imagem/headers.txt
+          api_status=$(curl --silent --show-error --header 'X-Forwarded-Proto: https' \
+            --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/api/Motoristas)
+          test "$api_status" = 401
+          missing_status=$(curl --silent --show-error --header 'X-Forwarded-Proto: https' \
+            --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/api/rota-inexistente)
+          test "$missing_status" = 404
+          http_status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/)
+          test "$http_status" = 307
+          test "$(docker exec transportador-validacao id -u)" != 0
+      - name: Preservar logs do container e encerrar
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p .local/harness/imagem
+          docker logs transportador-validacao > .local/harness/imagem/container.log 2>&1 || true
+          docker rm --force transportador-validacao || true
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: validacao-imagem-isolada
+          path: .local/harness/imagem/
+          if-no-files-found: warn
+          retention-days: 7
+
+# Esta imagem usa configuracoes ficticias e nao e publicada em registry nem no Render.

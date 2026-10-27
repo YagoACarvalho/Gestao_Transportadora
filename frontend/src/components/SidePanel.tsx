@@ -1,3 +1,4 @@
+import { Button } from '../ui';
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import styles from './Cadastro.module.css';
@@ -10,6 +11,6 @@ export function SidePanel({ title, busy, onClose, children }: { title: string; b
     return () => { element?.close(); opener?.focus(); };
   }, []);
   return <dialog ref={dialog} className={styles.panel} aria-labelledby="panel-title" onCancel={event => { event.preventDefault(); if (!busy) onClose(); }}>
-    <div className={styles.panelHeader}><h2 id="panel-title">{title}</h2><button type="button" disabled={busy} onClick={onClose}>Fechar</button></div>{children}
+    <div className={styles.panelHeader}><h2 id="panel-title">{title}</h2><Button variant="secondary" type="button" disabled={busy} onClick={onClose}>Fechar</Button></div>{children}
   </dialog>;
 }

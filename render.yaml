@@ -1,0 +1,37 @@
+# Rascunho do piloto gratuito. Aplicar este Blueprint cria o serviço e seu
+# primeiro deploy: faça isso somente após a revisão da imagem e da configuração.
+# Não cria banco, disco, domínio pago nem executa migrations.
+services:
+  - type: web
+    name: gestao-transportadora-mvp
+    runtime: docker
+    plan: free
+    branch: consolidation/workspace-unificado
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeployTrigger: "off"
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: ASPNETCORE_HTTP_PORTS
+        value: "8080"
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_HTTPS_PORT
+        value: "443"
+      # Configurações públicas do mesmo projeto Supabase, usadas no build.
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: Supabase__Url
+        sync: false
+      # Valores reais somente no painel; nunca preencher neste arquivo.
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Supabase__UsuariosPermitidos__0
+        sync: false
+      # CIDR específico do proxy, confirmado com a hospedagem. Nunca 0.0.0.0/0.
+      - key: Proxy__RedesConfiaveis__0
+        sync: false

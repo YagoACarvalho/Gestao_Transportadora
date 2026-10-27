@@ -1,9 +1,11 @@
+import { Button } from '../ui';
 import { useEffect, useRef, useState } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
 import { AppShell as UiAppShell } from '../ui';
 import { Sidebar } from '../components/Sidebar';
 import type { Modulo } from '../components/Sidebar';
 import { MotoristasPage } from '../pages/MotoristasPage';
+import { MotoristaPerfilPage } from '../pages/MotoristaPerfilPage';
+import type { AbaMotorista } from '../pages/MotoristaPerfilPage';
 import { CaminhoesPage } from '../pages/CaminhoesPage';
 import { ViagensPage } from '../pages/ViagensPage';
 import { DespesasPage } from '../pages/DespesasPage';
@@ -17,12 +19,15 @@ export function AppShell({ onSignOut }: { onSignOut?: () => Promise<void> }) {
   };
   const [modulo, setModulo] = useState(readModulo);
   const [consulta, setConsulta] = useState(() => window.location.hash.split('?')[1] ?? '');
+  const parametros = new URLSearchParams(consulta);
+  const motoristaId = modulo === 'motoristas' ? parametros.get('motoristaId') : null;
+  const abaInformada = parametros.get('aba');
+  const abaMotorista: AbaMotorista = abaInformada === 'viagens' || abaInformada === 'remuneracao' ? abaInformada : 'cadastro';
   const main = useRef<HTMLElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const menuButton = useRef<HTMLButtonElement>(null);
-  const reduceMotion = useReducedMotion();
   const closeMenu = () => dialog.current?.close();
-  const title = { viagens: 'Viagens', caminhoes: 'Caminhões', motoristas: 'Motoristas', despesas: 'Despesas', financeiro: 'Resumo financeiro' }[modulo];
+  const title = motoristaId ? 'Perfil do motorista' : { viagens: 'Viagens', caminhoes: 'Caminhões', motoristas: 'Motoristas', despesas: 'Despesas', financeiro: 'Resumo financeiro' }[modulo];
   useEffect(() => {
     const navigate = () => { if (window.location.hash !== '#conteudo') { setModulo(readModulo()); setConsulta(window.location.hash.split('?')[1] ?? ''); } };
     window.addEventListener('hashchange', navigate);
@@ -31,7 +36,7 @@ export function AppShell({ onSignOut }: { onSignOut?: () => Promise<void> }) {
   useEffect(() => {
     document.title = `${title} | Gestão de Transportadora`;
     main.current?.focus({ preventScroll: true });
-  }, [title]);
+  }, [title, motoristaId]);
 
   return (
     <UiAppShell className={styles.shell}>
@@ -39,18 +44,18 @@ export function AppShell({ onSignOut }: { onSignOut?: () => Promise<void> }) {
       <aside className={styles.desktopSidebar}><Sidebar modulo={modulo} /></aside>
       <div className={styles.main}>
         <div className={styles.topbar}>
-          <motion.button whileTap={reduceMotion ? undefined : { scale: 0.97 }} ref={menuButton} className={styles.menuButton} type="button" aria-haspopup="dialog" aria-controls="menu-movel" onClick={() => dialog.current?.showModal()}>Menu</motion.button>
-          <span>{modulo === 'viagens' ? 'Operação' : modulo === 'despesas' || modulo === 'financeiro' ? 'Financeiro' : 'Cadastros'} <span className={styles.separator} aria-hidden="true">/</span> <strong>{title}</strong></span>
-          {onSignOut && <button className={styles.signOut} onClick={onSignOut}>Sair</button>}
+          <Button variant="secondary" ref={menuButton} className={styles.menuButton} type="button" aria-haspopup="dialog" aria-controls="menu-movel" onClick={() => dialog.current?.showModal()}>☰ Menu</Button>
+          <span className={styles.breadcrumb}><span className={styles.context}>{modulo === 'viagens' ? 'Operação' : modulo === 'despesas' || modulo === 'financeiro' ? 'Financeiro' : 'Cadastros'}</span><span className={styles.separator} aria-hidden="true">/</span><strong>{title}</strong></span>
+          {onSignOut && <Button variant="secondary" className={styles.signOut} onClick={onSignOut}>Sair</Button>}
         </div>
         <main ref={main} id="conteudo" tabIndex={-1} className={styles.content}>
-          {modulo === 'viagens' ? <ViagensPage /> : modulo === 'caminhoes' ? <CaminhoesPage /> : modulo === 'despesas' ? <DespesasPage key={consulta} /> : modulo === 'financeiro' ? <FinanceiroPage /> : <MotoristasPage />}
+          {modulo === 'viagens' ? <ViagensPage /> : modulo === 'caminhoes' ? <CaminhoesPage /> : modulo === 'despesas' ? <DespesasPage key={consulta} /> : modulo === 'financeiro' ? <FinanceiroPage /> : motoristaId ? <MotoristaPerfilPage key={motoristaId} motoristaId={motoristaId} aba={abaMotorista} /> : <MotoristasPage />}
         </main>
-        <footer className={styles.footer}>Gestão de Transportadora</footer>
+        <footer className={styles.footer}><span>Gestão de Transportadora</span><span>Cadastros, operação e financeiro</span></footer>
       </div>
       <dialog id="menu-movel" ref={dialog} className={styles.dialog} aria-label="Menu principal" onClose={() => menuButton.current?.focus()} onClick={(event) => { if (event.target === event.currentTarget) closeMenu(); }}>
         <div className={styles.mobilePanel}>
-          <button autoFocus type="button" className={styles.closeButton} onClick={closeMenu}>Fechar menu</button>
+          <Button variant="secondary" autoFocus type="button" className={styles.closeButton} onClick={closeMenu}>Fechar menu</Button>
           <Sidebar modulo={modulo} onNavigate={closeMenu} />
         </div>
       </dialog>

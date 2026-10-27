@@ -1,3 +1,4 @@
+import { Button } from '../../ui';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { HttpError } from '../../api/http';
@@ -56,7 +57,7 @@ export function DespesaForm({ despesa, viagemInicial, tipoInicial = 'geral', bus
     </fieldset>
     {tipo === 'viagem' && <fieldset disabled={busy}><legend>Viagem</legend>
       {loading && <p role="status">Carregando viagens…</p>}
-      {lookupError && <div role="alert">{lookupError} <button type="button" onClick={() => setRevision(v => v + 1)}>Carregar viagens novamente</button></div>}
+      {lookupError && <div role="alert">{lookupError} <Button variant="secondary" type="button" onClick={() => setRevision(v => v + 1)}>Carregar viagens novamente</Button></div>}
       <div className={styles.field}><label htmlFor="viagemId">Viagem (obrigatório)</label>
         <select id="viagemId" required value={values.viagemId} disabled={loading || !!lookupError} aria-invalid={!!fieldError('viagemId')} aria-describedby="viagem-ajuda" onChange={e => { setValues({ ...values, viagemId: e.target.value }); if (!despesa) setSituacaoFinanceira(''); }}>
           <option value="">Selecione uma viagem</option>
@@ -71,6 +72,6 @@ export function DespesaForm({ despesa, viagemInicial, tipoInicial = 'geral', bus
         <option value="">Selecione uma opção</option><option value="sim">Sim, considerar nos totais</option><option value="nao">Não, preservar apenas no histórico</option>
       </select><span id="situacao-financeira-ajuda">{fieldError('considerarNoFinanceiro') || 'Desconsiderar não apaga o lançamento. Você pode incluí-lo novamente pela edição.'}</span>
     </div></fieldset>}
-    <button type="submit" className={styles.primary} disabled={busy || tipo === 'viagem' && (loading || !!lookupError)}>{busy ? 'Salvando…' : despesa ? 'Salvar alterações' : 'Cadastrar despesa'}</button>
+    <Button type="submit" disabled={busy || tipo === 'viagem' && (loading || !!lookupError)}>{busy ? 'Salvando…' : despesa ? 'Salvar alterações' : 'Cadastrar despesa'}</Button>
   </form>;
 }

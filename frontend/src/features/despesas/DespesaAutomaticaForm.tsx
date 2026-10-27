@@ -1,3 +1,4 @@
+import { Button } from '../../ui';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { moeda } from './types';
@@ -21,6 +22,6 @@ export function DespesaAutomaticaForm({ despesa, busy, onSave }: { despesa: Desp
         <option value="sim">Sim, considerar nos totais</option><option value="nao">Não, preservar apenas no histórico</option>
       </select><span>Este lançamento não confirma pagamento ao motorista.</span>
     </div></fieldset>
-    <button className={styles.primary} disabled={busy}>{busy ? 'Salvando…' : 'Salvar situação financeira'}</button>
+    <Button type="submit" disabled={busy}>{busy ? 'Salvando…' : 'Salvar situação financeira'}</Button>
   </form>;
 }

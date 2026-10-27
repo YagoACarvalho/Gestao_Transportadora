@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
-import { Avatar, BarChartCard, Button, Card, GaugeChart, ProgressCard, Tabs } from './index';
+import { Avatar, BarChartCard, Button, Card, CollectionSummary, GaugeChart, ProgressCard, Tabs } from './index';
 
 it('nao apresenta menu sem acao e botoes nao submetem formularios por padrao', () => {
   render(<Card title="Custos"><Button>Consultar</Button></Card>);
@@ -28,4 +28,17 @@ it('explica grafico vazio e fornece valores textuais para barras negativas', () 
   expect(screen.getByText('Nenhum valor disponível.')).toBeTruthy();
   fireEvent.click(screen.getByText('Ver valores do gráfico'));
   expect(screen.getByText('-25')).toBeTruthy();
+});
+
+it('nao apresenta contagens como zero enquanto a consulta carrega ou falha', () => {
+  const items = [{ title: 'Registros', value: 0, description: 'Consulta atual' }];
+  const { rerender } = render(<CollectionSummary loading error="" items={items} />);
+  expect(screen.queryByText('0')).toBeNull();
+  expect(screen.getByText('Carregando registros…')).toBeTruthy();
+  rerender(<CollectionSummary loading={false} error="Sem conexão" items={items} />);
+  expect(screen.queryByText('0')).toBeNull();
+  expect(screen.getByText('Dados indisponíveis')).toBeTruthy();
+  rerender(<CollectionSummary loading={false} error="" items={items} />);
+  expect(screen.getByText('0')).toBeTruthy();
+  expect(screen.getByText('Consulta atual')).toBeTruthy();
 });

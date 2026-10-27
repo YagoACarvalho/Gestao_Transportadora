@@ -38,6 +38,21 @@
   --ul-fs-body: 1rem;
   --ul-fs-caption: .875rem;
   --ul-fs-small: .75rem;
+  --ul-fs-section: 1.5rem;
+  --ul-fs-display: clamp(2.25rem, 4vw, 3.75rem);
+  --ul-fs-brand: 1.125rem;
+  --ul-space-half: 2px;
+  --ul-control-height: 44px;
+  --ul-control-height-lg: 48px;
+  --ul-layout-max: 1440px;
+  --ul-auth-max: 460px;
+  --ul-panel-width: 620px;
+  --ul-chart-height: 300px;
+  --ul-chart-donut-height: 220px;
+  --ul-chart-max-height: 360px;
+  --ul-grad-stripes: repeating-linear-gradient(120deg, transparent, transparent 6px, rgb(255 255 255 / 20%) 6px, rgb(255 255 255 / 20%) 8px);
+  --ul-disabled-bg: #e8eef4;
+  --ul-disabled-text: #52647b;
   --ul-radius-sm: 12px;
   --ul-radius-md: 14px;
   --ul-radius-lg: 20px;
@@ -56,4 +71,5 @@
   --ul-space-8: 32px;
   --ul-space-10: 40px;
   --ul-space-12: 48px;
+  --ul-space-16: 64px;
 }

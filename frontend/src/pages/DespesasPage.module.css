@@ -1,5 +1,4 @@
-.filters { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 24px 24px 0; }
-.filters button { border-color: transparent; background: var(--color-soft); }
-.filters .selected { background: var(--color-deep); color: white; }
-.filters a { margin-left: auto; color: var(--color-primary); font-size: .875rem; padding: 12px 0; }
-@media (max-width: 600px) { .filters { padding: 16px 16px 0; } .filters a { width: 100%; margin-left: 0; } }
+﻿.filters { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ul-space-2); padding: 0 var(--ul-space-6) var(--ul-space-5); }
+.filters .selected { background: var(--ul-navy-600); color: var(--ul-text-on-dark); }
+.filters a { margin-left: auto; color: var(--ul-cyan-600); font-size: var(--ul-fs-caption); padding: var(--ul-space-3) 0; }
+@media (max-width: 600px) { .filters { padding: 0 var(--ul-space-4) var(--ul-space-4); } .filters a { width: 100%; margin-left: 0; } }

@@ -1,3 +1,4 @@
+import { Button, Card, CollectionSummary, CollectionHeader, EmptyState } from '../ui';
 import { useEffect, useRef, useState } from 'react';
 import { PageHeader } from '../components/PageHeader';
 import { SidePanel } from '../components/SidePanel';
@@ -67,11 +68,13 @@ export function DespesasPage() {
   const filtered = filtrarDespesas(items, busca, inicio, fim, vinculo).filter(item => tipo === 'todas' || (tipo === 'viagem' ? !!item.viagemId : !item.viagemId));
   const viagens = Array.from(new Map(items.filter(i => i.viagemId).map(i => [i.viagemId!, i.viagem])).entries());
   return <>
-    <PageHeader title="Despesas" description="Despesas das viagens e custos gerais da transportadora." action={<button className={styles.primary} disabled={busy} onClick={() => { setSelected(undefined); setViagemInicial(undefined); setFeedback(''); setPanel('create'); }}>Cadastrar despesa</button>} />
+    <PageHeader title="Despesas" description="Despesas das viagens e custos gerais da transportadora." action={<Button disabled={busy} onClick={() => { setSelected(undefined); setViagemInicial(undefined); setFeedback(''); setPanel('create'); }}>Cadastrar despesa</Button>} />
     <p role="status" className={feedback ? styles.feedback : undefined}>{feedback}</p>
-    <section className={styles.workspace} aria-label="Despesas">
+    <CollectionSummary loading={loading} error={error} items={[{ title: 'Lançamentos carregados', value: items.length, description: 'Todas as despesas desta consulta' },{ title: 'Vinculadas a viagens', value: items.filter(item => !!item.viagemId).length, description: 'Custos associados a um percurso' },{ title: 'Despesas gerais', value: items.filter(item => !item.viagemId).length, description: 'Custos sem vínculo com viagem' }]} />
+    <Card span={12} className={styles.workspace} aria-label="Despesas">
+      <CollectionHeader title="Todos os lançamentos" count={loading || error ? undefined : filtered.length} description="Lançamentos, vínculos e inclusão no financeiro." />
       <div className={page.filters} role="group" aria-label="Tipo de despesa">
-        {([['todas', 'Todas'], ['viagem', 'De viagens'], ['geral', 'Gerais']] as const).map(([value, label]) => <button key={value} type="button" aria-pressed={tipo === value} className={tipo === value ? page.selected : undefined} onClick={() => { setTipo(value); setVinculo(''); }}>{label}</button>)}
+        {([['todas', 'Todas'], ['viagem', 'De viagens'], ['geral', 'Gerais']] as const).map(([value, label]) => <Button variant="secondary" key={value} type="button" aria-pressed={tipo === value} className={tipo === value ? page.selected : undefined} onClick={() => { setTipo(value); setVinculo(''); }}>{label}</Button>)}
         <a href="#/financeiro">Ver resumo financeiro</a>
       </div>
       <div className={styles.toolbar}>
@@ -82,7 +85,7 @@ export function DespesasPage() {
       </div>
       {periodoInvalido && <p role="alert" className={styles.message}>A data inicial está depois da data final. Ajuste o período.</p>}
       {!loading && !error && filtered.some(item => item.considerarNoFinanceiro === false) && <p className={styles.message}>Despesas desconsideradas permanecem na lista, mas não entram no total financeiro deste filtro.</p>}
-      {error && panel !== 'delete' && <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <button onClick={() => setRevision(v => v + 1)}>Atualizar lista</button></div>}
+      {error && panel !== 'delete' && <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <Button variant="secondary" onClick={() => setRevision(v => v + 1)}>Atualizar lista</Button></div>}
       {loading ? <p role="status" className={styles.message}>Carregando despesas…</p> : !error && !periodoInvalido && (filtered.length ? <>
         <div className={styles.tableScroll} role="region" aria-label="Lista de despesas" tabIndex={0}><table className={styles.table}>
           <caption className={styles.srOnly}>Despesas encontradas</caption><thead><tr><th scope="col">Lançamento</th><th scope="col">Data</th><th scope="col">Viagem</th><th scope="col" className={styles.numeric}>Valor</th><th scope="col">Ações</th></tr></thead>
@@ -90,12 +93,12 @@ export function DespesasPage() {
             <th scope="row">{item.descricao || 'Descrição não informada'}<span className={styles.secondary}>{item.categoria || 'Categoria não informada'}</span>{item.origem === 'RemuneracaoMotorista' && <span className={styles.secondary}>Automática: 15% do frete</span>}<span className={styles.secondary}>{item.considerarNoFinanceiro === false ? 'Desconsiderada no financeiro' : 'Incluída no financeiro'}</span></th><td>{formatarData(item.dataDespesa)}</td>
             <td>{item.viagemId ? <>{item.viagem?.origem || 'Origem não informada'} → {item.viagem?.destino || 'Destino não informado'}<span className={styles.secondary}>{item.viagem?.status || 'Situação não informada'}</span></> : 'Despesa geral'}</td>
             <td className={styles.numeric}>{item.valor === null ? 'Não informado' : moeda(item.valor)}</td>
-            <td><div className={styles.actions}><button disabled={busy} onClick={() => open(item, 'edit')} aria-label={`${item.origem === 'RemuneracaoMotorista' ? 'Alterar situação financeira de' : 'Editar despesa'} ${item.descricao || 'sem descrição'}`}><ActionIcon acao={item.origem === 'RemuneracaoMotorista' ? 'financeiro' : 'editar'} />{item.origem === 'RemuneracaoMotorista' ? 'Situação financeira' : 'Editar'}</button>{item.origem !== 'RemuneracaoMotorista' && <button className={styles.danger} disabled={busy} onClick={() => open(item, 'delete')} aria-label={`Excluir despesa ${item.descricao || 'sem descrição'}`}><ActionIcon acao="excluir" />Excluir</button>}</div></td>
+            <td><div className={styles.actions}><Button variant="secondary" disabled={busy} onClick={() => open(item, 'edit')} aria-label={`${item.origem === 'RemuneracaoMotorista' ? 'Alterar situação financeira de' : 'Editar despesa'} ${item.descricao || 'sem descrição'}`}><ActionIcon acao={item.origem === 'RemuneracaoMotorista' ? 'financeiro' : 'editar'} />{item.origem === 'RemuneracaoMotorista' ? 'Situação financeira' : 'Editar'}</Button>{item.origem !== 'RemuneracaoMotorista' && <Button variant="secondary" className={styles.danger} disabled={busy} onClick={() => open(item, 'delete')} aria-label={`Excluir despesa ${item.descricao || 'sem descrição'}`}><ActionIcon acao="excluir" />Excluir</Button>}</div></td>
           </tr>)}</tbody>
         </table></div><p className={styles.message}>{filtered.length} lançamento(s) · Total deste filtro: <strong>{moeda(filtered.reduce((total, item) => total + (item.considerarNoFinanceiro === false ? 0 : item.valor ?? 0), 0))}</strong></p>
-      </> : <p className={styles.message}>Nenhuma despesa encontrada. Cadastre um lançamento ou ajuste os filtros.</p>)}
-    </section>
+      </> : <EmptyState title="Nenhuma despesa encontrada. Cadastre um lançamento ou ajuste os filtros." description="Você pode registrar custos gerais ou vincular uma despesa à viagem." />)}
+    </Card>
     {(panel === 'create' || panel === 'edit') && <SidePanel title={panel === 'create' ? 'Cadastrar despesa' : 'Editar despesa'} busy={busy} onClose={() => setPanel(null)}>{selected?.origem === 'RemuneracaoMotorista' ? <DespesaAutomaticaForm despesa={selected} busy={busy} onSave={saveFinancial} /> : <DespesaForm despesa={selected} viagemInicial={viagemInicial} tipoInicial={viagemInicial || tipo === 'viagem' ? 'viagem' : 'geral'} busy={busy} onSave={save} />}</SidePanel>}
-    {panel === 'delete' && selected && <SidePanel title="Excluir despesa" busy={busy} onClose={() => { setPanel(null); setError(''); }}><p>Excluir permanentemente a despesa “{selected.descricao || 'Sem descrição'}”? Esta ação altera os totais financeiros e não pode ser desfeita.</p>{error && <p role="alert" className={styles.error}>{error}</p>}<div className={styles.actions}><button disabled={busy} onClick={() => { setPanel(null); setError(''); }}>Cancelar</button><button className={styles.danger} disabled={busy} onClick={remove}>{busy ? 'Excluindo…' : 'Excluir despesa'}</button></div></SidePanel>}
+    {panel === 'delete' && selected && <SidePanel title="Excluir despesa" busy={busy} onClose={() => { setPanel(null); setError(''); }}><p>Excluir permanentemente a despesa “{selected.descricao || 'Sem descrição'}”? Esta ação altera os totais financeiros e não pode ser desfeita.</p>{error && <p role="alert" className={styles.error}>{error}</p>}<div className={styles.actions}><Button variant="secondary" disabled={busy} onClick={() => { setPanel(null); setError(''); }}>Cancelar</Button><Button variant="secondary" className={styles.danger} disabled={busy} onClick={remove}>{busy ? 'Excluindo…' : 'Excluir despesa'}</Button></div></SidePanel>}
   </>;
 }

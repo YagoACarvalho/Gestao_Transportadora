@@ -1,3 +1,4 @@
+import { Button } from '../../ui';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { HttpError } from '../../api/http';
@@ -41,7 +42,7 @@ export function ViagemForm({ viagem, busy, onSave, regularizando = false }: { vi
   }
   return <form className={styles.form} onSubmit={submit}>
     {loading && <p role="status">Carregando motoristas e caminhões…</p>}
-    {lookupError && <div role="alert">{lookupError} <button type="button" onClick={() => setRevision(v => v + 1)}>Tentar carregar vínculos</button></div>}
+    {lookupError && <div role="alert">{lookupError} <Button variant="secondary" type="button" onClick={() => setRevision(v => v + 1)}>Tentar carregar vínculos</Button></div>}
     {error && <p role="alert" className={styles.error}>{error}</p>}
     {!loading && !lookupError && !motoristas.length && !viagem?.motoristaId && <p>Nenhum motorista ativo disponível. Cadastre um motorista antes de criar a viagem.</p>}
     {!loading && !lookupError && !caminhoes.length && !viagem?.caminhaoId && <p>Nenhum caminhão ativo disponível. Cadastre um caminhão antes de criar a viagem.</p>}
@@ -65,6 +66,6 @@ export function ViagemForm({ viagem, busy, onSave, regularizando = false }: { vi
     <fieldset disabled={busy}><legend>Frete</legend><div className={styles.field}><label htmlFor="frete">Valor do frete (opcional)</label><input id="frete" inputMode="decimal" value={values.frete} aria-invalid={!!fieldError('valorFrete')} aria-describedby="frete-ajuda" onChange={event => setValues({ ...values, frete: event.target.value })} /><span id="frete-ajuda">{fieldError('valorFrete') || 'Valor não negativo, com até duas casas decimais. Exemplo de formato: 1500,50.'}</span></div></fieldset>
     {regularizando ? <p>A regularização preserva a remuneração existente e não gera novos lançamentos.</p> : viagem && !viagem.gerarRemuneracaoAutomatica ? <p>Viagem anterior à regra automática: nenhum lançamento de remuneração será gerado ao editar.</p> : <p role="status">Remuneração prevista do motorista (15%): <strong>{remuneracao === null ? 'Informe um frete válido' : moeda(remuneracao)}</strong>. O valor entra nas despesas da viagem e não confirma pagamento.</p>}
     <p>A viagem {viagem && !regularizando ? 'permanece planejada ao salvar os dados' : 'será salva como planejada'}.</p>
-    <button type="submit" className={styles.primary} disabled={busy || loading || !!lookupError}>{busy ? 'Salvando…' : regularizando ? 'Regularizar viagem' : viagem ? 'Salvar alterações' : 'Cadastrar viagem'}</button>
+    <Button type="submit" disabled={busy || loading || !!lookupError}>{busy ? 'Salvando…' : regularizando ? 'Regularizar viagem' : viagem ? 'Salvar alterações' : 'Cadastrar viagem'}</Button>
   </form>;
 }

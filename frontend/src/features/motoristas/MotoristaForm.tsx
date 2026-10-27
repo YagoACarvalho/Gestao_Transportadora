@@ -1,3 +1,4 @@
+import { Button } from '../../ui';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { HttpError } from '../../api/http';
@@ -27,6 +28,6 @@ export function MotoristaForm({ motorista, busy, onSave }: { motorista?: Motoris
     <fieldset disabled={busy}><legend>Habilitação</legend>{field('numeroCnh', 'Número da CNH')}{field('categoriaCnh', 'Categoria da CNH')}{field('dataValidadeCnh', 'Validade da CNH', 'date')}</fieldset>
     <fieldset disabled={busy}><legend>Contato</legend>{field('telefone', 'Telefone', 'tel')}</fieldset>
     {motorista ? <fieldset disabled={busy}><legend>Situação</legend><label><input type="checkbox" checked={ativo} onChange={e => setAtivo(e.target.checked)} /> Cadastro ativo</label><p>Marque para reativar ou desmarque para desativar. O histórico é preservado.</p></fieldset> : <p>O motorista será cadastrado como ativo.</p>}
-    <button className={styles.primary} type="submit" disabled={busy}>{busy ? 'Salvando…' : motorista ? 'Salvar alterações' : 'Cadastrar motorista'}</button>
+    <Button type="submit" disabled={busy}>{busy ? 'Salvando…' : motorista ? 'Salvar alterações' : 'Cadastrar motorista'}</Button>
   </form>;
 }

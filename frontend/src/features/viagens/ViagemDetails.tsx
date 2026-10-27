@@ -1,3 +1,4 @@
+import { Badge, Button } from '../../ui';
 import type { Viagem } from './types';
 import { formatarData } from './types';
 import { moeda } from '../despesas/types';
@@ -12,11 +13,11 @@ export function ViagemDetails({ viagem, onExpense }: { viagem: Viagem; onExpense
       <div><dt>Data da viagem</dt><dd>{formatarData(viagem.dataViagem)}</dd></div>
       <div><dt>Motorista</dt><dd>{viagem.motoristaNome || 'Não informado'}{viagem.motoristaAtivo === false ? ' (inativo)' : ''}</dd></div>
       <div><dt>Caminhão</dt><dd>{viagem.caminhaoPlaca || 'Não informado'}{viagem.caminhaoAtivo === false ? ' (inativo)' : ''}</dd></div>
-      <div><dt>Situação</dt><dd>{viagem.status || 'Não informada'}</dd></div>
+      <div><dt>Situação</dt><dd><Badge tone={viagem.status === 'Concluída' ? 'positive' : viagem.status === 'Pausada' ? 'warning' : viagem.status === 'Cancelada' ? 'negative' : 'neutral'}>{viagem.status || 'Não informada'}</Badge></dd></div>
       <div><dt>Frete previsto</dt><dd>{viagem.valorFrete === null ? 'Não informado' : moeda(viagem.valorFrete)}</dd></div>
       <div><dt>Remuneração automática</dt><dd>{viagem.gerarRemuneracaoAutomatica ? 'Habilitada: 15% do frete, registrada nas despesas.' : 'Não habilitada neste cadastro.'}</dd></div>
     </dl>
     <p>Despesas podem ser lançadas em qualquer fase. Em viagens canceladas, você escolhe sua inclusão no financeiro.</p>
-    <div className={styles.actions}><button className={styles.primary} onClick={onExpense}><ActionIcon acao="despesa" />Lançar despesa nesta viagem</button></div>
+    <div className={styles.actions}><Button onClick={onExpense}><ActionIcon acao="despesa" />Lançar despesa nesta viagem</Button></div>
   </>;
 }

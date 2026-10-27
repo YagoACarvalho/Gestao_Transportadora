@@ -1,3 +1,4 @@
+import { Button, Card, CollectionSummary, CollectionHeader, EmptyState } from '../ui';
 import { useEffect, useRef, useState } from 'react';
 import { PageHeader } from '../components/PageHeader';
 import { caminhoesApi } from '../features/caminhoes/caminhoesApi';
@@ -62,18 +63,20 @@ export function CaminhoesPage() {
   }
   const filtered = filtrarCaminhoes(items, busca, situacao);
   return <>
-    <PageHeader title="Caminhões" description="Os veículos que acompanham sua operação." action={<button className={styles.primary} disabled={busy} onClick={() => { setSelected(undefined); setFeedback(''); setPanel('create'); }}>Cadastrar caminhão</button>} />
+    <PageHeader title="Caminhões" description="Os veículos que acompanham sua operação." action={<Button disabled={busy} onClick={() => { setSelected(undefined); setFeedback(''); setPanel('create'); }}>Cadastrar caminhão</Button>} />
     <p role="status" aria-live="polite" className={feedback ? styles.feedback : undefined}>{feedback}</p>
-    <section aria-label="Cadastro de caminhões" className={styles.workspace}>
+    <CollectionSummary loading={loading} error={error} items={[{ title: 'Cadastros carregados', value: items.length, description: 'Conforme a situação consultada' },{ title: 'Ativos nesta consulta', value: items.filter(item => item.ativo).length, description: 'Disponíveis para novos vínculos' },{ title: 'Resultados do filtro', value: filtered.length, description: 'Cadastros que correspondem à busca' }]} />
+    <Card span={12} aria-label="Cadastro de caminhões" className={styles.workspace}>
+      <CollectionHeader title="Frota cadastrada" count={loading || error ? undefined : filtered.length} description="Veículos da transportadora e sua situação cadastral." />
       <div className={styles.toolbar}>
         <div className={styles.field}><label htmlFor="busca">Buscar por placa ou modelo</label><input id="busca" type="search" value={busca} onChange={event => setBusca(event.target.value)} /></div>
         <div className={styles.field}><label htmlFor="situacao">Situação</label><select id="situacao" value={situacao} onChange={event => setSituacao(event.target.value as FiltroSituacao)}><option value="ativos">Ativos</option><option value="inativos">Inativos</option><option value="todos">Todos</option></select></div>
       </div>
-      {error && panel !== 'deactivate' && panel !== 'reactivate' && <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <button onClick={() => setRevision(value => value + 1)}>Atualizar lista</button></div>}
-      {loading ? <p className={styles.message} role="status">Carregando caminhões…</p> : !error && (filtered.length ? <CaminhoesTable items={filtered} busy={busy} onEdit={edit} onDeactivate={item => edit(item, 'deactivate')} onReactivate={item => edit(item, 'reactivate')} /> : <p className={styles.message}>{busca ? 'Nenhum resultado para esta busca.' : 'Nenhum caminhão encontrado neste filtro.'}</p>)}
-    </section>
+      {error && panel !== 'deactivate' && panel !== 'reactivate' && <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <Button variant="secondary" onClick={() => setRevision(value => value + 1)}>Atualizar lista</Button></div>}
+      {loading ? <p className={styles.message} role="status">Carregando caminhões…</p> : !error && (filtered.length ? <CaminhoesTable items={filtered} busy={busy} onEdit={edit} onDeactivate={item => edit(item, 'deactivate')} onReactivate={item => edit(item, 'reactivate')} /> : <EmptyState title={busca ? 'Nenhum resultado para esta busca.' : 'Nenhum caminhão encontrado neste filtro.'} description="Ajuste os filtros ou cadastre o primeiro veículo da frota." />)}
+    </Card>
     {(panel === 'create' || panel === 'edit') && <SidePanel title={panel === 'create' ? 'Cadastrar caminhão' : 'Editar caminhão'} busy={busy} onClose={() => setPanel(null)}><CaminhaoForm caminhao={selected} busy={busy} onSave={save} /></SidePanel>}
-    {panel === 'deactivate' && selected && <SidePanel title="Desativar caminhão" busy={busy} onClose={() => { setPanel(null); setError(''); }}><p>Desativar o caminhão {selected.placa}? O cadastro será mantido e poderá ser consultado no filtro de inativos.</p>{error && <p role="alert" className={styles.error}>{error}</p>}<div className={styles.actions}><button disabled={busy} onClick={() => setPanel(null)}>Cancelar</button><button disabled={busy} onClick={changeActive}>{busy ? 'Desativando…' : 'Desativar caminhão'}</button></div></SidePanel>}
-    {panel === 'reactivate' && selected && <SidePanel title="Reativar caminhão" busy={busy} onClose={() => { setPanel(null); setError(''); }}><p>Reativar o caminhão {selected.placa}? O veículo ficará disponível para novos vínculos em viagens.</p>{error && <p role="alert" className={styles.error}>{error}</p>}<div className={styles.actions}><button disabled={busy} onClick={() => { setPanel(null); setError(''); }}>Voltar</button><button className={styles.primary} disabled={busy} onClick={changeActive}>{busy ? 'Reativando…' : 'Reativar caminhão'}</button></div></SidePanel>}
+    {panel === 'deactivate' && selected && <SidePanel title="Desativar caminhão" busy={busy} onClose={() => { setPanel(null); setError(''); }}><p>Desativar o caminhão {selected.placa}? O cadastro será mantido e poderá ser consultado no filtro de inativos.</p>{error && <p role="alert" className={styles.error}>{error}</p>}<div className={styles.actions}><Button variant="secondary" disabled={busy} onClick={() => setPanel(null)}>Cancelar</Button><Button variant="secondary" disabled={busy} onClick={changeActive}>{busy ? 'Desativando…' : 'Desativar caminhão'}</Button></div></SidePanel>}
+    {panel === 'reactivate' && selected && <SidePanel title="Reativar caminhão" busy={busy} onClose={() => { setPanel(null); setError(''); }}><p>Reativar o caminhão {selected.placa}? O veículo ficará disponível para novos vínculos em viagens.</p>{error && <p role="alert" className={styles.error}>{error}</p>}<div className={styles.actions}><Button variant="secondary" disabled={busy} onClick={() => { setPanel(null); setError(''); }}>Voltar</Button><Button disabled={busy} onClick={changeActive}>{busy ? 'Reativando…' : 'Reativar caminhão'}</Button></div></SidePanel>}
   </>;
 }

@@ -99,3 +99,14 @@ it('reativa somente quando a situacao e marcada explicitamente', async () => {
   fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar alterações' }));
   await screen.findByText('Alterações salvas.'); expect(atualizar).toHaveBeenCalledWith(item.id, expect.objectContaining({ ativo: true }));
 });
+
+it('apresenta cadastros em cards com links para perfil e viagens sem consultas por motorista', async () => {
+  vi.spyOn(motoristasApi, 'listar').mockResolvedValue([{ ...item, id: 'id/com espaço' }]);
+  const obter = vi.spyOn(motoristasApi, 'obter');
+  render(<MotoristasPage />);
+  const card = await screen.findByRole('region', { name: item.nome });
+  expect(within(card).getByRole('heading', { name: item.nome })).toBeTruthy();
+  expect(within(card).getByRole('link', { name: `Ver perfil de ${item.nome}` }).getAttribute('href')).toBe('#/motoristas?motoristaId=id%2Fcom%20espa%C3%A7o');
+  expect(within(card).getByRole('link', { name: `Ver viagens de ${item.nome}` }).getAttribute('href')).toBe('#/motoristas?motoristaId=id%2Fcom%20espa%C3%A7o&aba=viagens');
+  expect(obter).not.toHaveBeenCalled(); expect(screen.queryByRole('table')).toBeNull();
+});

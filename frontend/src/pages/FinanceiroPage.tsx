@@ -1,3 +1,4 @@
+import { Button, Card, Grid, LinkButton, Tabs } from '../ui';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { PageHeader } from '../components/PageHeader';
 import { financeiroApi } from '../features/financeiro/financeiroApi';
@@ -32,40 +33,38 @@ export function FinanceiroPage() {
   }, [periodo, revision]);
   const aplicar = (novo: { inicio: string; fim: string }) => { setInicio(novo.inicio); setFim(novo.fim); setPeriodo(novo); };
   return <>
-    <PageHeader title="Resumo financeiro" description="Acompanhe os custos das viagens e da transportadora." action={<a className={page.action} href="#/despesas">Gerenciar despesas</a>} />
-    <section aria-label="Período financeiro" className={page.periodo}>
-      <div role="group" aria-label="Atalhos de período" className={page.presets}>
-        <button onClick={() => aplicar(periodoDoMes(0))}>Mês atual</button><button onClick={() => aplicar(periodoDoMes(-1))}>Mês anterior</button><button onClick={() => aplicar({ inicio: '', fim: '' })}>Todo o histórico</button>
-      </div>
+    <PageHeader title="Resumo financeiro" description="Acompanhe os custos das viagens e da transportadora." action={<LinkButton variant="primary" href="#/despesas">Gerenciar despesas</LinkButton>} />
+    <Card span={12} aria-label="Período financeiro" className={page.periodo}>
+      <Tabs label="Atalhos de período" value={!periodo.inicio && !periodo.fim ? 'historico' : periodo.inicio === periodoDoMes(0).inicio && periodo.fim === periodoDoMes(0).fim ? 'atual' : periodo.inicio === periodoDoMes(-1).inicio && periodo.fim === periodoDoMes(-1).fim ? 'anterior' : 'personalizado'} onChange={value => aplicar(value === 'historico' ? { inicio: '', fim: '' } : periodoDoMes(value === 'atual' ? 0 : -1))} options={[{ value: 'atual', label: 'Mês atual' }, { value: 'anterior', label: 'Mês anterior' }, { value: 'historico', label: 'Todo o histórico' }]} />
       <form className={page.dates} onSubmit={event => { event.preventDefault(); if (!invalido) setPeriodo({ inicio, fim }); }}>
         <div className={styles.field}><label htmlFor="inicio">Data inicial</label><input id="inicio" type="date" value={inicio} onChange={e => setInicio(e.target.value)} /></div>
         <div className={styles.field}><label htmlFor="fim">Data final</label><input id="fim" type="date" value={fim} onChange={e => setFim(e.target.value)} /></div>
-        <button className={styles.primary} disabled={invalido || loading}>Aplicar período</button>
+        <Button type="submit" disabled={invalido || loading}>Aplicar período</Button>
       </form>
       {invalido && <p role="alert" className={styles.message}>A data inicial está depois da data final. Ajuste o período.</p>}
-    </section>
+    </Card>
     <section aria-label="Resumo financeiro" aria-busy={loading}>
-      {loading ? <p role="status" className={styles.message}>Carregando resumo financeiro…</p> : error ? <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <button onClick={() => setRevision(v => v + 1)}>Tentar novamente</button></div> : resumo && <>
+      {loading ? <p role="status" className={styles.message}>Carregando resumo financeiro…</p> : error ? <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <Button variant="secondary" onClick={() => setRevision(v => v + 1)}>Tentar novamente</Button></div> : resumo && <>
         <p className={page.periodLabel}>Período aplicado: {periodo.inicio ? formatarData(periodo.inicio) : 'sem data inicial'} a {periodo.fim ? formatarData(periodo.fim) : 'sem data final'}.</p>
-        <dl className={page.summary}>
-          <div className={page.balance}><dt>Saldo previsto</dt><dd>{moeda(resumo.lucro)}</dd><span>{!periodo.inicio && !periodo.fim ? 'Total acumulado de todo o histórico' : 'Total do período selecionado'}</span><small>Fretes menos todas as despesas</small></div>
-          <div className={page.fretes}><dt>Fretes previstos</dt><dd>{moeda(resumo.totalFretes)}</dd><span>Viagens não canceladas</span></div>
-          <div className={page.expenses}><dt>Total de despesas</dt><dd>{moeda(resumo.totalDespesas)}</dd><div className={page.expenseSplit}><span>Despesas de viagens<strong>{moeda(resumo.totalDespesasViagens)}</strong></span><span>Despesas gerais<strong>{moeda(resumo.totalDespesasGerais)}</strong></span></div></div>
-        </dl>
-        <section className={page.remuneracao} aria-label="Remuneração dos motoristas">
+        <div className={page.summary}><Grid>
+          <Card span={4} variant="navy" className={page.balance}><dl><dt>Saldo previsto</dt><dd>{moeda(resumo.lucro)}</dd></dl><span>{!periodo.inicio && !periodo.fim ? 'Total acumulado de todo o histórico' : 'Total do período selecionado'}</span><small>Fretes menos todas as despesas</small></Card>
+          <Card span={4} className={page.fretes}><dl><dt>Fretes previstos</dt><dd>{moeda(resumo.totalFretes)}</dd></dl><span>Viagens não canceladas</span></Card>
+          <Card span={4} className={page.expenses}><dl><dt>Total de despesas</dt><dd>{moeda(resumo.totalDespesas)}</dd></dl><div className={page.expenseSplit}><span>Despesas de viagens<strong>{moeda(resumo.totalDespesasViagens)}</strong></span><span>Despesas gerais<strong>{moeda(resumo.totalDespesasGerais)}</strong></span></div></Card>
+        </Grid></div>
+        <Card span={12} className={page.remuneracao} aria-label="Remuneração dos motoristas">
           <div><h2>Remuneração dos motoristas</h2><p>15% por viagem. Despesas automáticas já incluídas no total, conforme o período selecionado.</p></div>
           <strong>{moeda(resumo.totalRemuneracaoMotoristas)}</strong>
-        </section>
+        </Card>
         <p role="status" className={styles.srOnly}>Resumo carregado para o período aplicado.</p>
       </>}
     </section>
     {resumo && !loading && !error && <>
-      {detalhesError ? <div role="alert" className={page.notice}>{detalhesError} <button onClick={() => setRevision(v => v + 1)}>Recarregar detalhes</button></div> : !detalhes ? <p role="status">Carregando detalhes financeiros…</p> : <>
+      {detalhesError ? <div role="alert" className={page.notice}>{detalhesError} <Button variant="secondary" onClick={() => setRevision(v => v + 1)}>Recarregar detalhes</Button></div> : !detalhes ? <p role="status">Carregando detalhes financeiros…</p> : <>
         <Suspense fallback={<p role="status">Preparando gráficos…</p>}><GraficosFinanceiros detalhes={detalhes} resumo={resumo} /></Suspense>
-        <section className={page.panel} aria-labelledby="recentes-titulo">
+        <Card span={12} className={page.panel} aria-labelledby="recentes-titulo">
           <div className={page.sectionHeader}><h2 id="recentes-titulo">Últimos lançamentos</h2><a href="#/despesas">Ver e editar despesas</a></div>
           {detalhes.recentes.length ? <div className={styles.tableScroll} role="region" aria-label="Últimos lançamentos" tabIndex={0}><table className={styles.table}><thead><tr><th scope="col">Lançamento</th><th scope="col">Tipo</th><th scope="col">Data</th><th scope="col" className={styles.numeric}>Valor</th></tr></thead><tbody>{detalhes.recentes.map(item => <tr key={item.id}><th scope="row">{item.descricao || 'Descrição não informada'}<span className={styles.secondary}>{item.categoria || 'Categoria não informada'}</span></th><td>{item.viagemId ? 'De viagem' : 'Geral'}</td><td>{formatarData(item.dataDespesa)}</td><td className={styles.numeric}>{item.valor === null ? 'Não informado' : moeda(item.valor)}</td></tr>)}</tbody></table></div> : <p>Nenhum lançamento neste período. <a href="#/despesas">Cadastrar despesa</a></p>}
-        </section>
+        </Card>
       </>}
     </>}
     <details className={page.explanation}><summary>Como os valores são calculados</summary>
