@@ -1,3 +1,10 @@
+> Atualizacao: frontend enviado no commit 57a729a; imagem inicial aprovada:
+> https://github.com/YagoACarvalho/Gestao_Transportadora/actions/runs/40601213028.
+> Trechos sobre imagem nao executada abaixo descrevem o diagnostico inicial.
+> A correcao atual adiciona `Hospedagem__HttpsGerenciadoRender=true` em Production
+> no Render, sem CIDR de proxy. Exige nova validacao Docker nos dois modos.
+> Commit/push da correcao autorizado; banco e migrations permanecem inalterados.
+
 # Preparação do piloto online
 
 ## Escopo aprovado

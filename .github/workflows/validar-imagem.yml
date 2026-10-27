@@ -18,6 +18,9 @@ jobs:
   imagem-isolada:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    strategy:
+      matrix:
+        modo: [padrao, render]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -38,11 +41,19 @@ jobs:
             echo 'Gateway IPv4 de teste nao identificado.'
             exit 1
           fi
+          modo_render=false
+          if [[ '${{ matrix.modo }}' == render ]]; then modo_render=true; fi
+          proxy_args=()
+          if [[ "$modo_render" == false ]]; then
+            proxy_args+=(--env "Proxy__RedesConfiaveis__0=$container_gateway/32")
+          fi
           docker run --detach --name transportador-validacao \
             --publish 127.0.0.1:18080:8080 \
             --env Supabase__Url=https://example.supabase.co \
             --env 'ConnectionStrings__DefaultConnection=Host=127.0.0.1;Database=ci_unused;Username=ci_unused;Password=ci_unused;Timeout=1' \
-            --env "Proxy__RedesConfiaveis__0=$container_gateway/32" \
+            "${proxy_args[@]}" \
+            --env "Hospedagem__HttpsGerenciadoRender=$modo_render" \
+            --env "RENDER=$modo_render" \
             --env ASPNETCORE_HTTPS_PORT=443 \
             transportador-validacao:local
           ready=false
@@ -68,7 +79,18 @@ jobs:
             --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/api/rota-inexistente)
           test "$missing_status" = 404
           http_status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/)
-          test "$http_status" = 307
+          if [[ "$modo_render" == true ]]; then
+            test "$http_status" = 200
+            spoof_status=$(curl --silent --show-error --header 'X-Forwarded-Proto: http' \
+              --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/api/Motoristas)
+            test "$spoof_status" = 401
+            docker run --name transportador-config-invalida \
+              --env Hospedagem__HttpsGerenciadoRender=true --env RENDER=false \
+              transportador-validacao:local > .local/harness/imagem/config-invalida.log 2>&1 && exit 1
+            grep -q 'HTTPS gerenciado pelo Render exige' .local/harness/imagem/config-invalida.log
+          else
+            test "$http_status" = 307
+          fi
           test "$(docker exec transportador-validacao id -u)" != 0
       - name: Preservar logs do container e encerrar
         if: always()
@@ -77,10 +99,11 @@ jobs:
           mkdir -p .local/harness/imagem
           docker logs transportador-validacao > .local/harness/imagem/container.log 2>&1 || true
           docker rm --force transportador-validacao || true
+          docker rm --force transportador-config-invalida || true
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
-          name: validacao-imagem-isolada
+          name: validacao-imagem-isolada-${{ matrix.modo }}
           path: .local/harness/imagem/
           if-no-files-found: warn
           retention-days: 7

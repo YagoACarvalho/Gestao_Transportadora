@@ -5,6 +5,9 @@ using Transportador.Api.Authentication;
 
 
 var builder = WebApplication.CreateBuilder(args);
+var httpsNoRender = builder.Configuration.GetValue<bool>("Hospedagem:HttpsGerenciadoRender");
+if (httpsNoRender && (!builder.Environment.IsProduction() || builder.Configuration["RENDER"] != "true"))
+    throw new InvalidOperationException("HTTPS gerenciado pelo Render exige Production e o ambiente Render.");
 
 // Add services to the container.
 
@@ -29,9 +32,13 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 app.UseForwardedHeaders();
 app.UseExceptionHandler(new ExceptionHandlerOptions { SuppressDiagnosticsCallback = _ => true });
-if (app.Environment.IsProduction()) app.UseHsts();
+if (app.Environment.IsProduction() && !httpsNoRender) app.UseHsts();
 app.Use(async (context, next) =>
 {
+    // No Render, TLS e redirecionamento sao garantidos na borda. Nao inferir
+    // o esquema a partir de cabecalhos recebidos de proxies desconhecidos.
+    if (httpsNoRender)
+        context.Response.Headers["Strict-Transport-Security"] = "max-age=2592000";
     context.Response.Headers.XContentTypeOptions = "nosniff";
     context.Response.Headers["Referrer-Policy"] = "no-referrer";
     context.Response.Headers.XFrameOptions = "DENY";
@@ -51,7 +58,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+if (!httpsNoRender) app.UseHttpsRedirection();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();

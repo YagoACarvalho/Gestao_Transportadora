@@ -1,3 +1,10 @@
+> Atualizacao: frontend enviado no commit 57a729a; imagem inicial aprovada:
+> https://github.com/YagoACarvalho/Gestao_Transportadora/actions/runs/40601213028.
+> Trechos sobre imagem nao executada abaixo descrevem o diagnostico inicial.
+> A correcao atual adiciona `Hospedagem__HttpsGerenciadoRender=true` em Production
+> no Render, sem CIDR de proxy. Exige nova validacao Docker nos dois modos.
+> Commit/push da correcao autorizado; banco e migrations permanecem inalterados.
+
 # Piloto gratuito no Render com o Supabase atual
 
 ## Configuração preparada
@@ -18,9 +25,8 @@ tem acesso ao repositório `YagoACarvalho/Gestao_Transportadora`. Autorizar apen
 repositório necessário. Não contratar plano pago nem alterar o Supabase nesta etapa.
 Não enviar senhas, connection strings, tokens ou chaves privadas pelo chat.
 
-Antes da criação do serviço, o código atual precisa estar no remoto. As mudanças
-do produto ainda não foram commitadas e enviadas. A aprovação de commit/push é
-separada da criação do serviço, alterações de banco e publicação.
+O frontend foi enviado no commit 57a729a; a imagem inicial passou no Actions.
+A correcao HTTPS exige nova validacao nos dois modos antes de publicar.
 
 ## Validação da imagem
 
@@ -30,10 +36,9 @@ públicas fictícias e usa uma conexão fictícia de loopback, sem consultar o S
 Uma falha de inicialização, 401/404 incorretos, ausência dos cabeçalhos esperados
 ou usuário root reprova a verificação. Os logs ficam como artefatos do workflow.
 
-Esse workflow ainda não foi executado. Não afirmar que a imagem está validada
-até conferir seu resultado. Ele não testa login real, banco ou SMTP e não publica
-imagens. O uso de Actions depende da franquia disponível na conta GitHub; não
-habilitar cobrança ou orçamento pago para executar esta etapa.
+A imagem inicial passou no Actions (link acima). Conferir a matriz do commit
+de correcao antes de publicar. Os testes usam dados ficticios e nao validam
+login real, banco ou SMTP. Nao enviam imagens a registry nem fazem deploy.
 
 ## Configuração do serviço, após revisão
 
@@ -50,17 +55,22 @@ Preencher somente no painel:
 | `Supabase__Url` | A mesma origem HTTPS usada no frontend |
 | `Supabase__UsuariosPermitidos__0` | UUID do usuário existente autorizado; adicionar índices para outros |
 | `ConnectionStrings__DefaultConnection` | Conexão Npgsql do banco atual, com SSL e destino confirmado |
-| `Proxy__RedesConfiaveis__0` | CIDR específico do proxy confirmado com a hospedagem |
+| `Hospedagem__HttpsGerenciadoRender` | `true`, somente no Render em Production |
 
 O Render fornece variáveis ao Docker como build arguments. O Dockerfile só usa
 os dois argumentos VITE públicos; credenciais de banco não são argumentos de build.
 Alterar VITE_* exige reconstruir a imagem. Não copiar arquivos de configuração
 local para o repositório ou para a imagem.
 
-`ASPNETCORE_HTTPS_PORT=443` e a rede confiável precisam ser compatíveis com a
-terminação TLS real. Não usar `0.0.0.0/0`, desativar TLS ou confiar em cabeçalhos
-de qualquer cliente. Essa rede ainda não foi confirmada; o Blueprint é um rascunho
-e sua presença não comprova que o proxy está configurado.
+Configurar `Hospedagem__HttpsGerenciadoRender=true` e remover
+`Proxy__RedesConfiaveis__0` (inclusive placeholders) e `ASPNETCORE_HTTPS_PORT`.
+Este modo exige Production e `RENDER=true`, fornecido pela plataforma.
+Render termina TLS e redireciona HTTP para HTTPS na borda. A API serve o transporte
+HTTP interno sem redirecionar e inclui HSTS para o navegador na resposta HTTPS
+externa. Request.Scheme e a lista restrita de proxies permanecem preservados.
+Fora deste modo, ASP.NET continua responsavel por HSTS e redirecionamento.
+Nao usar esse modo em servidores expostos diretamente por HTTP.
+Conferir TLS e redirecionamento na URL publicada; CI simula apenas a rede interna.
 
 ## Supabase e liberação
 
