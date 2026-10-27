@@ -6,6 +6,10 @@ public class Despesa
 
     public Guid? ViagemId { get; set; }
 
+    public bool ConsiderarNoFinanceiro { get; set; } = true;
+
+    public string Origem { get; set; } = "Manual";
+
     public string? Descricao { get; set; }
 
     public string? Categoria { get; set; }

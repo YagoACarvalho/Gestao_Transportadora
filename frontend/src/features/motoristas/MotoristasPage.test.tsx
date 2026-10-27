@@ -4,6 +4,21 @@ import { MotoristasPage } from '../../pages/MotoristasPage';
 import { motoristasApi } from './motoristasApi';
 import type { Motorista } from './types';
 const item: Motorista = { id: 'teste', nome: 'Motorista de teste', ativo: true, cpf: null, numeroCnh: null, categoriaCnh: null, dataValidadeCnh: '2030-01-02', telefone: null, dataCadastro: '2026-01-01T00:00:00Z' };
+
+it('reativa somente apos confirmar e preserva os dados lidos pelo GET', async () => {
+  const inativo = { ...item, ativo: false, telefone: '11999999999' };
+  vi.spyOn(motoristasApi, 'listar').mockResolvedValue([inativo]);
+  const obter = vi.spyOn(motoristasApi, 'obter').mockResolvedValue(inativo);
+  const atualizar = vi.spyOn(motoristasApi, 'atualizar').mockResolvedValue();
+  render(<MotoristasPage />); fireEvent.change(screen.getByLabelText('Situação'), { target: { value: 'inativos' } });
+  fireEvent.click(await screen.findByRole('button', { name: 'Reativar Motorista de teste' }));
+  let dialog = await screen.findByRole('dialog'); expect(atualizar).not.toHaveBeenCalled();
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Voltar' })); expect(screen.queryByRole('dialog')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Reativar Motorista de teste' })); dialog = await screen.findByRole('dialog');
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Reativar motorista' }));
+  await screen.findByText('Motorista reativado.'); expect(obter).toHaveBeenCalledWith(item.id);
+  expect(atualizar).toHaveBeenCalledWith(item.id, { nome: item.nome, cpf: null, numeroCnh: null, categoriaCnh: null, dataValidadeCnh: item.dataValidadeCnh, telefone: '11999999999', ativo: true });
+});
 it('lista, busca e filtra inativos sem chamadas por digitacao', async () => {
   const listar = vi.spyOn(motoristasApi, 'listar').mockResolvedValue([item, { ...item, id: 'inativo', nome: 'Inativo teste', ativo: false }]);
   render(<MotoristasPage />);
@@ -35,21 +50,22 @@ it('preserva Ativo e data na edicao de inativo', async () => {
   fireEvent.change(screen.getByLabelText('Situação'), { target: { value: 'inativos' } });
   fireEvent.click(await screen.findByRole('button', { name: 'Editar Motorista de teste' }));
   const dialog = await screen.findByRole('dialog');
-  fireEvent.change(within(dialog).getByLabelText('Nome'), { target: { value: 'Nome editado' } });
+  fireEvent.change(within(dialog).getByLabelText('Nome (obrigatório)'), { target: { value: 'Nome editado' } });
   fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar alterações' }));
   await screen.findByText('Alterações salvas.');
   expect(atualizar).toHaveBeenCalledWith('teste', expect.objectContaining({ nome: 'Nome editado', ativo: false, dataValidadeCnh: '2030-01-02' }));
 });
 it('so desativa apos confirmacao e permite cancelar', async () => {
   vi.spyOn(motoristasApi, 'listar').mockResolvedValue([item]);
+  vi.spyOn(motoristasApi, 'obter').mockResolvedValue(item);
   const desativar = vi.spyOn(motoristasApi, 'desativar').mockResolvedValue();
   render(<MotoristasPage />);
   fireEvent.click(await screen.findByRole('button', { name: 'Desativar Motorista de teste' }));
   expect(desativar).not.toHaveBeenCalled();
-  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancelar' }));
+  fireEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Cancelar' }));
   expect(screen.queryByRole('dialog')).toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'Desativar Motorista de teste' }));
-  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Desativar motorista' }));
+  fireEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Desativar motorista' }));
   await screen.findByText('Motorista desativado.');
   expect(desativar).toHaveBeenCalledTimes(1);
 });
@@ -72,4 +88,14 @@ it('permite recuperar falha de consulta', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Atualizar lista' }));
   await waitFor(() => expect(listar).toHaveBeenCalledTimes(2));
   await screen.findByText('Nenhum motorista encontrado neste filtro.');
+});
+it('reativa somente quando a situacao e marcada explicitamente', async () => {
+  vi.spyOn(motoristasApi, 'listar').mockResolvedValue([{ ...item, ativo: false }]);
+  vi.spyOn(motoristasApi, 'obter').mockResolvedValue({ ...item, ativo: false });
+  const atualizar = vi.spyOn(motoristasApi, 'atualizar').mockResolvedValue();
+  render(<MotoristasPage />); fireEvent.change(screen.getByLabelText('Situação'), { target: { value: 'inativos' } });
+  fireEvent.click(await screen.findByRole('button', { name: 'Editar Motorista de teste' }));
+  const dialog = await screen.findByRole('dialog'); fireEvent.click(within(dialog).getByLabelText('Cadastro ativo'));
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Salvar alterações' }));
+  await screen.findByText('Alterações salvas.'); expect(atualizar).toHaveBeenCalledWith(item.id, expect.objectContaining({ ativo: true }));
 });

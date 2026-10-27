@@ -10,6 +10,7 @@ function adaptar({ motorista, caminhao, ...viagem }: ViagemResposta): Viagem {
     caminhaoPlaca: caminhao?.placa ?? null, caminhaoAtivo: caminhao?.ativo ?? null };
 }
 const base = '/api/Viagens';
+export interface ResumoCancelamento { quantidadeDespesas: number; totalDespesas: number; versaoDespesas: string }
 const json = (method: string, body: unknown): RequestInit => ({ method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 export const viagensApi = {
   listar: async (signal?: AbortSignal) => (await request<ViagemResposta[]>(base, { signal })).map(adaptar),
@@ -17,4 +18,6 @@ export const viagensApi = {
   cadastrar: async (body: DadosViagem) => adaptar(await request<ViagemResposta>(base, json('POST', body))),
   atualizar: (id: string, body: AtualizarViagem) => request<void>(`${base}/${encodeURIComponent(id)}`, json('PUT', body)),
   cancelar: (id: string) => request<void>(`${base}/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+  prepararCancelamento: (id: string) => request<ResumoCancelamento>(`${base}/${encodeURIComponent(id)}/cancelamento`),
+  confirmarCancelamento: (id: string, versaoDespesas: string, manterDespesas: boolean | null) => request<void>(`${base}/${encodeURIComponent(id)}/cancelamento`, json('POST', { versaoDespesas, manterDespesas })),
 };

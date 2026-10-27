@@ -42,7 +42,7 @@ notificacoes de workloads e geracao inicial de certificado ASP.NET.
 Cada etapa verifica o codigo de saida antes de continuar. Restore e build usam
 verbosidade minimal. A descoberta conta nomes completos no namespace
 `Transportador.Api.Tests`; se ele mudar, atualize o reconhecimento no script.
-A referencia backend e 64 casos (incluindo 45 testes HTTP), sem exigir
+A referencia backend era 64 casos na integracao inicial, sem exigir
 essa quantidade permanentemente. Pelo menos um caso deve ser descoberto e
 executado. O TRX confirma total, executados, aprovados, reprovados e nao executados;
 testes ignorados precisam ser avaliados na revisao, mesmo com saida zero.
@@ -120,3 +120,10 @@ A verificacao real depende de confirmacao separada do destino de desenvolvimento
 configuracao segura e autorizacao dos registros de teste. Nao faz parte do harness.
 Nao executar migrations, limpeza nem operacoes destrutivas como verificacao automatica.
 O frontend usa o proxy descrito em frontend/README.md, sem CORS adicional na API.
+
+## MVP operacional
+
+Decisoes atuais, contratos mais restritivos, despesas em qualquer fase, saldo
+previsto, concorrencia e limites de publicacao estao em [mvp.md](mvp.md).
+O workflow `.github/workflows/validar.yml` executa este harness em PRs/main sem
+banco externo nem secrets. A execucao remota so acontece depois de publicar o workflow.

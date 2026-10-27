@@ -6,6 +6,7 @@ import type { CriarMotorista, FiltroSituacao, Motorista } from '../features/moto
 import { MotoristasTable } from '../features/motoristas/MotoristasTable';
 import { MotoristaForm } from '../features/motoristas/MotoristaForm';
 import { SidePanel } from '../components/SidePanel';
+import { HttpError } from '../api/http';
 import styles from '../components/Cadastro.module.css';
 
 export function MotoristasPage() {
@@ -18,7 +19,7 @@ export function MotoristasPage() {
   const [revision, setRevision] = useState(0);
   const [busy, setBusy] = useState(false);
   const saving = useRef(false);
-  const [panel, setPanel] = useState<'create' | 'edit' | 'deactivate' | null>(null);
+  const [panel, setPanel] = useState<'create' | 'edit' | 'deactivate' | 'reactivate' | null>(null);
   const [selected, setSelected] = useState<Motorista>();
   const incluirInativos = situacao !== 'ativos';
 
@@ -33,29 +34,31 @@ export function MotoristasPage() {
     return () => controller.abort();
   }, [incluirInativos, revision]);
 
-  async function edit(item: Motorista) {
+  async function edit(item: Motorista, acao: 'edit' | 'deactivate' | 'reactivate' = 'edit') {
     setBusy(true); setError(''); setFeedback('');
-    try { setSelected(await motoristasApi.obter(item.id)); setPanel('edit'); }
+    try { setSelected(await motoristasApi.obter(item.id)); setPanel(acao); }
     catch (failure) { setError(failure instanceof Error ? failure.message : 'Não foi possível abrir o cadastro.'); }
     finally { setBusy(false); }
   }
-  async function save(body: CriarMotorista) {
+  async function save(body: CriarMotorista & { ativo?: boolean }) {
     if (saving.current) return;
     saving.current = true; setBusy(true);
     try {
-      if (panel === 'edit' && selected) await motoristasApi.atualizar(selected.id, { ...body, ativo: selected.ativo });
+      if (panel === 'edit' && selected) await motoristasApi.atualizar(selected.id, { ...body, ativo: body.ativo ?? selected.ativo });
       else await motoristasApi.cadastrar(body);
       setFeedback(panel === 'edit' ? 'Alterações salvas.' : 'Motorista cadastrado como ativo.');
       setPanel(null); setRevision(value => value + 1);
     } finally { saving.current = false; setBusy(false); }
   }
-  async function deactivate() {
+  async function changeActive() {
     if (!selected || saving.current) return;
     saving.current = true; setBusy(true); setError('');
     try {
-      await motoristasApi.desativar(selected.id);
-      setPanel(null); setFeedback('Motorista desativado.'); setRevision(value => value + 1);
-    } catch (failure) { setError(failure instanceof Error ? failure.message : 'Não foi possível desativar.'); }
+      if (panel === 'reactivate') await motoristasApi.atualizar(selected.id, { nome: selected.nome, cpf: selected.cpf,
+        numeroCnh: selected.numeroCnh, categoriaCnh: selected.categoriaCnh, dataValidadeCnh: selected.dataValidadeCnh, telefone: selected.telefone, ativo: true });
+      else await motoristasApi.desativar(selected.id);
+      setPanel(null); setFeedback(panel === 'reactivate' ? 'Motorista reativado.' : 'Motorista desativado.'); setRevision(value => value + 1);
+    } catch (failure) { setError(failure instanceof HttpError ? Object.values(failure.fields).flat().join(' ') || failure.message : failure instanceof Error ? failure.message : 'Não foi possível alterar a situação.'); }
     finally { saving.current = false; setBusy(false); }
   }
   const filtered = filtrarMotoristas(items, busca, situacao);
@@ -67,10 +70,11 @@ export function MotoristasPage() {
         <div className={styles.field}><label htmlFor="busca">Buscar por nome, CPF ou CNH</label><input id="busca" type="search" value={busca} onChange={event => setBusca(event.target.value)} /></div>
         <div className={styles.field}><label htmlFor="situacao">Situação</label><select id="situacao" value={situacao} onChange={event => setSituacao(event.target.value as FiltroSituacao)}><option value="ativos">Ativos</option><option value="inativos">Inativos</option><option value="todos">Todos</option></select></div>
       </div>
-      {error && panel !== 'deactivate' && <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <button onClick={() => setRevision(value => value + 1)}>Atualizar lista</button></div>}
-      {loading ? <p className={styles.message} role="status">Carregando motoristas…</p> : !error && (filtered.length ? <MotoristasTable items={filtered} busy={busy} onEdit={edit} onDeactivate={item => { setSelected(item); setError(''); setFeedback(''); setPanel('deactivate'); }} /> : <p className={styles.message}>{busca ? 'Nenhum resultado para esta busca.' : 'Nenhum motorista encontrado neste filtro.'}</p>)}
+      {error && panel !== 'deactivate' && panel !== 'reactivate' && <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <button onClick={() => setRevision(value => value + 1)}>Atualizar lista</button></div>}
+      {loading ? <p className={styles.message} role="status">Carregando motoristas…</p> : !error && (filtered.length ? <MotoristasTable items={filtered} busy={busy} onEdit={edit} onDeactivate={item => edit(item, 'deactivate')} onReactivate={item => edit(item, 'reactivate')} /> : <p className={styles.message}>{busca ? 'Nenhum resultado para esta busca.' : 'Nenhum motorista encontrado neste filtro.'}</p>)}
     </section>
     {(panel === 'create' || panel === 'edit') && <SidePanel title={panel === 'create' ? 'Cadastrar motorista' : 'Editar motorista'} busy={busy} onClose={() => setPanel(null)}><MotoristaForm motorista={selected} busy={busy} onSave={save} /></SidePanel>}
-    {panel === 'deactivate' && selected && <SidePanel title="Desativar motorista" busy={busy} onClose={() => { setPanel(null); setError(''); }}><p>Desativar {selected.nome}? O cadastro será mantido e poderá ser consultado no filtro de inativos.</p>{error && <p role="alert" className={styles.error}>{error}</p>}<div className={styles.actions}><button disabled={busy} onClick={() => setPanel(null)}>Cancelar</button><button disabled={busy} onClick={deactivate}>{busy ? 'Desativando…' : 'Desativar motorista'}</button></div></SidePanel>}
+    {panel === 'deactivate' && selected && <SidePanel title="Desativar motorista" busy={busy} onClose={() => { setPanel(null); setError(''); }}><p>Desativar {selected.nome}? O cadastro será mantido e poderá ser consultado no filtro de inativos.</p>{error && <p role="alert" className={styles.error}>{error}</p>}<div className={styles.actions}><button disabled={busy} onClick={() => setPanel(null)}>Cancelar</button><button disabled={busy} onClick={changeActive}>{busy ? 'Desativando…' : 'Desativar motorista'}</button></div></SidePanel>}
+    {panel === 'reactivate' && selected && <SidePanel title="Reativar motorista" busy={busy} onClose={() => { setPanel(null); setError(''); }}><p>Reativar {selected.nome}? O motorista ficará disponível para novos vínculos em viagens.</p>{error && <p role="alert" className={styles.error}>{error}</p>}<div className={styles.actions}><button disabled={busy} onClick={() => { setPanel(null); setError(''); }}>Voltar</button><button className={styles.primary} disabled={busy} onClick={changeActive}>{busy ? 'Reativando…' : 'Reativar motorista'}</button></div></SidePanel>}
   </>;
 }

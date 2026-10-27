@@ -10,5 +10,11 @@ public class ResumoFinanceiroDto
 
     public decimal TotalDespesas { get; set; }
 
+    public decimal TotalDespesasViagens { get; set; }
+
+    public decimal TotalDespesasGerais { get; set; }
+
+    public decimal TotalRemuneracaoMotoristas { get; set; }
+
     public decimal Lucro { get; set; }
 }

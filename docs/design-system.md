@@ -1,3 +1,27 @@
+# Adaptação visual aprovada — kit Ultraleads
+
+A direção azul-marinho, ciano e menta do kit recebido substitui a paleta verde
+registrada abaixo. Os arquivos originais ficam em `src/ui/` como referência;
+a implementação utilizada pela aplicação fica em `frontend/src/ui/`.
+
+- Base: navy `#14305C`, ciano `#1FA0CE`, menta `#7CE3C1`, fundo `#E3E4E8`,
+  superfície `#F5F8FC` e cartão `#FCFDFF`.
+- Contraste: texto secundário `#52647B`, ação com texto branco `#08769D`,
+  sucesso `#146452` e erro `#AF3334`; tons do anexo ajustados para AA.
+- Fonte: Plus Jakarta Sans quando disponível localmente, com fallback do sistema.
+  Sem importação de Google Fonts ou nova dependência.
+- AppShell visual envolve a navegação existente; PageHeader compartilhado já
+  atende todas as páginas. Autenticação, menu móvel, foco e URLs são preservados.
+- UI adaptada usa CSS Modules; estilos antigos têm aliases para os tokens `--ul-*`.
+  Viagens usa Card, Button e Badge. As demais telas migram incrementalmente.
+- Bordas de controles permanecem perceptíveis; cartões suaves têm raios 20px,
+  painel 28px e botões arredondados. Layout do Grid vira uma coluna abaixo de 900px.
+- Dados da ExamplePage são ilustrativos e não entram na aplicação. Sem botões de
+  menu sem ação, tabpanels simulados ou medidores sem dados reais.
+- CSS respeita movimento reduzido e foco visível; Motion existente permanece.
+
+## Registro anterior — referência histórica
+
 # Design system — Gestão de Transportadora
 
 ## Direção aprovada e escopo
@@ -5,36 +29,39 @@
 Sistema operacional de logística minimalista, com clareza, produtividade e identidade
 própria. Sidebar escura e área de trabalho clara; priorizar tabelas e formulários úteis.
 React, TypeScript, CSS Modules e Motion; Vite apenas para desenvolvimento e build.
-Backend existente ASP.NET Core 10. Este documento não autoriza implementar React,
-instalar dependências ou alterar contratos HTTP.
+Backend existente ASP.NET Core 10. Dependências, persistência e contratos HTTP
+continuam exigindo autorização específica; o design system não amplia esse escopo.
 
-A paleta inicial e Inter estão aprovadas. Nome de marca, logotipo e refinamentos
+A paleta verde, verde-limão, mostarda e branco e a fonte Inter estão aprovadas. Nome de marca, logotipo e refinamentos
 definitivos continuam sob decisão do desenvolvedor. Esboços anteriores são referências,
 não especificações pixel-perfect. Ajustes de composição e responsividade são esperados;
 mudanças significativas de direção exigem aprovação.
 
 ## Tokens de referência
 
-Os nomes abaixo orientam futuras variáveis CSS compartilhadas; nenhum CSS é criado
-nesta etapa. Tokens adicionais são propostas operacionais iniciais, sujeitos à revisão
-visual, sem substituir a paleta aprovada.
+Os nomes abaixo correspondem às variáveis CSS compartilhadas. A composição usa
+sidebar verde escura, seleção verde-limão e superfícies claras. O Financeiro concentra
+o destaque visual no saldo previsto; tabelas e formulários mantêm a clareza operacional.
 
 | Token | Valor | Uso |
 | --- | --- | --- |
-| `--color-deep` | `#172B3A` | Sidebar, títulos e texto principal |
-| `--color-primary` | `#24647A` | Ação principal, links e foco em superfícies claras |
-| `--color-background` | `#F4F6F8` | Fundo da área de trabalho |
+| `--color-deep` | `#163B2B` | Sidebar, títulos, saldo e texto principal |
+| `--color-primary` | `#2D6545` | Ação principal, links e foco em superfícies claras |
+| `--color-background` | `#F4F6F0` | Fundo da área de trabalho |
 | `--color-surface` | `#FFFFFF` | Formulários, tabelas e painéis |
-| `--color-accent` | `#EA9149` | Destaque pontual, com texto azul profundo |
-| `--color-text-muted` | `#52616B` | Texto secundário em superfícies claras |
-| `--color-border` | `#647682` | Limites de controles em superfícies claras |
+| `--color-accent` | `#C5E86C` | Seleção e destaque, com texto verde escuro |
+| `--color-mustard` | `#C5A136` | Barras de despesas, sem texto branco |
+| `--color-text-muted` | `#526354` | Texto secundário em superfícies claras |
+| `--color-border` | `#71816E` | Limites de controles em superfícies claras |
+| `--color-divider` | `#DCE3D6` | Separadores decorativos de tabelas e cabeçalhos |
+| `--color-soft` | `#EAF0E4` | Superfícies secundárias e filtros |
 | `--color-success` | `#166534` | Sucesso, acompanhado de texto/ícone |
 | `--color-warning` | `#854D0E` | Atenção, acompanhada de texto/ícone |
 | `--color-error` | `#B91C1C` | Erro, acompanhado de descrição e recuperação |
 
-Use texto branco sobre azul profundo, azul-petróleo e fundos semânticos acima;
-use azul profundo sobre o laranja. Não use branco sobre o destaque laranja nem
-laranja como texto pequeno sobre branco. Verifique combinações reais: texto normal
+Use texto branco sobre verde escuro e verde principal; use verde escuro sobre
+verde-limão e mostarda. Não use branco sobre esses destaques nem os use como texto
+pequeno sobre branco. Verifique combinações reais: texto normal
 com contraste mínimo 4,5:1, texto grande 3:1 e limites/foco relevantes 3:1.
 Não aplique opacidade em controles ou mensagens sem reavaliar contraste.
 Na sidebar, foco e seleção precisam de tratamento claro sobre o fundo escuro.
@@ -49,7 +76,7 @@ Na sidebar, foco e seleção precisam de tratamento claro sobre o fundo escuro.
 | Pesos | 400 para conteúdo, 500 para labels/ações, 600 para hierarquia |
 | Números | Alinhamento consistente; algarismos tabulares em colunas numéricas |
 | Espaçamento | Unidade 4px; escala 4, 8, 12, 16, 24, 32, 40, 48px |
-| Raios | 8px em controles, 12px em painéis |
+| Raios | 8px em controles, 12px na seleção da navegação, 20px em painéis |
 | Controles | Altura inicial 40px; alvos confortáveis e operação por toque |
 | Elevação | Bordas discretas; sombra reservada a sobreposições, sem decoração acumulada |
 
@@ -72,9 +99,9 @@ de fonte; manter a base espacial de 4px.
 - Formulários: labels persistentes, campos relacionados agrupados, erros junto ao campo,
   instruções necessárias e botão de envio protegido contra repetição. Não inventar
   obrigatoriedade, máscaras ou validações de negócio ausentes dos contratos aprovados.
-- Botões: primário azul-petróleo com texto branco; secundário com limite visível;
-  ação destrutiva identificada pelo significado e texto. Laranja é destaque, não
-  substituto automático de todos os botões primários.
+- Botões: primário verde com texto branco; secundário com limite visível;
+  ação destrutiva identificada pelo significado e texto. Verde-limão destaca a seleção
+  na sidebar; mostarda distingue as despesas na evolução mensal.
 - Feedback: alertas e badges com significado textual. Diálogos apenas quando úteis,
   com foco inicial, contenção de foco, fechamento e retorno ao acionador.
 - Componentes React com props tipadas e responsabilidades claras; estilos em
@@ -99,6 +126,19 @@ reduzir/remover deslocamentos e manter informação e funcionalidade sem animaç
 
 Não usar gradientes decorativos excessivos, dashboards genéricos, métricas falsas,
 conteúdo factual inventado ou componentes sem função.
+
+## Gráficos financeiros
+
+Saldo previsto, fretes e total de despesas lideram a leitura. O painel de saldo usa
+verde escuro com valor verde-limão; mostarda identifica despesas nas barras e custos
+gerais na composição. Legendas e valores distinguem as séries além da cor.
+Recharts é carregado sob demanda. Barras mensais com tooltip, composição em rosca
+por vínculo e barras por categoria usam o mesmo período dos indicadores.
+Tabelas/valores textuais oferecem alternativa aos SVGs e tooltips; nomes completos
+de categorias permanecem disponíveis mesmo quando abreviados no eixo do gráfico.
+Gráficos sem animação evitam movimento desnecessário e respeitam movimento reduzido.
+Não criar percentuais de crescimento sem consulta comparativa nem confundir frete
+previsto com recebimento. Valores zerados não geram uma rosca artificial.
 
 ## Revisão e decisões abertas
 

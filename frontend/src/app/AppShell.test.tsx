@@ -5,6 +5,8 @@ import { AppShell } from './AppShell';
 vi.mock('../pages/MotoristasPage', () => ({ MotoristasPage: () => <h1>Motoristas teste</h1> }));
 vi.mock('../pages/CaminhoesPage', () => ({ CaminhoesPage: () => <h1>Caminhões teste</h1> }));
 vi.mock('../pages/ViagensPage', () => ({ ViagensPage: () => <h1>Viagens teste</h1> }));
+vi.mock('../pages/DespesasPage', () => ({ DespesasPage: () => <h1>Despesas teste</h1> }));
+vi.mock('../pages/FinanceiroPage', () => ({ FinanceiroPage: () => <h1>Financeiro teste</h1> }));
 beforeEach(() => {
   window.history.replaceState(null, '', '#/motoristas');
   vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn() }));
@@ -39,4 +41,18 @@ it('abre viagens por URL e atualiza a navegacao', () => {
   expect(screen.getByRole('link', { name: 'Viagens' }).getAttribute('aria-current')).toBe('page');
   expect(document.title).toBe('Viagens | Gestão de Transportadora');
   expect(screen.getByText('Operação', { selector: 'span' })).toBeTruthy();
+});
+it.each([['despesas', 'Despesas teste', 'Despesas'], ['financeiro', 'Financeiro teste', 'Resumo financeiro']])('abre %s por URL com navegacao real', (modulo, heading, titulo) => {
+  window.history.replaceState(null, '', `#/${modulo}`);
+  render(<AppShell />);
+  expect(screen.getByRole('heading', { name: heading })).toBeTruthy();
+  expect(screen.getByRole('link', { name: titulo }).getAttribute('aria-current')).toBe('page');
+  expect(document.title).toBe(`${titulo} | Gestão de Transportadora`);
+});
+
+it('reconhece o modulo despesas em URL com viagem preselecionada', () => {
+  window.history.replaceState(null, '', '#/despesas?viagemId=viagem-teste');
+  render(<AppShell />);
+  expect(screen.getByRole('heading', { name: 'Despesas teste' })).toBeTruthy();
+  expect(screen.getByRole('link', { name: 'Despesas' }).getAttribute('aria-current')).toBe('page');
 });

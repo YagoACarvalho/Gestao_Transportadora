@@ -16,6 +16,8 @@ public class Viagem
 
     public decimal? ValorFrete { get; set; }
 
+    public bool GerarRemuneracaoAutomatica { get; set; }
+
     public string? Status { get; set; }
 
     public DateTime DataCadastro { get; set; } = DateTime.UtcNow;

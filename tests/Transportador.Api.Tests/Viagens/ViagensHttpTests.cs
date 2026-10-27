@@ -66,22 +66,36 @@ public class ViagensHttpTests
     [Theory]
     [InlineData("Planejada", "Planejada", true)]
     [InlineData("Planejada", "Em andamento", true)]
+    [InlineData("Planejada", "Pausada", false)]
+    [InlineData("Em andamento", "Pausada", true)]
+    [InlineData("Pausada", "Pausada", true)]
+    [InlineData("Pausada", "Em andamento", true)]
+    [InlineData("Pausada", "Cancelada", true)]
+    [InlineData("Pausada", "Planejada", false)]
+    [InlineData("Pausada", "Concluída", false)]
+    [InlineData("Concluída", "Pausada", false)]
+    [InlineData("Cancelada", "Pausada", false)]
     [InlineData("Planejada", "Concluída", false)]
     [InlineData("Planejada", "Cancelada", true)]
     [InlineData("Em andamento", "Planejada", false)]
     [InlineData("Em andamento", "Em andamento", true)]
     [InlineData("Em andamento", "Concluída", true)]
     [InlineData("Em andamento", "Cancelada", true)]
-    [InlineData("Concluída", "Planejada", false)]
+    [InlineData("Concluída", "Planejada", true)]
     [InlineData("Concluída", "Em andamento", false)]
     [InlineData("Concluída", "Concluída", true)]
     [InlineData("Concluída", "Cancelada", false)]
-    [InlineData("Cancelada", "Planejada", false)]
+    [InlineData("Cancelada", "Planejada", true)]
     [InlineData("Cancelada", "Em andamento", false)]
     [InlineData("Cancelada", "Concluída", false)]
     [InlineData("Cancelada", "Cancelada", true)]
     [InlineData("Planejada", "Desconhecida", false)]
-    public async Task Atualizar_RespeitaTransicoes(string atual, string novo, bool permitido)
+    [InlineData(null, "Planejada", true)]
+    [InlineData("", "Planejada", true)]
+    [InlineData("  ", "Planejada", true)]
+    [InlineData(null, "Em andamento", false)]
+    [InlineData("Desconhecida", "Planejada", false)]
+    public async Task Atualizar_RespeitaTransicoes(string? atual, string novo, bool permitido)
     {
         var token = TestContext.Current.CancellationToken;
         using var factory = new ApiFactory(); using var client = factory.CriarCliente();
@@ -102,6 +116,7 @@ public class ViagensHttpTests
 
     [Theory]
     [InlineData("Em andamento")]
+    [InlineData("Pausada")]
     [InlineData("Concluída")]
     [InlineData("Cancelada")]
     public async Task Atualizar_DadosForaDePlanejada_Retorna400SemPersistir(string status)

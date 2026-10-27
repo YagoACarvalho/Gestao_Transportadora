@@ -1,4 +1,4 @@
-export const situacoes = ['Planejada', 'Em andamento', 'Concluída', 'Cancelada'] as const;
+export const situacoes = ['Planejada', 'Em andamento', 'Pausada', 'Concluída', 'Cancelada'] as const;
 export type SituacaoViagem = typeof situacoes[number];
 export interface DadosViagem {
   origem: string; destino: string; dataViagem: string;
@@ -6,14 +6,20 @@ export interface DadosViagem {
 }
 export interface AtualizarViagem extends DadosViagem { status: SituacaoViagem }
 export interface Viagem {
+  gerarRemuneracaoAutomatica?: boolean;
   id: string; origem: string | null; destino: string | null; dataViagem: string | null;
   motoristaId: string | null; motoristaNome: string | null; motoristaAtivo: boolean | null;
   caminhaoId: string | null; caminhaoPlaca: string | null; caminhaoAtivo: boolean | null;
   valorFrete: number | null; status: string | null; dataCadastro: string;
 }
-export function proximasSituacoes(status: string | null): SituacaoViagem[] {
-  return status === 'Planejada' ? ['Em andamento', 'Cancelada'] : status === 'Em andamento' ? ['Concluída', 'Cancelada'] : [];
+export function calcularRemuneracao(frete: number | null): number {
+  // Centavos inteiros: reproduz os 15% com meio centavo arredondado para cima.
+  return Math.floor((Math.round((frete ?? 0) * 100) * 15 + 50) / 100) / 100;
 }
+export function proximasSituacoes(status: string | null): SituacaoViagem[] {
+  return status === 'Planejada' ? ['Em andamento', 'Cancelada'] : status === 'Em andamento' ? ['Pausada', 'Concluída', 'Cancelada'] : status === 'Pausada' ? ['Em andamento', 'Cancelada'] : status === 'Concluída' || status === 'Cancelada' ? ['Planejada'] : [];
+}
+export const semSituacao = (status: string | null) => !status?.trim();
 export function dadosCompletos(viagem: Viagem): viagem is Viagem & DadosViagem {
   return !!(viagem.origem && viagem.destino && viagem.dataViagem && viagem.motoristaId && viagem.caminhaoId);
 }

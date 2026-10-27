@@ -50,7 +50,8 @@ public class CompatibilidadeMainTests
         Assert.Equal(1300m, all.TotalFretes); Assert.Equal(250m, all.TotalDespesas); Assert.Equal(1050m, all.Lucro);
         var period = (await client.GetFromJsonAsync<ResumoFinanceiroDto>("/api/Relatorios/resumo-financeiro?dataInicial=2030-01-02&dataFinal=2030-01-02", token))!;
         Assert.Equal(1000m, period.TotalFretes); Assert.Equal(200m, period.TotalDespesas); Assert.Equal(800m, period.Lucro);
-        Assert.Equal(HttpStatusCode.NoContent, (await client.DeleteAsync($"/api/Viagens/{viagemId}", token)).StatusCode);
+        var cancelamento = (await client.GetFromJsonAsync<ResumoCancelamentoDto>($"/api/Viagens/{viagemId}/cancelamento", token))!;
+        Assert.Equal(HttpStatusCode.NoContent, (await client.PostAsJsonAsync($"/api/Viagens/{viagemId}/cancelamento", new CancelamentoViagemDto { ManterDespesas = true, VersaoDespesas = cancelamento.VersaoDespesas }, token)).StatusCode);
         var after = (await client.GetFromJsonAsync<ResumoFinanceiroDto>("/api/Relatorios/resumo-financeiro", token))!;
         Assert.Equal(300m, after.TotalFretes); Assert.Equal(250m, after.TotalDespesas);
         Assert.Equal(2, (await client.GetFromJsonAsync<Despesa[]>("/api/Despesas", token))!.Length);

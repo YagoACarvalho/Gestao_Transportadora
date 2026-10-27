@@ -1,0 +1,5 @@
+.filters { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 24px 24px 0; }
+.filters button { border-color: transparent; background: var(--color-soft); }
+.filters .selected { background: var(--color-deep); color: white; }
+.filters a { margin-left: auto; color: var(--color-primary); font-size: .875rem; padding: 12px 0; }
+@media (max-width: 600px) { .filters { padding: 16px 16px 0; } .filters a { width: 100%; margin-left: 0; } }

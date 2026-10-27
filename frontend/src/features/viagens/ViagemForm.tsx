@@ -5,11 +5,12 @@ import { motoristasApi } from '../motoristas/motoristasApi';
 import { caminhoesApi } from '../caminhoes/caminhoesApi';
 import type { Motorista } from '../motoristas/types';
 import type { Caminhao } from '../caminhoes/types';
-import { parseFrete } from './types';
+import { calcularRemuneracao, parseFrete } from './types';
+import { moeda } from '../despesas/types';
 import type { DadosViagem, Viagem } from './types';
 import styles from '../../components/Cadastro.module.css';
 
-export function ViagemForm({ viagem, busy, onSave }: { viagem?: Viagem; busy: boolean; onSave: (body: DadosViagem) => Promise<void> }) {
+export function ViagemForm({ viagem, busy, onSave, regularizando = false }: { viagem?: Viagem; busy: boolean; onSave: (body: DadosViagem) => Promise<void>; regularizando?: boolean }) {
   const [values, setValues] = useState({ origem: viagem?.origem ?? '', destino: viagem?.destino ?? '', dataViagem: viagem?.dataViagem ?? '', motoristaId: viagem?.motoristaId ?? '', caminhaoId: viagem?.caminhaoId ?? '', frete: viagem?.valorFrete?.toString().replace('.', ',') ?? '' });
   const [motoristas, setMotoristas] = useState<Motorista[]>([]);
   const [caminhoes, setCaminhoes] = useState<Caminhao[]>([]);
@@ -27,6 +28,8 @@ export function ViagemForm({ viagem, busy, onSave }: { viagem?: Viagem; busy: bo
     return () => controller.abort();
   }, [revision]);
   const fieldError = (name: string) => Object.entries(fields).filter(([key]) => key.toLowerCase() === name.toLowerCase()).flatMap(([, messages]) => messages).join(' ');
+  let remuneracao: number | null = null;
+  try { remuneracao = calcularRemuneracao(parseFrete(values.frete)); } catch { /* Prévia só com frete válido. */ }
   const input = (name: 'origem' | 'destino' | 'dataViagem', label: string, type = 'text') => <div className={styles.field}>
     <label htmlFor={name}>{label} (obrigatório)</label><input id={name} required type={type} maxLength={type === 'text' ? 150 : undefined} value={values[name]} aria-invalid={!!fieldError(name)} aria-describedby={fieldError(name) ? `${name}-error` : undefined} onChange={event => setValues({ ...values, [name]: event.target.value })} />
     {fieldError(name) && <span id={`${name}-error`} className={styles.error}>{fieldError(name)}</span>}
@@ -60,7 +63,8 @@ export function ViagemForm({ viagem, busy, onSave }: { viagem?: Viagem; busy: bo
       </div>
     </fieldset>
     <fieldset disabled={busy}><legend>Frete</legend><div className={styles.field}><label htmlFor="frete">Valor do frete (opcional)</label><input id="frete" inputMode="decimal" value={values.frete} aria-invalid={!!fieldError('valorFrete')} aria-describedby="frete-ajuda" onChange={event => setValues({ ...values, frete: event.target.value })} /><span id="frete-ajuda">{fieldError('valorFrete') || 'Valor não negativo, com até duas casas decimais. Exemplo de formato: 1500,50.'}</span></div></fieldset>
-    <p>A viagem {viagem ? 'permanece planejada ao salvar os dados' : 'será cadastrada como planejada'}.</p>
-    <button type="submit" className={styles.primary} disabled={busy || loading || !!lookupError}>{busy ? 'Salvando…' : viagem ? 'Salvar alterações' : 'Cadastrar viagem'}</button>
+    {regularizando ? <p>A regularização preserva a remuneração existente e não gera novos lançamentos.</p> : viagem && !viagem.gerarRemuneracaoAutomatica ? <p>Viagem anterior à regra automática: nenhum lançamento de remuneração será gerado ao editar.</p> : <p role="status">Remuneração prevista do motorista (15%): <strong>{remuneracao === null ? 'Informe um frete válido' : moeda(remuneracao)}</strong>. O valor entra nas despesas da viagem e não confirma pagamento.</p>}
+    <p>A viagem {viagem && !regularizando ? 'permanece planejada ao salvar os dados' : 'será salva como planejada'}.</p>
+    <button type="submit" className={styles.primary} disabled={busy || loading || !!lookupError}>{busy ? 'Salvando…' : regularizando ? 'Regularizar viagem' : viagem ? 'Salvar alterações' : 'Cadastrar viagem'}</button>
   </form>;
 }

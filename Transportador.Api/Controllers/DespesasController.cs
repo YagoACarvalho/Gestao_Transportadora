@@ -50,9 +50,16 @@ public class DespesasController : ControllerBase
         CriarDespesaDto dto
     )
     {
+        await ValidarViagem(dto.ViagemId);
+        if (dto.ViagemId.HasValue && dto.ConsiderarNoFinanceiro is null &&
+            await _context.Viagens.AnyAsync(v => v.Id == dto.ViagemId && v.Status == "Cancelada"))
+            ModelState.AddModelError(nameof(dto.ConsiderarNoFinanceiro), "Escolha se esta despesa deve entrar no financeiro da viagem cancelada.");
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+
         Despesa despesa = new()
         {
             ViagemId = dto.ViagemId,
+            ConsiderarNoFinanceiro = dto.ConsiderarNoFinanceiro ?? true,
             Descricao = dto.Descricao,
             Categoria = dto.Categoria,
             Valor = dto.Valor,
@@ -84,7 +91,16 @@ public class DespesasController : ControllerBase
             return NotFound();
         }
 
+        if (despesa.Origem == "RemuneracaoMotorista")
+        {
+            ModelState.AddModelError("Despesa", "A remuneração automática é calculada pelo frete. Use a alteração de situação financeira para incluir ou desconsiderar.");
+            return ValidationProblem(ModelState);
+        }
+        await ValidarViagem(dto.ViagemId);
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+
         despesa.ViagemId = dto.ViagemId;
+        if (dto.ConsiderarNoFinanceiro.HasValue) despesa.ConsiderarNoFinanceiro = dto.ConsiderarNoFinanceiro.Value;
         despesa.Descricao = dto.Descricao;
         despesa.Categoria = dto.Categoria;
         despesa.Valor = dto.Valor;
@@ -106,10 +122,32 @@ public class DespesasController : ControllerBase
             return NotFound();
         }
 
+        if (despesa.Origem == "RemuneracaoMotorista")
+        {
+            ModelState.AddModelError("Despesa", "A remuneração automática não pode ser excluída. Altere o frete ou desconsidere o lançamento no financeiro.");
+            return ValidationProblem(ModelState);
+        }
         _context.Despesas.Remove(despesa);
 
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    [HttpPatch("{id:guid}/situacao-financeira")]
+    public async Task<IActionResult> AlterarSituacaoFinanceira(Guid id, SituacaoFinanceiraDto dto)
+    {
+        var despesa = await _context.Despesas.FirstOrDefaultAsync(d => d.Id == id);
+        if (despesa is null) return NotFound();
+        despesa.ConsiderarNoFinanceiro = dto.ConsiderarNoFinanceiro!.Value;
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    private async Task ValidarViagem(Guid? viagemId)
+    {
+        // Despesas podem surgir em qualquer fase, inclusive depois de conclusão/cancelamento.
+        if (viagemId.HasValue && !await _context.Viagens.AnyAsync(v => v.Id == viagemId))
+            ModelState.AddModelError(nameof(CriarDespesaDto.ViagemId), "Selecione uma viagem existente ou deixe sem vínculo.");
     }
 }

@@ -23,12 +23,18 @@ public class RelatoriosController : ControllerBase
         [FromQuery] DateOnly? dataFinal
     )
     {
+        if (dataInicial.HasValue && dataFinal.HasValue && dataInicial > dataFinal)
+        {
+            ModelState.AddModelError(nameof(dataFinal), "A data final deve ser igual ou posterior à data inicial.");
+            return ValidationProblem(ModelState);
+        }
+
         IQueryable<Viagem> viagens = _context.Viagens
             .AsNoTracking()
             .Where(v => v.Status == null || v.Status != "Cancelada");
 
         IQueryable<Despesa> despesas = _context.Despesas
-            .AsNoTracking();
+            .AsNoTracking().Where(d => d.ConsiderarNoFinanceiro);
 
         if (dataInicial.HasValue)
         {
@@ -59,8 +65,12 @@ public class RelatoriosController : ControllerBase
         decimal totalFretes = await viagens
             .SumAsync(v => v.ValorFrete ?? 0);
 
-        decimal totalDespesas = await despesas
+        decimal totalDespesasViagens = await despesas.Where(d => d.ViagemId != null)
             .SumAsync(d => d.Valor ?? 0);
+        decimal totalDespesasGerais = await despesas.Where(d => d.ViagemId == null)
+            .SumAsync(d => d.Valor ?? 0);
+        decimal totalDespesas = totalDespesasViagens + totalDespesasGerais;
+        decimal totalRemuneracaoMotoristas = await despesas.Where(d => d.Origem == "RemuneracaoMotorista").SumAsync(d => d.Valor ?? 0);
 
         ResumoFinanceiroDto resumo = new()
         {
@@ -68,6 +78,9 @@ public class RelatoriosController : ControllerBase
             DataFinal = dataFinal,
             TotalFretes = totalFretes,
             TotalDespesas = totalDespesas,
+            TotalDespesasViagens = totalDespesasViagens,
+            TotalDespesasGerais = totalDespesasGerais,
+            TotalRemuneracaoMotoristas = totalRemuneracaoMotoristas,
             Lucro = totalFretes - totalDespesas
         };
 

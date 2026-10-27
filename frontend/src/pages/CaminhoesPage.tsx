@@ -6,6 +6,7 @@ import type { CriarCaminhao, FiltroSituacao, Caminhao } from '../features/caminh
 import { CaminhoesTable } from '../features/caminhoes/CaminhoesTable';
 import { CaminhaoForm } from '../features/caminhoes/CaminhaoForm';
 import { SidePanel } from '../components/SidePanel';
+import { HttpError } from '../api/http';
 import styles from '../components/Cadastro.module.css';
 
 export function CaminhoesPage() {
@@ -18,7 +19,7 @@ export function CaminhoesPage() {
   const [revision, setRevision] = useState(0);
   const [busy, setBusy] = useState(false);
   const saving = useRef(false);
-  const [panel, setPanel] = useState<'create' | 'edit' | 'deactivate' | null>(null);
+  const [panel, setPanel] = useState<'create' | 'edit' | 'deactivate' | 'reactivate' | null>(null);
   const [selected, setSelected] = useState<Caminhao>();
   const incluirInativos = situacao !== 'ativos';
 
@@ -33,29 +34,30 @@ export function CaminhoesPage() {
     return () => controller.abort();
   }, [incluirInativos, revision]);
 
-  async function edit(item: Caminhao) {
+  async function edit(item: Caminhao, acao: 'edit' | 'deactivate' | 'reactivate' = 'edit') {
     setBusy(true); setError(''); setFeedback('');
-    try { setSelected(await caminhoesApi.obter(item.id)); setPanel('edit'); }
+    try { setSelected(await caminhoesApi.obter(item.id)); setPanel(acao); }
     catch (failure) { setError(failure instanceof Error ? failure.message : 'Não foi possível abrir o cadastro.'); }
     finally { setBusy(false); }
   }
-  async function save(body: CriarCaminhao) {
+  async function save(body: CriarCaminhao & { ativo?: boolean }) {
     if (saving.current) return;
     saving.current = true; setBusy(true);
     try {
-      if (panel === 'edit' && selected) await caminhoesApi.atualizar(selected.id, { ...body, ativo: selected.ativo });
+      if (panel === 'edit' && selected) await caminhoesApi.atualizar(selected.id, { ...body, ativo: body.ativo ?? selected.ativo });
       else await caminhoesApi.cadastrar(body);
       setFeedback(panel === 'edit' ? 'Alterações salvas.' : 'Caminhão cadastrado como ativo.');
       setPanel(null); setRevision(value => value + 1);
     } finally { saving.current = false; setBusy(false); }
   }
-  async function deactivate() {
+  async function changeActive() {
     if (!selected || saving.current) return;
     saving.current = true; setBusy(true); setError('');
     try {
-      await caminhoesApi.desativar(selected.id);
-      setPanel(null); setFeedback('Caminhão desativado.'); setRevision(value => value + 1);
-    } catch (failure) { setError(failure instanceof Error ? failure.message : 'Não foi possível desativar.'); }
+      if (panel === 'reactivate') await caminhoesApi.atualizar(selected.id, { placa: selected.placa, modelo: selected.modelo, ativo: true });
+      else await caminhoesApi.desativar(selected.id);
+      setPanel(null); setFeedback(panel === 'reactivate' ? 'Caminhão reativado.' : 'Caminhão desativado.'); setRevision(value => value + 1);
+    } catch (failure) { setError(failure instanceof HttpError ? Object.values(failure.fields).flat().join(' ') || failure.message : failure instanceof Error ? failure.message : 'Não foi possível alterar a situação.'); }
     finally { saving.current = false; setBusy(false); }
   }
   const filtered = filtrarCaminhoes(items, busca, situacao);
@@ -67,10 +69,11 @@ export function CaminhoesPage() {
         <div className={styles.field}><label htmlFor="busca">Buscar por placa ou modelo</label><input id="busca" type="search" value={busca} onChange={event => setBusca(event.target.value)} /></div>
         <div className={styles.field}><label htmlFor="situacao">Situação</label><select id="situacao" value={situacao} onChange={event => setSituacao(event.target.value as FiltroSituacao)}><option value="ativos">Ativos</option><option value="inativos">Inativos</option><option value="todos">Todos</option></select></div>
       </div>
-      {error && panel !== 'deactivate' && <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <button onClick={() => setRevision(value => value + 1)}>Atualizar lista</button></div>}
-      {loading ? <p className={styles.message} role="status">Carregando caminhões…</p> : !error && (filtered.length ? <CaminhoesTable items={filtered} busy={busy} onEdit={edit} onDeactivate={item => { setSelected(item); setError(''); setFeedback(''); setPanel('deactivate'); }} /> : <p className={styles.message}>{busca ? 'Nenhum resultado para esta busca.' : 'Nenhum caminhão encontrado neste filtro.'}</p>)}
+      {error && panel !== 'deactivate' && panel !== 'reactivate' && <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <button onClick={() => setRevision(value => value + 1)}>Atualizar lista</button></div>}
+      {loading ? <p className={styles.message} role="status">Carregando caminhões…</p> : !error && (filtered.length ? <CaminhoesTable items={filtered} busy={busy} onEdit={edit} onDeactivate={item => edit(item, 'deactivate')} onReactivate={item => edit(item, 'reactivate')} /> : <p className={styles.message}>{busca ? 'Nenhum resultado para esta busca.' : 'Nenhum caminhão encontrado neste filtro.'}</p>)}
     </section>
     {(panel === 'create' || panel === 'edit') && <SidePanel title={panel === 'create' ? 'Cadastrar caminhão' : 'Editar caminhão'} busy={busy} onClose={() => setPanel(null)}><CaminhaoForm caminhao={selected} busy={busy} onSave={save} /></SidePanel>}
-    {panel === 'deactivate' && selected && <SidePanel title="Desativar caminhão" busy={busy} onClose={() => { setPanel(null); setError(''); }}><p>Desativar o caminhão {selected.placa}? O cadastro será mantido e poderá ser consultado no filtro de inativos.</p>{error && <p role="alert" className={styles.error}>{error}</p>}<div className={styles.actions}><button disabled={busy} onClick={() => setPanel(null)}>Cancelar</button><button disabled={busy} onClick={deactivate}>{busy ? 'Desativando…' : 'Desativar caminhão'}</button></div></SidePanel>}
+    {panel === 'deactivate' && selected && <SidePanel title="Desativar caminhão" busy={busy} onClose={() => { setPanel(null); setError(''); }}><p>Desativar o caminhão {selected.placa}? O cadastro será mantido e poderá ser consultado no filtro de inativos.</p>{error && <p role="alert" className={styles.error}>{error}</p>}<div className={styles.actions}><button disabled={busy} onClick={() => setPanel(null)}>Cancelar</button><button disabled={busy} onClick={changeActive}>{busy ? 'Desativando…' : 'Desativar caminhão'}</button></div></SidePanel>}
+    {panel === 'reactivate' && selected && <SidePanel title="Reativar caminhão" busy={busy} onClose={() => { setPanel(null); setError(''); }}><p>Reativar o caminhão {selected.placa}? O veículo ficará disponível para novos vínculos em viagens.</p>{error && <p role="alert" className={styles.error}>{error}</p>}<div className={styles.actions}><button disabled={busy} onClick={() => { setPanel(null); setError(''); }}>Voltar</button><button className={styles.primary} disabled={busy} onClick={changeActive}>{busy ? 'Reativando…' : 'Reativar caminhão'}</button></div></SidePanel>}
   </>;
 }

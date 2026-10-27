@@ -94,6 +94,9 @@ public class AppDbContext : DbContext
 
         viagem.ToTable("viagens");
 
+        viagem.Property(v => v.GerarRemuneracaoAutomatica)
+            .HasColumnName("gerar_remuneracao_automatica").HasDefaultValue(false);
+
         viagem.HasKey(v => v.Id);
 
         viagem.Property(v => v.Id)
@@ -145,6 +148,17 @@ public class AppDbContext : DbContext
         despesa.ToTable("despesas");
 
         despesa.HasKey(d => d.Id);
+
+        despesa.Property(d => d.Origem).HasColumnName("origem").HasMaxLength(40).HasDefaultValue("Manual").IsRequired();
+        // Preserva o índice de vínculo existente; o composto abaixo atende só à remuneração.
+        despesa.HasIndex(d => d.ViagemId);
+        despesa.HasIndex(d => new { d.ViagemId, d.Origem })
+            .HasDatabaseName("IX_despesas_remuneracao_viagem").IsUnique()
+            .HasFilter("origem = 'RemuneracaoMotorista' AND viagem_id IS NOT NULL");
+
+        despesa.Property(d => d.ConsiderarNoFinanceiro)
+            .HasColumnName("considerar_no_financeiro")
+            .HasDefaultValue(true);
 
         despesa.Property(d => d.Id)
             .HasColumnName("id");

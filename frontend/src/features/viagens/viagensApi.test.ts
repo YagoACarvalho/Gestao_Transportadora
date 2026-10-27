@@ -30,6 +30,18 @@ it('cancela pela rota DELETE existente sem enviar corpo', async () => {
   await expect(viagensApi.cancelar('teste')).resolves.toBeUndefined();
   expect(mock).toHaveBeenCalledWith('/api/Viagens/teste', { method: 'DELETE' });
 });
+
+it('consulta e confirma cancelamento com escolha financeira e versao sem mudar os dados da viagem', async () => {
+  const previa = { quantidadeDespesas: 1, totalDespesas: 25, versaoDespesas: 'versao-consultada' };
+  const fetchMock = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify(previa))).mockResolvedValueOnce(new Response(null, { status: 204 }));
+  vi.stubGlobal('fetch', fetchMock);
+  await expect(viagensApi.prepararCancelamento('teste')).resolves.toEqual(previa);
+  await viagensApi.confirmarCancelamento('teste', previa.versaoDespesas, false);
+  expect(fetchMock.mock.calls[0][0]).toBe('/api/Viagens/teste/cancelamento');
+  expect(fetchMock.mock.calls[1][0]).toBe('/api/Viagens/teste/cancelamento');
+  expect(fetchMock.mock.calls[1][1].method).toBe('POST');
+  expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({ versaoDespesas: previa.versaoDespesas, manterDespesas: false });
+});
 it.each([['', null], ['   ', null], ['0', 0], ['1500,50', 1500.5], ['1500.50', 1500.5], ['9999999999,99', 9999999999.99]])('interpreta frete %j sem arredondar', (value, expected) => {
   expect(parseFrete(String(value))).toBe(expected);
 });
@@ -40,5 +52,6 @@ it('combina periodo inclusivo, situacao e busca sem converter datas por fuso', (
   expect(filtrarViagens([viagem, other], 'ausente', '', '', '')).toEqual([]);
   expect(formatarData('2030-01-02')).toBe('02/01/2030');
   expect(formatarData(null)).toBe('Não informada');
-  expect(proximasSituacoes('Concluída')).toEqual([]); expect(proximasSituacoes('Cancelada')).toEqual([]);
+  expect(proximasSituacoes('Concluída')).toEqual(['Planejada']); expect(proximasSituacoes('Cancelada')).toEqual(['Planejada']);
+  expect(proximasSituacoes(null)).toEqual([]);
 });

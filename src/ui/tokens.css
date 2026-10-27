@@ -1,0 +1,69 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+
+:root {
+  /* Fundo */
+  --ul-bg-page: #e3e4e8;
+  --ul-bg-surface: #f5f8fc;
+  --ul-bg-card: #fcfdff;
+  --ul-bg-pill: #e4eef6;
+  --ul-bg-track: #e8eef4;
+  --ul-border: rgba(36, 75, 126, 0.08);
+
+  /* Azul-marinho */
+  --ul-navy-800: #14305c;
+  --ul-navy-600: #244b7e;
+  --ul-navy-500: #2d5c96;
+
+  /* Ciano e menta */
+  --ul-cyan-600: #1a8fbd;
+  --ul-cyan-500: #1fa0ce;
+  --ul-cyan-400: #35b5dc;
+  --ul-cyan-100: #d9f1f9;
+  --ul-mint-400: #7ce3c1;
+  --ul-mint-100: #d8f6ee;
+  --ul-mint-700: #1d9a83;
+
+  /* Estados */
+  --ul-red-500: #e5605e;
+  --ul-red-100: #fde4e3;
+
+  /* Texto */
+  --ul-text: #0f1f3d;
+  --ul-text-muted: #7a8799;
+  --ul-text-on-dark: #ffffff;
+  --ul-text-pill: #44627f;
+
+  /* Gradientes */
+  --ul-grad-navy: linear-gradient(135deg, #14305c 0%, #244b7e 100%);
+  --ul-grad-cyan-mint: linear-gradient(90deg, #27b5e8 0%, #6fe0c0 100%);
+  --ul-grad-cyan-mint-v: linear-gradient(180deg, #86eac8 0%, #3cc3d9 100%);
+
+  /* Tipografia */
+  --ul-font: "Plus Jakarta Sans", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ul-fs-title: 2.125rem;
+  --ul-fs-card-title: 1.125rem;
+  --ul-fs-kpi: 2.5rem;
+  --ul-fs-body: 0.875rem;
+  --ul-fs-caption: 0.75rem;
+
+  /* Raios */
+  --ul-radius-sm: 12px;
+  --ul-radius-md: 14px;
+  --ul-radius-lg: 20px;
+  --ul-radius-xl: 28px;
+  --ul-radius-full: 999px;
+
+  /* Sombras */
+  --ul-shadow-card: 0 1px 2px rgba(20, 48, 92, 0.04), 0 8px 24px rgba(20, 48, 92, 0.06);
+  --ul-shadow-surface: 0 20px 60px rgba(20, 48, 92, 0.1);
+  --ul-shadow-pill: 0 4px 12px rgba(31, 160, 206, 0.3);
+
+  /* Espaçamento */
+  --ul-space-1: 4px;
+  --ul-space-2: 8px;
+  --ul-space-3: 12px;
+  --ul-space-4: 16px;
+  --ul-space-5: 20px;
+  --ul-space-6: 24px;
+  --ul-space-8: 32px;
+}
