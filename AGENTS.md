@@ -1,5 +1,10 @@
 # Guia de trabalho dos agentes
 
+## Workspace de trabalho
+- Trabalhe na raiz `G:\projetos\Gestao_Transportadora-main`, na branch de consolidação `consolidation/workspace-unificado` enquanto esta organização estiver vigente.
+- Os diretórios em `.local/worktrees/` foram preservados como referências; não são o workspace de desenvolvimento diário. Contexto e mapa das pastas em `docs/workspace.md`.
+- O kit usado pela aplicação está em `frontend/src/ui/`; `src/ui/` contém a referência original, incluindo `ExamplePage.tsx`.
+
 ## Projeto confirmado
 - Raiz do repositório: diretório que contém `GestaoTransportadora.slnx`.
 - Solução `GestaoTransportadora.slnx`: API `Transportador.Api` e testes `tests/Transportador.Api.Tests`.
