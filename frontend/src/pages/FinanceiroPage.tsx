@@ -10,33 +10,48 @@ import { viagensApi } from '../features/viagens/viagensApi';
 import { montarIndicadores, periodoDoMes } from '../features/financeiro/indicadores';
 import page from './FinanceiroPage.module.css';
 import styles from '../components/Cadastro.module.css';
+import { agruparOperacao } from '../features/financeiro/operacao';
+import { ComparativoOperacional } from '../features/financeiro/RelacoesOperacionais';
 
 const GraficosFinanceiros = lazy(() => import('../features/financeiro/GraficosFinanceiros'));
 
 export function FinanceiroPage() {
-  const [inicio, setInicio] = useState(''); const [fim, setFim] = useState('');
-  const [periodo, setPeriodo] = useState({ inicio: '', fim: '' }); const [revision, setRevision] = useState(0);
+  const initial = new URLSearchParams(window.location.hash.split('?')[1] ?? '');
+  const [inicio, setInicio] = useState(initial.get('inicio') ?? ''); const [fim, setFim] = useState(initial.get('fim') ?? '');
+  const [periodo, setPeriodo] = useState(() => ({ inicio, fim })); const [revision, setRevision] = useState(0);
   const [resumo, setResumo] = useState<ResumoFinanceiro>(); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
   const [detalhes, setDetalhes] = useState<ReturnType<typeof montarIndicadores>>();
   const [detalhesError, setDetalhesError] = useState('');
+  const [correlacoes, setCorrelacoes] = useState<ReturnType<typeof agruparOperacao>>();
   const invalido = !!(inicio && fim && inicio > fim);
   useEffect(() => {
     const controller = new AbortController(); setLoading(true); setError(''); setResumo(undefined);
-    setDetalhes(undefined); setDetalhesError('');
+    setDetalhes(undefined); setDetalhesError(''); setCorrelacoes(undefined);
     financeiroApi.resumo(periodo.inicio, periodo.fim, controller.signal).then(data => { if (!controller.signal.aborted) setResumo(data); })
       .catch(failure => { if (!controller.signal.aborted) setError(failure instanceof Error ? failure.message : 'Não foi possível carregar o resumo.'); })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     Promise.all([despesasApi.listar(controller.signal), viagensApi.listar(controller.signal)])
-      .then(([despesas, viagens]) => { if (!controller.signal.aborted) setDetalhes(montarIndicadores(despesas, viagens, periodo.inicio, periodo.fim)); })
+      .then(([despesas, viagens]) => { if (!controller.signal.aborted) {
+        setDetalhes(montarIndicadores(despesas, viagens, periodo.inicio, periodo.fim));
+        setCorrelacoes(agruparOperacao(viagens, despesas, periodo.inicio, periodo.fim));
+      } })
       .catch(() => { if (!controller.signal.aborted) setDetalhesError('Não foi possível carregar os gráficos e lançamentos.'); });
     return () => controller.abort();
   }, [periodo, revision]);
-  const aplicar = (novo: { inicio: string; fim: string }) => { setInicio(novo.inicio); setFim(novo.fim); setPeriodo(novo); };
+  const aplicar = (novo: { inicio: string; fim: string }) => {
+    setInicio(novo.inicio); setFim(novo.fim); setPeriodo(novo);
+    if (window.location.hash.startsWith('#/financeiro')) {
+      const params = new URLSearchParams();
+      if (novo.inicio) params.set('inicio', novo.inicio);
+      if (novo.fim) params.set('fim', novo.fim);
+      window.history.replaceState(null, '', `#/financeiro${params.size ? `?${params}` : ''}`);
+    }
+  };
   return <>
     <PageHeader title="Resumo financeiro" description="Acompanhe os custos das viagens e da transportadora." action={<LinkButton variant="primary" href="#/despesas">Gerenciar despesas</LinkButton>} />
     <Card span={12} aria-label="Período financeiro" className={page.periodo}>
       <Tabs label="Atalhos de período" value={!periodo.inicio && !periodo.fim ? 'historico' : periodo.inicio === periodoDoMes(0).inicio && periodo.fim === periodoDoMes(0).fim ? 'atual' : periodo.inicio === periodoDoMes(-1).inicio && periodo.fim === periodoDoMes(-1).fim ? 'anterior' : 'personalizado'} onChange={value => aplicar(value === 'historico' ? { inicio: '', fim: '' } : periodoDoMes(value === 'atual' ? 0 : -1))} options={[{ value: 'atual', label: 'Mês atual' }, { value: 'anterior', label: 'Mês anterior' }, { value: 'historico', label: 'Todo o histórico' }]} />
-      <form className={page.dates} onSubmit={event => { event.preventDefault(); if (!invalido) setPeriodo({ inicio, fim }); }}>
+      <form className={page.dates} onSubmit={event => { event.preventDefault(); if (!invalido) aplicar({ inicio, fim }); }}>
         <div className={styles.field}><label htmlFor="inicio">Data inicial</label><input id="inicio" type="date" value={inicio} onChange={e => setInicio(e.target.value)} /></div>
         <div className={styles.field}><label htmlFor="fim">Data final</label><input id="fim" type="date" value={fim} onChange={e => setFim(e.target.value)} /></div>
         <Button type="submit" disabled={invalido || loading}>Aplicar período</Button>
@@ -61,6 +76,11 @@ export function FinanceiroPage() {
     {resumo && !loading && !error && <>
       {detalhesError ? <div role="alert" className={page.notice}>{detalhesError} <Button variant="secondary" onClick={() => setRevision(v => v + 1)}>Recarregar detalhes</Button></div> : !detalhes ? <p role="status">Carregando detalhes financeiros…</p> : <>
         <Suspense fallback={<p role="status">Preparando gráficos…</p>}><GraficosFinanceiros detalhes={detalhes} resumo={resumo} /></Suspense>
+        {correlacoes && <section className={page.correlacoes} aria-label="Motoristas e caminhões no período">
+          <div><h2>Operação por motorista e caminhão</h2><p>Abra um perfil para consultar viagens e despesas, mantendo o período aplicado. As duas visões mostram os mesmos custos sob perspectivas diferentes; seus totais não devem ser somados.</p><p>Viagens incluem todas as situações; fretes excluem canceladas. Vínculos atuais, sem distribuir custos gerais entre motoristas. Sem valor válido, o total aparece como não informado.</p></div>
+          <ComparativoOperacional tipo="motorista" grupos={correlacoes.motoristas} inicio={periodo.inicio} fim={periodo.fim} />
+          <ComparativoOperacional tipo="caminhao" grupos={correlacoes.caminhoes} inicio={periodo.inicio} fim={periodo.fim} />
+        </section>}
         <Card span={12} className={page.panel} aria-labelledby="recentes-titulo">
           <div className={page.sectionHeader}><h2 id="recentes-titulo">Últimos lançamentos</h2><a href="#/despesas">Ver e editar despesas</a></div>
           {detalhes.recentes.length ? <div className={styles.tableScroll} role="region" aria-label="Últimos lançamentos" tabIndex={0}><table className={styles.table}><thead><tr><th scope="col">Lançamento</th><th scope="col">Tipo</th><th scope="col">Data</th><th scope="col" className={styles.numeric}>Valor</th></tr></thead><tbody>{detalhes.recentes.map(item => <tr key={item.id}><th scope="row">{item.descricao || 'Descrição não informada'}<span className={styles.secondary}>{item.categoria || 'Categoria não informada'}</span></th><td>{item.viagemId ? 'De viagem' : 'Geral'}</td><td>{formatarData(item.dataDespesa)}</td><td className={styles.numeric}>{item.valor === null ? 'Não informado' : moeda(item.valor)}</td></tr>)}</tbody></table></div> : <p>Nenhum lançamento neste período. <a href="#/despesas">Cadastrar despesa</a></p>}

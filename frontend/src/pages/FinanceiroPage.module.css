@@ -49,3 +49,6 @@
 .notice { padding: var(--ul-space-6); background: var(--ul-bg-card); border-radius: var(--ul-radius-lg); margin: var(--ul-space-4) 0; }
 @media (max-width: 900px) { .panels { grid-template-columns: minmax(0, 1fr); gap: 0; } }
 @media (max-width: 600px) { .dates { align-items: stretch; } .dates > div, .dates > button { width: 100%; } .summary dd { font-size: var(--ul-fs-title); } .chart { min-width: 380px; } }
+.correlacoes { display: flex; flex-direction: column; gap: var(--ul-space-5); margin-block: var(--ul-space-6); min-width: 0; }
+.correlacoes h2 { font-size: var(--ul-fs-card-title); margin: 0 0 var(--ul-space-3); }
+.correlacoes p { color: var(--ul-text-muted); font-size: var(--ul-fs-caption); max-width: 78ch; }

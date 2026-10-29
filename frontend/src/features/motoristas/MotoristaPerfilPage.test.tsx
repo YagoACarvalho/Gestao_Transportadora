@@ -23,6 +23,15 @@ beforeEach(() => {
   vi.spyOn(despesasApi, 'listar').mockResolvedValue([despesa]);
 });
 
+it('abre operação com despesas e fretes correlacionados sem alterar o cadastro', async () => {
+  render(<MotoristaPerfilPage motoristaId="m1" aba="resumo" />);
+  await screen.findByText('Fretes previstos no período');
+  expect(screen.getByRole('link', { name: 'ABC1D23' }).getAttribute('href')).toContain('caminhaoId=c1');
+  expect(screen.getByText('Despesas no período')).toBeTruthy();
+  expect(viagensApi.listar).toHaveBeenCalledTimes(1);
+  expect(despesasApi.listar).toHaveBeenCalledTimes(1);
+});
+
 it('abre o cadastro de inativo com campos ausentes e consulta viagens somente quando necessario', async () => {
   const { rerender } = render(<MotoristaPerfilPage motoristaId="m1" />);
   await screen.findByRole('region', { name: 'Dados cadastrais' });

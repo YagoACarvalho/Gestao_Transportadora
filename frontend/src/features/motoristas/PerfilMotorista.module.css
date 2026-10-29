@@ -12,4 +12,5 @@
 .tripMeta { display: flex; flex-wrap: wrap; gap: var(--ul-space-3); }
 .stats { margin-bottom: var(--ul-space-5); }
 .ledger { margin-top: var(--ul-space-5); }
+.operacao { display: flex; flex-direction: column; gap: var(--ul-space-5); min-width: 0; }
 @media (max-width: 600px) { .cards { padding: var(--ul-space-4); } .filters { padding: var(--ul-space-4); } .filters > div { width: 100%; flex: auto; } }

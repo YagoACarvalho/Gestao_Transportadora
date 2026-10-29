@@ -15,9 +15,10 @@ import { moeda } from '../features/despesas/types';
 import type { Despesa } from '../features/despesas/types';
 import cadastro from '../components/Cadastro.module.css';
 import styles from '../features/motoristas/PerfilMotorista.module.css';
+import { ResumoPerfil } from '../features/financeiro/ResumoPerfil';
 
 type Consulta<T> = { estado: 'carregando' } | { estado: 'erro'; mensagem: string } | { estado: 'pronto'; dados: T };
-export type AbaMotorista = 'cadastro' | 'viagens' | 'remuneracao';
+export type AbaMotorista = 'cadastro' | 'viagens' | 'remuneracao' | 'resumo';
 const mensagem = (failure: unknown) => failure instanceof Error ? failure.message : 'Não foi possível carregar os dados. Tente novamente.';
 const valor = (total: number | null) => total === null || !Number.isFinite(total) ? 'Não informado' : moeda(total);
 
@@ -29,7 +30,7 @@ export function MotoristaPerfilPage({ motoristaId, aba = 'cadastro' }: { motoris
   const [inicio, setInicio] = useState(''); const [fim, setFim] = useState(''); const [status, setStatus] = useState('');
   const [editing, setEditing] = useState(false); const [busy, setBusy] = useState(false); const saving = useRef(false);
   const [feedback, setFeedback] = useState(''); const [selecionada, setSelecionada] = useState<Viagem>();
-  const consultarViagens = aba !== 'cadastro'; const consultarDespesas = aba === 'remuneracao';
+  const consultarViagens = aba === 'viagens' || aba === 'remuneracao'; const consultarDespesas = aba === 'remuneracao';
   const invalido = !!(inicio && fim && inicio > fim);
 
   useEffect(() => {
@@ -62,24 +63,26 @@ export function MotoristaPerfilPage({ motoristaId, aba = 'cadastro' }: { motoris
     } finally { saving.current = false; setBusy(false); }
   }
   function trocarAba(nova: AbaMotorista) {
-    window.location.hash = `#/motoristas?motoristaId=${encodeURIComponent(motoristaId)}&aba=${nova}`;
+    const params = new URLSearchParams(window.location.hash.split('?')[1] ?? '');
+    params.set('motoristaId', motoristaId); params.set('aba', nova);
+    window.location.hash = `#/motoristas?${params}`;
   }
   const lista = viagens.estado === 'pronto' ? viagensDoMotorista(motoristaId, viagens.dados, inicio, fim, status) : [];
   const remuneracao = viagens.estado === 'pronto' && despesas.estado === 'pronto'
     ? remuneracaoDoMotorista(motoristaId, viagens.dados, despesas.dados, inicio, fim) : undefined;
 
   return <>
-    <PageHeader title={motorista.estado === 'pronto' ? motorista.dados.nome || 'Nome não informado' : 'Perfil do motorista'} subtitle="Cadastro, viagens vinculadas e remuneração prevista."
+    <PageHeader title={motorista.estado === 'pronto' ? motorista.dados.nome || 'Nome não informado' : 'Perfil do motorista'} subtitle="Cadastro, viagens, fretes, despesas e remuneração prevista."
       actions={<LinkButton href="#/motoristas">Voltar para motoristas</LinkButton>} />
     {feedback && <p role="status" className={cadastro.feedback}>{feedback}</p>}
     {motorista.estado === 'carregando' ? <Card span={12}><p role="status">Carregando perfil do motorista…</p></Card>
       : motorista.estado === 'erro' ? <Card span={12}><div role="alert" className={cadastro.error}>{motorista.mensagem}</div><Button variant="secondary" onClick={() => setRevision(value => value + 1)}>Tentar novamente</Button></Card>
         : <>
           <div className={styles.navigation}><Tabs label="Seções do perfil" value={aba} onChange={trocarAba} options={[
-            { value: 'cadastro', label: 'Cadastro' }, { value: 'viagens', label: 'Viagens' }, { value: 'remuneracao', label: 'Remuneração' },
+            { value: 'cadastro', label: 'Cadastro' }, { value: 'resumo', label: 'Operação e despesas' }, { value: 'viagens', label: 'Viagens' }, { value: 'remuneracao', label: 'Remuneração' },
           ]} /><Button variant="secondary" disabled={busy} onClick={() => setRevision(value => value + 1)}>Atualizar perfil</Button></div>
 
-          {aba === 'cadastro' ? <Card span={12} aria-label="Dados cadastrais">
+          {aba === 'resumo' ? <ResumoPerfil tipo="motorista" id={motoristaId} /> : aba === 'cadastro' ? <Card span={12} aria-label="Dados cadastrais">
             <div className={styles.identity}><Avatar name={motorista.dados.nome || 'Motorista'} /><div><h2>Dados cadastrais</h2><Badge tone={motorista.dados.ativo ? 'positive' : 'neutral'}>{motorista.dados.ativo ? 'Ativo' : 'Inativo'}</Badge></div></div>
             <dl className={cadastro.details}>
               <div><dt>Nome</dt><dd>{motorista.dados.nome}</dd></div><div><dt>Telefone</dt><dd>{motorista.dados.telefone || 'Não informado'}</dd></div>
