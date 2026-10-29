@@ -1,4 +1,4 @@
-import { AppShell, Button, Card, PageHeader } from '../ui';
+import { AppShell, Button, Card, PageHeader, ThemeSelector } from '../ui';
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode, FormEvent } from 'react';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
@@ -105,6 +105,7 @@ export function AuthGate({ client, intent = 'login', children }: {
   return <AppShell className={styles.shell}><main className={styles.page}>
     <section className={styles.identity} aria-label="Gestão de Transportadora"><div className={styles.brand}><span className={styles.brandMark} aria-hidden="true">GT</span>Gestão de Transportadora</div><div className={styles.route}><span className={styles.routeLine} aria-hidden="true"><span /> <span /> <span /></span><h2>Sua operação.<br />Um caminho mais claro.</h2><p>Cadastros, viagens e despesas da sua transportadora, em um só lugar.</p><div className={styles.tags}><span>Equipe</span><span>Viagens</span><span>Financeiro</span></div></div><p>Acesso exclusivo para usuários convidados e autorizados.</p></section>
     <section className={styles.content}><Card span={12} className={styles.accessCard}>
+      <div className={styles.themeActions}><ThemeSelector /></div>
       <PageHeader title={title} headingRef={heading} />
       {!client ? <p className={styles.description}>O acesso ainda não foi configurado. Solicite ao responsável a configuração do sistema.</p> : pending ? <p role="status">Verificando sua sessão e sua autorização…</p> : blocked ? <>
         <p className={styles.description}>{view === 'forbidden' ? 'Seu usuário não está autorizado a acessar esta transportadora. Solicite acesso ao responsável.' : 'Não foi possível confirmar a comunicação com o sistema.'}</p>

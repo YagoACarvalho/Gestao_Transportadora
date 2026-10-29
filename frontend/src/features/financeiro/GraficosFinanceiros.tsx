@@ -12,7 +12,7 @@ const tooltipStyle = { borderRadius: 'var(--ul-radius-md)', borderColor: 'var(--
 
 export default function GraficosFinanceiros({ detalhes, resumo }: { detalhes: Indicadores; resumo: ResumoFinanceiro }) {
   const tipos = [
-    { nome: 'De viagens', valor: resumo.totalDespesasViagens, fill: 'var(--ul-cyan-600)' },
+    { nome: 'De viagens', valor: resumo.totalDespesasViagens, fill: 'var(--ul-chart-cyan)' },
     { nome: 'Gerais', valor: resumo.totalDespesasGerais, fill: 'var(--ul-mint-700)' },
   ];
   // Valores legados negativos permanecem na alternativa textual; uma rosca não os representa.
@@ -30,7 +30,7 @@ export default function GraficosFinanceiros({ detalhes, resumo }: { detalhes: In
                 <YAxis tickFormatter={eixoMonetario} tick={{ fill: 'var(--ul-text-muted)', fontSize: 'var(--ul-fs-small)' }} axisLine={false} tickLine={false} width={52} />
                 <Tooltip formatter={value => moeda(Number(value))} labelFormatter={label => mesLabel(String(label))} contentStyle={tooltipStyle} cursor={{ fill: 'var(--ul-bg-pill)' }} />
                 <Legend iconType="circle" formatter={value => <span style={{ color: 'var(--ul-text-muted)' }}>{value}</span>} />
-                <Bar dataKey="fretes" name="Fretes previstos" fill="var(--ul-cyan-600)" shape={<ChartBar />} maxBarSize={40} isAnimationActive={false} />
+                <Bar dataKey="fretes" name="Fretes previstos" fill="var(--ul-chart-cyan)" shape={<ChartBar />} maxBarSize={40} isAnimationActive={false} />
                 <Bar dataKey="despesas" name="Despesas" fill="var(--ul-mint-700)" shape={<ChartBar />} maxBarSize={40} isAnimationActive={false} />
               </BarChart>
             </ResponsiveContainer>
@@ -64,7 +64,7 @@ export default function GraficosFinanceiros({ detalhes, resumo }: { detalhes: In
               <XAxis type="number" tickFormatter={eixoMonetario} tick={{ fill: 'var(--ul-text-muted)', fontSize: 'var(--ul-fs-small)' }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="nome" width={130} tickFormatter={nome => String(nome).length > 19 ? `${String(nome).slice(0, 18)}…` : String(nome)} tick={{ fill: 'var(--ul-text)', fontSize: 'var(--ul-fs-small)' }} axisLine={false} tickLine={false} interval={0} />
               <Tooltip formatter={value => moeda(Number(value))} contentStyle={tooltipStyle} cursor={{ fill: 'var(--ul-bg-pill)' }} />
-              <Bar dataKey="valor" name="Despesas" fill="var(--ul-cyan-600)" shape={<ChartBar />} maxBarSize={22} isAnimationActive={false} />
+              <Bar dataKey="valor" name="Despesas" fill="var(--ul-chart-cyan)" shape={<ChartBar />} maxBarSize={22} isAnimationActive={false} />
             </BarChart>
           </ResponsiveContainer>
         </div></div>

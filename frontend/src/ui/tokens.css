@@ -1,4 +1,10 @@
 :root {
+  color-scheme: light;
+  --ul-link: var(--ul-cyan-600);
+  --ul-focus: var(--ul-cyan-600);
+  --ul-text-hover: var(--ul-navy-800);
+  --ul-selection-text: var(--ul-navy-800);
+  --ul-chart-cyan: var(--ul-cyan-600);
   --ul-bg-page: #e3e4e8;
   --ul-bg-surface: #f5f8fc;
   --ul-bg-card: #fcfdff;
@@ -72,4 +78,36 @@
   --ul-space-10: 40px;
   --ul-space-12: 48px;
   --ul-space-16: 64px;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --ul-bg-page: #0c1624;
+  --ul-bg-surface: #111f31;
+  --ul-bg-card: #17283c;
+  --ul-bg-pill: #233b53;
+  --ul-bg-track: #2c4259;
+  --ul-border: #71859d;
+  --ul-divider: #3a5068;
+  --ul-text: #edf4fc;
+  --ul-text-muted: #afc0d5;
+  --ul-text-pill: #d6e7f6;
+  --ul-cyan-100: #193c50;
+  --ul-mint-100: #153d36;
+  --ul-mint-700: #9aefd4;
+  --ul-red-100: #442c36;
+  --ul-red-500: #ffaaa6;
+  --ul-warning-bg: #443a23;
+  --ul-warning: #f3d58b;
+  --ul-disabled-bg: #253548;
+  --ul-disabled-text: #afc0d5;
+  --ul-link: #7ed8f3;
+  --ul-focus: #7ed8f3;
+  --ul-text-hover: var(--ul-text);
+  --ul-selection-text: var(--ul-text);
+  --ul-chart-cyan: #59c7eb;
+  --ul-backdrop: rgb(4 10 18 / 75%);
+  --ul-shadow-card: 0 1px 2px rgb(0 0 0 / 15%), 0 8px 24px rgb(0 0 0 / 15%);
+  --ul-shadow-surface: 0 20px 60px rgb(0 0 0 / 25%);
+  --ul-shadow-pill: 0 4px 12px rgb(0 0 0 / 18%);
 }

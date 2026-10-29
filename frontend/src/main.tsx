@@ -6,6 +6,8 @@ import { AuthGate } from './auth/AuthGate';
 import { getSupabaseClient, readAuthIntent } from './auth/supabase';
 import './styles/tokens.css';
 import './styles/global.css';
+import { initializeTheme } from './ui/theme';
+initializeTheme();
 const intent = readAuthIntent();
 const client = getSupabaseClient();
 

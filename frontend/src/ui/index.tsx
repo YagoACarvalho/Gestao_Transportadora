@@ -1,5 +1,6 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, HTMLAttributes, ReactNode, Ref } from 'react';
 import styles from './components.module.css';
+export { ThemeSelector } from './ThemeSelector';
 
 type Span = 3 | 4 | 5 | 6 | 7 | 12;
 const join = (...names: (string | undefined)[]) => names.filter(Boolean).join(' ');

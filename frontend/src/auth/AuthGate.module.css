@@ -20,5 +20,6 @@
 .error { color: var(--ul-red-500); background: var(--ul-red-100); padding: var(--ul-space-4); border-radius: var(--ul-radius-sm); font-size: var(--ul-fs-caption); }
 .status { color: var(--ul-mint-700); background: var(--ul-mint-100); padding: var(--ul-space-4); border-radius: var(--ul-radius-sm); }
 .actions { display: flex; flex-wrap: wrap; gap: var(--ul-space-3); margin-top: var(--ul-space-6); }
+.themeActions { display: flex; justify-content: flex-end; margin-bottom: var(--ul-space-6); }
 @media (max-width: 900px) { .shell { padding: var(--ul-space-3); } .page { grid-template-columns: minmax(0, 1fr); min-height: calc(100dvh - var(--ul-space-6)); } .identity { padding: var(--ul-space-6); gap: var(--ul-space-6); } .identity h2 { font-size: var(--ul-fs-title); max-width: none; margin-block: var(--ul-space-5); } .routeLine { display: none; } .identity > p, .tags { display: none; } .content { padding: var(--ul-space-6); align-items: flex-start; } }
 @media (max-width: 500px) { .content { padding: var(--ul-space-3); } .accessCard { padding: var(--ul-space-5); } }

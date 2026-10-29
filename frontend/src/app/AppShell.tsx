@@ -1,4 +1,4 @@
-import { Button } from '../ui';
+import { Button, ThemeSelector } from '../ui';
 import { useEffect, useRef, useState } from 'react';
 import { AppShell as UiAppShell } from '../ui';
 import { Sidebar } from '../components/Sidebar';
@@ -46,7 +46,7 @@ export function AppShell({ onSignOut }: { onSignOut?: () => Promise<void> }) {
         <div className={styles.topbar}>
           <Button variant="secondary" ref={menuButton} className={styles.menuButton} type="button" aria-haspopup="dialog" aria-controls="menu-movel" onClick={() => dialog.current?.showModal()}>☰ Menu</Button>
           <span className={styles.breadcrumb}><span className={styles.context}>{modulo === 'viagens' ? 'Operação' : modulo === 'despesas' || modulo === 'financeiro' ? 'Financeiro' : 'Cadastros'}</span><span className={styles.separator} aria-hidden="true">/</span><strong>{title}</strong></span>
-          {onSignOut && <Button variant="secondary" className={styles.signOut} onClick={onSignOut}>Sair</Button>}
+          <div className={styles.themeActions}><ThemeSelector />{onSignOut && <Button variant="secondary" onClick={onSignOut}>Sair</Button>}</div>
         </div>
         <main ref={main} id="conteudo" tabIndex={-1} className={styles.content}>
           {modulo === 'viagens' ? <ViagensPage /> : modulo === 'caminhoes' ? <CaminhoesPage /> : modulo === 'despesas' ? <DespesasPage key={consulta} /> : modulo === 'financeiro' ? <FinanceiroPage /> : motoristaId ? <MotoristaPerfilPage key={motoristaId} motoristaId={motoristaId} aba={abaMotorista} /> : <MotoristasPage />}
