@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { HttpError } from '../../api/http';
 import { viagensApi } from '../viagens/viagensApi';
+import { caminhoesApi } from '../caminhoes/caminhoesApi';
+import type { Caminhao } from '../caminhoes/types';
 import { formatarData } from '../viagens/types';
 import type { Viagem } from '../viagens/types';
 import { parseValor } from './types';
@@ -15,9 +17,22 @@ export function DespesaForm({ despesa, viagemInicial, tipoInicial = 'geral', bus
   const [values, setValues] = useState({ descricao: despesa?.descricao ?? '', categoria: despesa?.categoria ?? '',
     valor: despesa?.valor?.toString().replace('.', ',') ?? '', dataDespesa: despesa?.dataDespesa ?? '', viagemId: despesa?.viagemId ?? viagemInicial?.id ?? '' });
   const [viagens, setViagens] = useState<Viagem[]>([]);
+  const [caminhaoId, setCaminhaoId] = useState(despesa?.caminhaoId ?? '');
+  const [caminhoes, setCaminhoes] = useState<Caminhao[]>([]);
+  const [carregandoCaminhoes, setCarregandoCaminhoes] = useState(false);
+  const [erroCaminhoes, setErroCaminhoes] = useState('');
   const [loading, setLoading] = useState(true); const [lookupError, setLookupError] = useState('');
   const [revision, setRevision] = useState(0); const [error, setError] = useState('');
   const [fields, setFields] = useState<Record<string, string[]>>({});
+  useEffect(() => {
+    if (tipo !== 'geral') return;
+    const controller = new AbortController(); setCarregandoCaminhoes(true); setErroCaminhoes('');
+    caminhoesApi.listar(true, controller.signal).then(items => {
+      if (!controller.signal.aborted) setCaminhoes(items.filter(c => c.ativo || c.id === despesa?.caminhaoId));
+    }).catch(() => { if (!controller.signal.aborted) setErroCaminhoes('Não foi possível carregar caminhões.'); })
+      .finally(() => { if (!controller.signal.aborted) setCarregandoCaminhoes(false); });
+    return () => controller.abort();
+  }, [tipo, revision, despesa?.caminhaoId]);
   useEffect(() => {
     if (tipo === 'geral') { setLoading(false); return; }
     const controller = new AbortController(); setLoading(true); setLookupError('');
@@ -32,7 +47,7 @@ export function DespesaForm({ despesa, viagemInicial, tipoInicial = 'geral', bus
     event.preventDefault(); setError(''); setFields({});
     if (tipo === 'viagem' && !values.viagemId) { setError('Selecione a viagem desta despesa.'); return; }
     if (!despesa && viagemCancelada && !situacaoFinanceira) { setError('Escolha se a despesa entra no financeiro.'); return; }
-    try { await onSave({ ...values, viagemId: tipo === 'viagem' ? values.viagemId : null, valor: parseValor(values.valor),
+    try { await onSave({ ...values, viagemId: tipo === 'viagem' ? values.viagemId : null, caminhaoId: tipo === 'geral' ? caminhaoId || null : null, valor: parseValor(values.valor),
       ...(despesa || viagemCancelada ? { considerarNoFinanceiro: situacaoFinanceira === 'sim' } : {}) }); }
     catch (failure) { setError(failure instanceof Error ? failure.message : 'Não foi possível salvar.'); if (failure instanceof HttpError) setFields(failure.fields); }
   }
@@ -55,6 +70,17 @@ export function DespesaForm({ despesa, viagemInicial, tipoInicial = 'geral', bus
       </div>)}
       <span id="valor-ajuda">Valor maior que zero, com até duas casas decimais.</span>
     </fieldset>
+    {tipo === 'geral' && <fieldset disabled={busy}><legend>Caminhão</legend>
+      {carregandoCaminhoes && <p role="status">Carregando caminhões…</p>}
+      {erroCaminhoes && <p role="alert">{erroCaminhoes} <Button variant="secondary" type="button" onClick={() => setRevision(v => v + 1)}>Carregar caminhões novamente</Button></p>}
+      <div className={styles.field}><label htmlFor="caminhaoId">Caminhão (opcional)</label>
+        <select id="caminhaoId" value={caminhaoId} disabled={carregandoCaminhoes || !!erroCaminhoes} onChange={e => setCaminhaoId(e.target.value)} aria-invalid={!!fieldError('caminhaoId')} aria-describedby="caminhao-ajuda">
+          <option value="">Sem vínculo com caminhão</option>
+          {caminhaoId && !caminhoes.some(c => c.id === caminhaoId) && <option value={caminhaoId}>{despesa?.caminhao?.placa || 'Vínculo atual'}</option>}
+          {caminhoes.map(c => <option key={c.id} value={c.id}>{c.placa} · {c.modelo}{!c.ativo ? ' (inativo)' : ''}</option>)}
+        </select><span id="caminhao-ajuda">{fieldError('caminhaoId') || 'Associe este custo a um caminhão, sem vincular a uma viagem.'}</span>
+      </div>
+    </fieldset>}
     {tipo === 'viagem' && <fieldset disabled={busy}><legend>Viagem</legend>
       {loading && <p role="status">Carregando viagens…</p>}
       {lookupError && <div role="alert">{lookupError} <Button variant="secondary" type="button" onClick={() => setRevision(v => v + 1)}>Carregar viagens novamente</Button></div>}

@@ -5,6 +5,8 @@ public class Despesa
     public Guid Id { get; set; } = Guid.NewGuid();
 
     public Guid? ViagemId { get; set; }
+    public Guid? CaminhaoId { get; set; }
+    public Caminhao? Caminhao { get; set; }
 
     public bool ConsiderarNoFinanceiro { get; set; } = true;
 

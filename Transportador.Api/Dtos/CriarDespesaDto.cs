@@ -5,6 +5,7 @@ namespace Transportador.Api.Dtos;
 public class CriarDespesaDto : IValidatableObject
 {
     public Guid? ViagemId { get; set; }
+    public Guid? CaminhaoId { get; set; }
 
     public bool? ConsiderarNoFinanceiro { get; set; }
 

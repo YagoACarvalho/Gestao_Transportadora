@@ -146,6 +146,9 @@ public class AppDbContext : DbContext
         var despesa = modelBuilder.Entity<Despesa>();
 
         despesa.ToTable("despesas");
+        despesa.Property(d => d.CaminhaoId).HasColumnName("caminhao_id");
+        despesa.HasOne(d => d.Caminhao).WithMany().HasForeignKey(d => d.CaminhaoId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         despesa.HasKey(d => d.Id);
 

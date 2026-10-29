@@ -1,11 +1,13 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { expect, it, vi } from 'vitest';
+import { beforeEach, expect, it, vi } from 'vitest';
+import { caminhoesApi } from '../caminhoes/caminhoesApi';
 import { DespesasPage } from '../../pages/DespesasPage';
 import { despesasApi } from './despesasApi';
 import { viagensApi } from '../viagens/viagensApi';
 import { HttpError } from '../../api/http';
 import type { Despesa } from './types';
 import type { Viagem } from '../viagens/types';
+beforeEach(() => { vi.spyOn(caminhoesApi, 'listar').mockResolvedValue([]); });
 
 const item: Despesa = { id: 'despesa-teste', descricao: 'Lançamento de teste', categoria: 'Categoria teste', valor: 12.5, dataDespesa: '2030-01-02', viagemId: null, viagem: null, dataCadastro: '2026-01-01T00:00:00Z' };
 
@@ -116,7 +118,7 @@ it('cadastra com data civil, valor decimal e sem vinculo', async () => {
   const dialog = screen.getByRole('dialog'); preencher(dialog);
   fireEvent.click(within(dialog).getByRole('button', { name: 'Cadastrar despesa' }));
   await screen.findByText('Despesa cadastrada.');
-  expect(cadastrar).toHaveBeenCalledWith({ descricao: item.descricao, categoria: item.categoria, dataDespesa: item.dataDespesa, valor: 12.5, viagemId: null });
+  expect(cadastrar).toHaveBeenCalledWith({ descricao: item.descricao, categoria: item.categoria, dataDespesa: item.dataDespesa, valor: 12.5, viagemId: null, caminhaoId: null });
 });
 it('filtra periodo e busca localmente, preservando despesas de viagens canceladas', async () => {
   const listar = vi.spyOn(despesasApi, 'listar').mockResolvedValue([item, { ...item, id: 'outra', descricao: 'Outra despesa', viagemId: 'viagem', viagem: { origem: 'Origem teste', destino: 'Destino teste', status: 'Cancelada' } }]);

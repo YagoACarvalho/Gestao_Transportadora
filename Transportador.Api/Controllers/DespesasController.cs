@@ -23,6 +23,7 @@ public class DespesasController : ControllerBase
         List<Despesa> despesas = await _context.Despesas
             .AsNoTracking()
             .Include(d => d.Viagem)
+            .Include(d => d.Caminhao)
             .OrderByDescending(d => d.DataDespesa)
             .ToListAsync();
 
@@ -35,6 +36,7 @@ public class DespesasController : ControllerBase
         Despesa? despesa = await _context.Despesas
             .AsNoTracking()
             .Include(d => d.Viagem)
+            .Include(d => d.Caminhao)
             .FirstOrDefaultAsync(d => d.Id == id);
 
         if (despesa is null)
@@ -51,6 +53,7 @@ public class DespesasController : ControllerBase
     )
     {
         await ValidarViagem(dto.ViagemId);
+        await ValidarCaminhao(dto);
         if (dto.ViagemId.HasValue && dto.ConsiderarNoFinanceiro is null &&
             await _context.Viagens.AnyAsync(v => v.Id == dto.ViagemId && v.Status == "Cancelada"))
             ModelState.AddModelError(nameof(dto.ConsiderarNoFinanceiro), "Escolha se esta despesa deve entrar no financeiro da viagem cancelada.");
@@ -59,6 +62,7 @@ public class DespesasController : ControllerBase
         Despesa despesa = new()
         {
             ViagemId = dto.ViagemId,
+            CaminhaoId = dto.CaminhaoId,
             ConsiderarNoFinanceiro = dto.ConsiderarNoFinanceiro ?? true,
             Descricao = dto.Descricao,
             Categoria = dto.Categoria,
@@ -97,9 +101,11 @@ public class DespesasController : ControllerBase
             return ValidationProblem(ModelState);
         }
         await ValidarViagem(dto.ViagemId);
+        await ValidarCaminhao(dto, despesa.CaminhaoId);
         if (!ModelState.IsValid) return ValidationProblem(ModelState);
 
         despesa.ViagemId = dto.ViagemId;
+        despesa.CaminhaoId = dto.CaminhaoId;
         if (dto.ConsiderarNoFinanceiro.HasValue) despesa.ConsiderarNoFinanceiro = dto.ConsiderarNoFinanceiro.Value;
         despesa.Descricao = dto.Descricao;
         despesa.Categoria = dto.Categoria;
@@ -142,6 +148,18 @@ public class DespesasController : ControllerBase
         despesa.ConsiderarNoFinanceiro = dto.ConsiderarNoFinanceiro!.Value;
         await _context.SaveChangesAsync();
         return NoContent();
+    }
+
+    private async Task ValidarCaminhao(CriarDespesaDto dto, Guid? vinculoAtual = null)
+    {
+        if (!dto.CaminhaoId.HasValue) return;
+        if (dto.ViagemId.HasValue)
+        {
+            ModelState.AddModelError(nameof(dto.CaminhaoId), "Em despesas de viagem, o caminhão é definido pela própria viagem.");
+            return;
+        }
+        if (!await _context.Caminhoes.AnyAsync(c => c.Id == dto.CaminhaoId && (c.Ativo || c.Id == vinculoAtual)))
+            ModelState.AddModelError(nameof(dto.CaminhaoId), "Selecione um caminhão ativo existente ou deixe sem vínculo.");
     }
 
     private async Task ValidarViagem(Guid? viagemId)

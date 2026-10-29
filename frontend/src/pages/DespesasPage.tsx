@@ -19,6 +19,7 @@ export function DespesasPage() {
   const [viagemInicial, setViagemInicial] = useState<Viagem>();
   const [viagemInicialId] = useState(() => new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('viagemId'));
   const [tipo, setTipo] = useState<'todas' | 'viagem' | 'geral'>('todas');
+  const [caminhaoFiltro, setCaminhaoFiltro] = useState('');
   const [busca, setBusca] = useState(''); const [inicio, setInicio] = useState(''); const [fim, setFim] = useState(''); const [vinculo, setVinculo] = useState('');
   const [loading, setLoading] = useState(true); const [busy, setBusy] = useState(false);
   const [error, setError] = useState(''); const [feedback, setFeedback] = useState(''); const [revision, setRevision] = useState(0);
@@ -65,7 +66,8 @@ export function DespesasPage() {
     finally { saving.current = false; setBusy(false); }
   }
   const periodoInvalido = !!(inicio && fim && inicio > fim);
-  const filtered = filtrarDespesas(items, busca, inicio, fim, vinculo).filter(item => tipo === 'todas' || (tipo === 'viagem' ? !!item.viagemId : !item.viagemId));
+  const filtered = filtrarDespesas(items, busca, inicio, fim, vinculo).filter(item => (tipo === 'todas' || (tipo === 'viagem' ? !!item.viagemId : !item.viagemId)) && (!caminhaoFiltro || item.caminhaoId === caminhaoFiltro));
+  const caminhoes = Array.from(new Map(items.filter(i => i.caminhaoId).map(i => [i.caminhaoId!, i.caminhao])).entries());
   const viagens = Array.from(new Map(items.filter(i => i.viagemId).map(i => [i.viagemId!, i.viagem])).entries());
   return <>
     <PageHeader title="Despesas" description="Despesas das viagens e custos gerais da transportadora." action={<Button disabled={busy} onClick={() => { setSelected(undefined); setViagemInicial(undefined); setFeedback(''); setPanel('create'); }}>Cadastrar despesa</Button>} />
@@ -78,6 +80,7 @@ export function DespesasPage() {
         <a href="#/financeiro">Ver resumo financeiro</a>
       </div>
       <div className={styles.toolbar}>
+        <div className={styles.field}><label htmlFor="caminhaoFiltro">Caminhão da despesa geral</label><select id="caminhaoFiltro" value={caminhaoFiltro} onChange={e => setCaminhaoFiltro(e.target.value)}><option value="">Todos</option>{caminhoes.map(([id, caminhao]) => <option key={id} value={id}>{caminhao?.placa || 'Caminhão não informado'} · {caminhao?.modelo || id.slice(0, 8)}</option>)}</select></div>
         <div className={styles.field}><label htmlFor="busca">Buscar descrição, categoria ou percurso</label><input id="busca" type="search" value={busca} onChange={e => setBusca(e.target.value)} /></div>
         <div className={styles.field}><label htmlFor="vinculo">Viagem</label><select id="vinculo" value={vinculo} onChange={e => setVinculo(e.target.value)}><option value="">Todas</option><option value="sem-vinculo">Sem vínculo</option>{viagens.map(([id, viagem]) => <option key={id} value={id}>{viagem?.origem || 'Origem não informada'} → {viagem?.destino || 'Destino não informado'} · {id.slice(0, 8)}</option>)}</select></div>
         <div className={styles.field}><label htmlFor="inicio">Data inicial</label><input id="inicio" type="date" value={inicio} onChange={e => setInicio(e.target.value)} /></div>
@@ -91,7 +94,7 @@ export function DespesasPage() {
           <caption className={styles.srOnly}>Despesas encontradas</caption><thead><tr><th scope="col">Lançamento</th><th scope="col">Data</th><th scope="col">Viagem</th><th scope="col" className={styles.numeric}>Valor</th><th scope="col">Ações</th></tr></thead>
           <tbody>{filtered.map(item => <tr key={item.id}>
             <th scope="row">{item.descricao || 'Descrição não informada'}<span className={styles.secondary}>{item.categoria || 'Categoria não informada'}</span>{item.origem === 'RemuneracaoMotorista' && <span className={styles.secondary}>Automática: 15% do frete</span>}<span className={styles.secondary}>{item.considerarNoFinanceiro === false ? 'Desconsiderada no financeiro' : 'Incluída no financeiro'}</span></th><td>{formatarData(item.dataDespesa)}</td>
-            <td>{item.viagemId ? <>{item.viagem?.origem || 'Origem não informada'} → {item.viagem?.destino || 'Destino não informado'}<span className={styles.secondary}>{item.viagem?.status || 'Situação não informada'}</span></> : 'Despesa geral'}</td>
+            <td>{item.viagemId ? <>{item.viagem?.origem || 'Origem não informada'} → {item.viagem?.destino || 'Destino não informado'}<span className={styles.secondary}>{item.viagem?.status || 'Situação não informada'}</span></> : <>Despesa geral{item.caminhaoId && <span className={styles.secondary}>{item.caminhao?.placa || 'Caminhão não informado'} · {item.caminhao?.modelo || 'Modelo não informado'}{item.caminhao?.ativo === false ? ' (inativo)' : ''}</span>}</>}</td>
             <td className={styles.numeric}>{item.valor === null ? 'Não informado' : moeda(item.valor)}</td>
             <td><div className={styles.actions}><Button variant="secondary" disabled={busy} onClick={() => open(item, 'edit')} aria-label={`${item.origem === 'RemuneracaoMotorista' ? 'Alterar situação financeira de' : 'Editar despesa'} ${item.descricao || 'sem descrição'}`}><ActionIcon acao={item.origem === 'RemuneracaoMotorista' ? 'financeiro' : 'editar'} />{item.origem === 'RemuneracaoMotorista' ? 'Situação financeira' : 'Editar'}</Button>{item.origem !== 'RemuneracaoMotorista' && <Button variant="secondary" className={styles.danger} disabled={busy} onClick={() => open(item, 'delete')} aria-label={`Excluir despesa ${item.descricao || 'sem descrição'}`}><ActionIcon acao="excluir" />Excluir</Button>}</div></td>
           </tr>)}</tbody>

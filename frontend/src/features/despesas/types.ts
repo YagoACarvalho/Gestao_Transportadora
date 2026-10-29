@@ -1,8 +1,11 @@
 export interface DadosDespesa {
+  caminhaoId?: string | null;
   considerarNoFinanceiro?: boolean;
   descricao: string; categoria: string; valor: number; dataDespesa: string; viagemId: string | null;
 }
 export interface Despesa {
+  caminhaoId?: string | null;
+  caminhao?: { placa: string; modelo: string; ativo: boolean } | null;
   origem?: 'Manual' | 'RemuneracaoMotorista';
   considerarNoFinanceiro?: boolean;
   id: string; descricao: string | null; categoria: string | null; valor: number | null;
@@ -21,5 +24,5 @@ export function filtrarDespesas(items: Despesa[], busca: string, inicio: string,
   return items.filter(item => (!inicio || !!item.dataDespesa && item.dataDespesa >= inicio) &&
     (!fim || !!item.dataDespesa && item.dataDespesa <= fim) &&
     (!viagemId || (viagemId === 'sem-vinculo' ? !item.viagemId : item.viagemId === viagemId)) &&
-    (!termo || [item.descricao, item.categoria, item.viagem?.origem, item.viagem?.destino].some(v => v?.toLocaleLowerCase('pt-BR').includes(termo))));
+    (!termo || [item.descricao, item.categoria, item.viagem?.origem, item.viagem?.destino, item.caminhao?.placa, item.caminhao?.modelo].some(v => v?.toLocaleLowerCase('pt-BR').includes(termo))));
 }
