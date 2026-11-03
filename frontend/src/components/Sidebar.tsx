@@ -1,6 +1,6 @@
 import styles from './Sidebar.module.css';
 
-export type Modulo = 'motoristas' | 'caminhoes' | 'viagens' | 'despesas' | 'financeiro';
+export type Modulo = 'motoristas' | 'caminhoes' | 'viagens' | 'despesas' | 'financeiro' | 'calcular-frete';
 export function Sidebar({ modulo, onNavigate }: { modulo: Modulo; onNavigate?: () => void }) {
   return (
     <div className={styles.sidebar}>
@@ -22,6 +22,9 @@ export function Sidebar({ modulo, onNavigate }: { modulo: Modulo; onNavigate?: (
         <a href="#/viagens" aria-current={modulo === 'viagens' ? 'page' : undefined} onClick={onNavigate} className={`${styles.link} ${modulo === 'viagens' ? styles.active : ''}`}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="5" cy="5" r="2" /><circle cx="19" cy="19" r="2" /><path d="M5 7v8a4 4 0 0 0 4 4h8M7 5h8a4 4 0 0 1 4 4v3" /></svg>
           Viagens
+        </a>
+        <a href="#/calcular-frete" aria-current={modulo === 'calcular-frete' ? 'page' : undefined} onClick={onNavigate} className={`${styles.link} ${modulo === 'calcular-frete' ? styles.active : ''}`}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M8 6h8M8 11h2m4 0h2M8 15h2m4 0h2M8 19h2m4 0h2" /></svg>Calcular frete
         </a>
         <p className={styles.label}>Financeiro</p>
         <a href="#/despesas" aria-current={modulo === 'despesas' ? 'page' : undefined} onClick={onNavigate} className={`${styles.link} ${modulo === 'despesas' ? styles.active : ''}`}>

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Transportador.Api.Data;
 using Transportador.Api.Infrastructure;
 using Transportador.Api.Authentication;
+using Transportador.Api.Fretes;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,7 @@ builder.Services.AddExceptionHandler<ErroApiHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddAcessoTransportadora(builder.Configuration);
 builder.Services.AddProxyConfiavel(builder.Configuration);
+builder.Services.AddFretes();
 
 string connectionString = builder.Configuration
     .GetConnectionString("DefaultConnection")
@@ -64,6 +66,7 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapControllers().RequireAuthorization("Transportadora");
 

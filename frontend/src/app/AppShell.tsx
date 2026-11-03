@@ -11,12 +11,13 @@ import { CaminhaoPerfilPage } from '../pages/CaminhaoPerfilPage';
 import { ViagensPage } from '../pages/ViagensPage';
 import { DespesasPage } from '../pages/DespesasPage';
 import { FinanceiroPage } from '../pages/FinanceiroPage';
+import { CalcularFretePage } from '../pages/CalcularFretePage';
 import styles from './AppShell.module.css';
 
 export function AppShell({ onSignOut }: { onSignOut?: () => Promise<void> }) {
   const readModulo = (): Modulo => {
     const value = window.location.hash.slice(2).split('?')[0];
-    return value === 'viagens' || value === 'caminhoes' || value === 'despesas' || value === 'financeiro' ? value : 'motoristas';
+    return value === 'viagens' || value === 'caminhoes' || value === 'despesas' || value === 'financeiro' || value === 'calcular-frete' ? value : 'motoristas';
   };
   const [modulo, setModulo] = useState(readModulo);
   const [consulta, setConsulta] = useState(() => window.location.hash.split('?')[1] ?? '');
@@ -30,7 +31,7 @@ export function AppShell({ onSignOut }: { onSignOut?: () => Promise<void> }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const menuButton = useRef<HTMLButtonElement>(null);
   const closeMenu = () => dialog.current?.close();
-  const title = motoristaId ? 'Perfil do motorista' : caminhaoId ? 'Perfil do caminhão' : { viagens: 'Viagens', caminhoes: 'Caminhões', motoristas: 'Motoristas', despesas: 'Despesas', financeiro: 'Resumo financeiro' }[modulo];
+  const title = motoristaId ? 'Perfil do motorista' : caminhaoId ? 'Perfil do caminhão' : { viagens: 'Viagens', caminhoes: 'Caminhões', motoristas: 'Motoristas', despesas: 'Despesas', financeiro: 'Resumo financeiro', 'calcular-frete': 'Calcular frete' }[modulo];
   useEffect(() => {
     const navigate = () => { if (window.location.hash !== '#conteudo') { setModulo(readModulo()); setConsulta(window.location.hash.split('?')[1] ?? ''); } };
     window.addEventListener('hashchange', navigate);
@@ -48,11 +49,11 @@ export function AppShell({ onSignOut }: { onSignOut?: () => Promise<void> }) {
       <div className={styles.main}>
         <div className={styles.topbar}>
           <Button variant="secondary" ref={menuButton} className={styles.menuButton} type="button" aria-haspopup="dialog" aria-controls="menu-movel" onClick={() => dialog.current?.showModal()}>☰ Menu</Button>
-          <span className={styles.breadcrumb}><span className={styles.context}>{modulo === 'viagens' ? 'Operação' : modulo === 'despesas' || modulo === 'financeiro' ? 'Financeiro' : 'Cadastros'}</span><span className={styles.separator} aria-hidden="true">/</span><strong>{title}</strong></span>
+          <span className={styles.breadcrumb}><span className={styles.context}>{modulo === 'viagens' || modulo === 'calcular-frete' ? 'Operação' : modulo === 'despesas' || modulo === 'financeiro' ? 'Financeiro' : 'Cadastros'}</span><span className={styles.separator} aria-hidden="true">/</span><strong>{title}</strong></span>
           <div className={styles.themeActions}><ThemeSelector />{onSignOut && <Button variant="secondary" onClick={onSignOut}>Sair</Button>}</div>
         </div>
         <main ref={main} id="conteudo" tabIndex={-1} className={styles.content}>
-          {modulo === 'viagens' ? <ViagensPage /> : modulo === 'caminhoes' ? caminhaoId ? <CaminhaoPerfilPage key={`${caminhaoId}-${periodoPerfil}`} caminhaoId={caminhaoId} /> : <CaminhoesPage /> : modulo === 'despesas' ? <DespesasPage key={consulta} /> : modulo === 'financeiro' ? <FinanceiroPage /> : motoristaId ? <MotoristaPerfilPage key={`${motoristaId}-${periodoPerfil}`} motoristaId={motoristaId} aba={abaMotorista} /> : <MotoristasPage />}
+          {modulo === 'calcular-frete' ? <CalcularFretePage key={consulta} /> : modulo === 'viagens' ? <ViagensPage /> : modulo === 'caminhoes' ? caminhaoId ? <CaminhaoPerfilPage key={`${caminhaoId}-${periodoPerfil}`} caminhaoId={caminhaoId} /> : <CaminhoesPage /> : modulo === 'despesas' ? <DespesasPage key={consulta} /> : modulo === 'financeiro' ? <FinanceiroPage /> : motoristaId ? <MotoristaPerfilPage key={`${motoristaId}-${periodoPerfil}`} motoristaId={motoristaId} aba={abaMotorista} /> : <MotoristasPage />}
         </main>
         <footer className={styles.footer}><span>Gestão de Transportadora</span><span>Cadastros, operação e financeiro</span></footer>
       </div>

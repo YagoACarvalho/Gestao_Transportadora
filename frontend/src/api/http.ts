@@ -5,7 +5,7 @@ export class HttpError extends Error {
 }
 const versions = new Map<string, string>();
 sessionEvents.addEventListener('change', () => versions.clear());
-export async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+export async function request<T>(path: string, options: RequestInit = {}, formato: 'json' | 'blob' = 'json'): Promise<T> {
   if (!path.startsWith('/api/') || path.startsWith('//') || path.includes('\\')) throw new Error('Endereço de API inválido.');
   const session = apiSession();
   const method = options.method ?? 'GET';
@@ -38,7 +38,7 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
   if (!response.ok) {
     reportAccessFailure(response.status, session.token);
     let fields: Record<string, string[]> = {};
-    if (response.status === 400) {
+    if (response.status === 400 || path.startsWith('/api/fretes/')) {
       try {
         const body: unknown = await response.json();
         if (body && typeof body === 'object' && 'errors' in body && body.errors && typeof body.errors === 'object') {
@@ -54,7 +54,7 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
   } else if (alteraCadastro) versions.delete(versionPath);
   if (response.status === 204) return undefined as T;
   try {
-    const data = await response.json() as T;
+    const data = await (formato === 'blob' ? response.blob() : response.json()) as T;
     if (session.generation !== apiSession().generation) throw new DOMException('Sessão encerrada.', 'AbortError');
     return data;
   }
