@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Json;
 using Xunit;
 using System.Text;
 using Microsoft.Extensions.Configuration;
@@ -79,5 +80,36 @@ public sealed class MapasTests
         });
         var rota = await new MapasOrs(Cliente(handler)).Rota([new("Coleta", new(-23.55, -46.63)), new("Parada", new(-23.3, -46.4)), new("Entrega", new(-23, -46))], new() { Altura = 4, TipoCarga = 7 }, default);
         Assert.Equal(200, rota.DistanciaKm); Assert.Equal(new decimal[] { 90, 110 }, rota.TrechosKm); Assert.Equal(3, rota.Trajeto.Length);
+    }
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(5)]
+    public async Task SolicitaInstrucoesParaOrsPreservarDistanciasDosTrechos(int paradas)
+    {
+        int quantidadeTrechos = paradas + 1;
+        var pontos = Enumerable.Range(0, quantidadeTrechos + 1)
+            .Select(i => new EnderecoFrete($"Ponto de teste {i}", new(-23.55 + i * .01, -46.63 + i * .01))).ToArray();
+        var handler = new Handler(request =>
+        {
+            using var corpo = System.Text.Json.JsonDocument.Parse(request.Content!.ReadAsStringAsync().GetAwaiter().GetResult());
+            // RouteResultBuilder do ORS limpa os segmentos quando instructions=false.
+            bool incluirTrechos = !corpo.RootElement.TryGetProperty("instructions", out var instructions) || instructions.GetBoolean();
+            var segmentos = incluirTrechos ? Enumerable.Repeat(new { distance = 10000 }, quantidadeTrechos).ToArray() : [];
+            var resposta = new
+            {
+                features = new[] { new {
+                    properties = new { summary = new { distance = quantidadeTrechos * 10000 }, segments = segmentos, way_points = Enumerable.Range(0, pontos.Length).ToArray() },
+                    geometry = new { type = "LineString", coordinates = pontos.Select(p => new[] { p.Ponto!.Lon, p.Ponto.Lat }).ToArray() }
+                } }
+            };
+            return new(HttpStatusCode.OK) { Content = JsonContent.Create(resposta) };
+        });
+        var rota = await new MapasOrs(Cliente(handler)).Rota(pontos, new(), TestContext.Current.CancellationToken);
+        Assert.Equal(quantidadeTrechos * 10m, rota.DistanciaKm);
+        Assert.Equal(quantidadeTrechos, rota.TrechosKm.Length);
+        Assert.All(rota.TrechosKm, trecho => Assert.Equal(10m, trecho));
+        Assert.Equal(rota.DistanciaKm, rota.TrechosKm.Sum());
+        Assert.Equal(1, handler.Chamadas);
     }
 }

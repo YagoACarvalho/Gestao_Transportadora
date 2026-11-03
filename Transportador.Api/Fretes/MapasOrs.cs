@@ -58,7 +58,9 @@ public sealed class MapasOrs(ClienteMapas cliente) : IMapasFrete
         if (entrada.Comprimento is decimal c) restricoes["length"] = c;
         if (entrada.Peso is decimal p) restricoes["weight"] = p;
         if (entrada.TipoCarga is >= 7 and <= 11) restricoes["hazmat"] = true;
-        var corpo = new Dictionary<string, object> { ["coordinates"] = pontos.Select(p => new[] { p.Ponto!.Lon, p.Ponto.Lat }).ToArray(), ["instructions"] = false };
+        // O ORS remove segments com instructions=false; precisamos das distâncias
+        // oficiais por trecho. As instruções recebidas não são repassadas ao frontend.
+        var corpo = new Dictionary<string, object> { ["coordinates"] = pontos.Select(p => new[] { p.Ponto!.Lon, p.Ponto.Lat }).ToArray(), ["instructions"] = true };
         if (restricoes.Count > 0) corpo["options"] = new { profile_params = new { restrictions = restricoes } };
         using var json = await cliente.Json(HttpMethod.Post, ClienteMapas.Direcoes, corpo, ct);
         try

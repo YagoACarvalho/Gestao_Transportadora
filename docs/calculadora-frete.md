@@ -46,6 +46,10 @@ URLs fixas atuais, conforme [aviso oficial de migração do provedor](https://as
 - `https://api.heigit.org/openrouteservice/v2/directions/driving-hgv/geojson`
 
 Credencial no cabeçalho Authorization, somente do servidor para a HeiGIT.
+Direções solicitam `instructions: true`: o ORS remove `segments` quando essa opção
+é false, impedindo a leitura das distâncias oficiais por trecho. As instruções
+de navegação são descartadas pelo adaptador, sem alterar a resposta da nossa API.
+Esse comportamento consta no [RouteResultBuilder do ORS](https://github.com/GIScience/openrouteservice/blob/main/ors-engine/src/main/java/org/heigit/ors/routing/RouteResultBuilder.java).
 Cliente HTTP dedicado, sem logging de requisições, sem proxies do ambiente, cookies
 ou redirecionamento, timeout de 40 s por consulta e limite de 1 MiB por resposta.
 Não há URL configurável nem URL externa aceita como entrada. Cálculo no navegador
@@ -193,3 +197,19 @@ Antes do commit, o fluxo oficial foi executado novamente e concluiu com código 
 em 27 arquivos, sem falhas ou ignorados. Restore, builds e TypeScript aprovados.
 Relatórios em `.local/harness/test-results/593bec95a64446678ff6f6f6471f908a/` e
 log consolidado em `.local/harness/fretes/validacao-pre-commit.log`.
+
+### Correção da integração ORS após homologação
+
+O erro 502 com mensagem de rota inválida foi reproduzido por três testes com
+zero, uma e cinco paradas. A integração enviava `instructions: false`, que faz
+o ORS limpar os segmentos; o mock inicial devolvia segmentos indevidamente nessa
+situação. Corrigida a opção para true e adicionado um mock que respeita esse
+comportamento do provedor. Os três casos falharam antes do ajuste e passaram depois.
+Não houve mudança nos contratos da API, coeficientes ou esquema do banco.
+
+Fluxo oficial após a correção: 230 testes backend descobertos, executados e aprovados;
+216 testes frontend aprovados; nenhum reprovado ou ignorado. Restore, builds e
+TypeScript aprovados. Relatórios em
+`.local/harness/test-results/2a33711fe73346df8cbacef86dc70859/` e
+`.local/harness/fretes/validacao-correcao-ors.log`. A simulação autenticada real
+precisa ser repetida após a atualização do serviço Render.
