@@ -1,0 +1,24 @@
+.surface { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ul-space-5); background: var(--ul-bg-surface); border-radius: var(--ul-radius-xl); padding: var(--ul-space-5); }
+.stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ul-space-5); min-width: 0; }
+.stack > section, .surface > section { grid-column: auto; }
+.fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--ul-space-5); }
+.field { display: grid; gap: var(--ul-space-2); min-width: 0; }
+.field input, .field select { min-height: var(--ul-control-height); width: 100%; min-width: 0; padding: var(--ul-space-3); font: inherit; color: var(--ul-text); background: var(--ul-bg-card); border: 1px solid var(--ul-border); border-radius: var(--ul-radius-sm); }
+.fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.checks, .actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ul-space-4); }
+.checks { margin-block: var(--ul-space-4); }
+.total { font-size: var(--ul-fs-kpi); font-weight: 600; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.notice { margin: 0; padding: var(--ul-space-4); color: var(--ul-warning); background: var(--ul-warning-bg); border-radius: var(--ul-radius-sm); }
+.error { color: var(--ul-red-500); }
+.caption { color: var(--ul-text-muted); font-size: var(--ul-fs-caption); }
+.breakdown { display: grid; gap: var(--ul-space-4); margin: 0; }
+.breakdown div { display: flex; justify-content: space-between; gap: var(--ul-space-4); flex-wrap: wrap; }
+.breakdown dd { margin: 0; font-weight: 600; }
+.details summary { cursor: pointer; color: var(--ul-link); padding-block: var(--ul-space-3); min-height: var(--ul-control-height); }
+.scroll { overflow-x: auto; min-width: 0; }
+.table { width: 100%; border-collapse: collapse; font-size: var(--ul-fs-caption); }
+.table th, .table td { text-align: left; padding: var(--ul-space-3); border-bottom: 1px solid var(--ul-divider); vertical-align: top; }
+.table small { display: block; color: var(--ul-text-muted); }
+.table caption { text-align: left; margin-bottom: var(--ul-space-4); color: var(--ul-text-muted); }
+@media (max-width: 899px) { .fields { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 559px) { .surface { padding: var(--ul-space-3); } }

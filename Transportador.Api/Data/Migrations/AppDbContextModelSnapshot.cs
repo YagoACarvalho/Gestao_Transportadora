@@ -120,6 +120,23 @@ namespace Transportador.Api.Data.Migrations
                     b.ToTable("despesas", (string)null);
                 });
 
+            modelBuilder.Entity("Transportador.Api.Models.Fechamento", b =>
+                {
+                    b.Property<Guid>("Id").ValueGeneratedOnAdd().HasColumnType("uuid").HasColumnName("id");
+                    b.Property<string>("Titulo").IsRequired().HasMaxLength(150).HasColumnType("character varying(150)").HasColumnName("titulo");
+                    b.Property<DateOnly>("DataInicial").HasColumnType("date").HasColumnName("data_inicial");
+                    b.Property<DateOnly>("DataFinal").HasColumnType("date").HasColumnName("data_final");
+                    b.Property<DateTime>("DataCriacao").HasColumnType("timestamp with time zone").HasColumnName("data_criacao");
+                    b.Property<Guid>("UsuarioId").HasColumnType("uuid").HasColumnName("usuario_id");
+                    b.Property<Guid>("ChaveRequisicao").HasColumnType("uuid").HasColumnName("chave_requisicao");
+                    b.Property<int>("VersaoFormato").HasColumnType("integer").HasColumnName("versao_formato");
+                    b.Property<string>("ConteudoJson").IsRequired().HasColumnType("text").HasColumnName("conteudo_json");
+                    b.HasKey("Id");
+                    b.HasIndex("DataCriacao");
+                    b.HasIndex("UsuarioId", "ChaveRequisicao").IsUnique();
+                    b.ToTable("fechamentos", (string)null);
+                });
+
             modelBuilder.Entity("Transportador.Api.Models.Motorista", b =>
                 {
                     b.Property<Guid>("Id")

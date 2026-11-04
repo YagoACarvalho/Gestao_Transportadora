@@ -14,10 +14,26 @@ public class AppDbContext : DbContext
     public DbSet<Caminhao> Caminhoes => Set<Caminhao>();
     public DbSet<Viagem> Viagens => Set<Viagem>();
     public DbSet<Despesa> Despesas => Set<Despesa>();
+    public DbSet<Fechamento> Fechamentos => Set<Fechamento>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        var fechamento = modelBuilder.Entity<Fechamento>();
+        fechamento.ToTable("fechamentos");
+        fechamento.HasKey(f => f.Id);
+        fechamento.Property(f => f.Id).HasColumnName("id");
+        fechamento.Property(f => f.Titulo).HasColumnName("titulo").HasMaxLength(150).IsRequired();
+        fechamento.Property(f => f.DataInicial).HasColumnName("data_inicial");
+        fechamento.Property(f => f.DataFinal).HasColumnName("data_final");
+        fechamento.Property(f => f.DataCriacao).HasColumnName("data_criacao").HasColumnType("timestamp with time zone");
+        fechamento.Property(f => f.UsuarioId).HasColumnName("usuario_id");
+        fechamento.Property(f => f.ChaveRequisicao).HasColumnName("chave_requisicao");
+        fechamento.Property(f => f.VersaoFormato).HasColumnName("versao_formato");
+        fechamento.Property(f => f.ConteudoJson).HasColumnName("conteudo_json").HasColumnType("text").IsRequired();
+        fechamento.HasIndex(f => new { f.UsuarioId, f.ChaveRequisicao }).IsUnique();
+        fechamento.HasIndex(f => f.DataCriacao);
 
         var motorista = modelBuilder.Entity<Motorista>();
 

@@ -1,6 +1,6 @@
 import styles from './Sidebar.module.css';
 
-export type Modulo = 'motoristas' | 'caminhoes' | 'viagens' | 'despesas' | 'financeiro' | 'calcular-frete';
+export type Modulo = 'motoristas' | 'caminhoes' | 'viagens' | 'despesas' | 'financeiro' | 'calcular-frete' | 'fechamentos';
 export function Sidebar({ modulo, onNavigate }: { modulo: Modulo; onNavigate?: () => void }) {
   return (
     <div className={styles.sidebar}>
@@ -31,6 +31,9 @@ export function Sidebar({ modulo, onNavigate }: { modulo: Modulo; onNavigate?: (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6" /></svg>Despesas</a>
         <a href="#/financeiro" aria-current={modulo === 'financeiro' ? 'page' : undefined} onClick={onNavigate} className={`${styles.link} ${modulo === 'financeiro' ? styles.active : ''}`}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M4 4v16h17M8 16v-5M13 16V7M18 16V4" /></svg>Resumo financeiro</a>
+        <a href="#/fechamentos" aria-current={modulo === 'fechamentos' ? 'page' : undefined} onClick={onNavigate} className={`${styles.link} ${modulo === 'fechamentos' ? styles.active : ''}`}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 7h8M8 12h8M8 17h4" /></svg>Fechamentos
+        </a>
       </nav>
       <div className={styles.footer}>Organização para<br />cada etapa do transporte.</div>
     </div>
