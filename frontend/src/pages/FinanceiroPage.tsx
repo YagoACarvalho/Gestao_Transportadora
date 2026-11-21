@@ -1,3 +1,5 @@
+import { Table, TableHeadCell, TableCell } from '../ui';
+import { Input } from '../ui';
 import { Button, Card, Grid, LinkButton, Tabs } from '../ui';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { PageHeader } from '../components/PageHeader';
@@ -52,8 +54,8 @@ export function FinanceiroPage() {
     <Card span={12} aria-label="Período financeiro" className={page.periodo}>
       <Tabs label="Atalhos de período" value={!periodo.inicio && !periodo.fim ? 'historico' : periodo.inicio === periodoDoMes(0).inicio && periodo.fim === periodoDoMes(0).fim ? 'atual' : periodo.inicio === periodoDoMes(-1).inicio && periodo.fim === periodoDoMes(-1).fim ? 'anterior' : 'personalizado'} onChange={value => aplicar(value === 'historico' ? { inicio: '', fim: '' } : periodoDoMes(value === 'atual' ? 0 : -1))} options={[{ value: 'atual', label: 'Mês atual' }, { value: 'anterior', label: 'Mês anterior' }, { value: 'historico', label: 'Todo o histórico' }]} />
       <form className={page.dates} onSubmit={event => { event.preventDefault(); if (!invalido) aplicar({ inicio, fim }); }}>
-        <div className={styles.field}><label htmlFor="inicio">Data inicial</label><input id="inicio" type="date" value={inicio} onChange={e => setInicio(e.target.value)} /></div>
-        <div className={styles.field}><label htmlFor="fim">Data final</label><input id="fim" type="date" value={fim} onChange={e => setFim(e.target.value)} /></div>
+        <div className={styles.field}><label htmlFor="inicio">Data inicial</label><Input id="inicio" type="date" value={inicio} onChange={e => setInicio(e.target.value)} /></div>
+        <div className={styles.field}><label htmlFor="fim">Data final</label><Input id="fim" type="date" value={fim} onChange={e => setFim(e.target.value)} /></div>
         <Button type="submit" disabled={invalido || loading}>Aplicar período</Button>
       </form>
       {invalido && <p role="alert" className={styles.message}>A data inicial está depois da data final. Ajuste o período.</p>}
@@ -83,7 +85,7 @@ export function FinanceiroPage() {
         </section>}
         <Card span={12} className={page.panel} aria-labelledby="recentes-titulo">
           <div className={page.sectionHeader}><h2 id="recentes-titulo">Últimos lançamentos</h2><a href="#/despesas">Ver e editar despesas</a></div>
-          {detalhes.recentes.length ? <div className={styles.tableScroll} role="region" aria-label="Últimos lançamentos" tabIndex={0}><table className={styles.table}><thead><tr><th scope="col">Lançamento</th><th scope="col">Tipo</th><th scope="col">Data</th><th scope="col" className={styles.numeric}>Valor</th></tr></thead><tbody>{detalhes.recentes.map(item => <tr key={item.id}><th scope="row">{item.descricao || 'Descrição não informada'}<span className={styles.secondary}>{item.categoria || 'Categoria não informada'}</span></th><td>{item.viagemId ? 'De viagem' : 'Geral'}</td><td>{formatarData(item.dataDespesa)}</td><td className={styles.numeric}>{item.valor === null ? 'Não informado' : moeda(item.valor)}</td></tr>)}</tbody></table></div> : <p>Nenhum lançamento neste período. <a href="#/despesas">Cadastrar despesa</a></p>}
+          {detalhes.recentes.length ? <div className={styles.tableScroll} role="region" aria-label="Últimos lançamentos" tabIndex={0}><Table className={styles.table}><thead><tr><TableHeadCell scope="col">Lançamento</TableHeadCell><TableHeadCell scope="col">Tipo</TableHeadCell><TableHeadCell scope="col">Data</TableHeadCell><TableHeadCell scope="col" className={styles.numeric}>Valor</TableHeadCell></tr></thead><tbody>{detalhes.recentes.map(item => <tr key={item.id}><TableHeadCell scope="row">{item.descricao || 'Descrição não informada'}<span className={styles.secondary}>{item.categoria || 'Categoria não informada'}</span></TableHeadCell><TableCell>{item.viagemId ? 'De viagem' : 'Geral'}</TableCell><TableCell>{formatarData(item.dataDespesa)}</TableCell><TableCell className={styles.numeric}>{item.valor === null ? 'Não informado' : moeda(item.valor)}</TableCell></tr>)}</tbody></Table></div> : <p>Nenhum lançamento neste período. <a href="#/despesas">Cadastrar despesa</a></p>}
         </Card>
       </>}
     </>}

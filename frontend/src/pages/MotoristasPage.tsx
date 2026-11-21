@@ -1,3 +1,4 @@
+import { Input, Select } from '../ui';
 import { Button, Card, CollectionSummary, CollectionHeader, EmptyState } from '../ui';
 import { useEffect, useRef, useState } from 'react';
 import { PageHeader } from '../components/PageHeader';
@@ -70,8 +71,8 @@ export function MotoristasPage() {
     <Card span={12} aria-label="Cadastro de motoristas" className={styles.workspace}>
       <CollectionHeader title="Equipe de motoristas" count={loading || error ? undefined : filtered.length} description="Consulte a equipe e mantenha os cadastros atualizados." />
       <div className={styles.toolbar}>
-        <div className={styles.field}><label htmlFor="busca">Buscar por nome, CPF ou CNH</label><input id="busca" type="search" value={busca} onChange={event => setBusca(event.target.value)} /></div>
-        <div className={styles.field}><label htmlFor="situacao">Situação</label><select id="situacao" value={situacao} onChange={event => setSituacao(event.target.value as FiltroSituacao)}><option value="ativos">Ativos</option><option value="inativos">Inativos</option><option value="todos">Todos</option></select></div>
+        <div className={styles.field}><label htmlFor="busca">Buscar por nome, CPF ou CNH</label><Input id="busca" type="search" value={busca} onChange={event => setBusca(event.target.value)} /></div>
+        <div className={styles.field}><label htmlFor="situacao">Situação</label><Select id="situacao" value={situacao} onChange={event => setSituacao(event.target.value as FiltroSituacao)}><option value="ativos">Ativos</option><option value="inativos">Inativos</option><option value="todos">Todos</option></Select></div>
       </div>
       {error && panel !== 'deactivate' && panel !== 'reactivate' && <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <Button variant="secondary" onClick={() => setRevision(value => value + 1)}>Atualizar lista</Button></div>}
       {loading ? <p className={styles.message} role="status">Carregando motoristas…</p> : !error && (filtered.length ? <MotoristasCards items={filtered} busy={busy} onEdit={edit} onDeactivate={item => edit(item, 'deactivate')} onReactivate={item => edit(item, 'reactivate')} /> : <EmptyState title={busca ? 'Nenhum resultado para esta busca.' : 'Nenhum motorista encontrado neste filtro.'} description="Ajuste a busca e a situação ou cadastre um motorista para começar." />)}

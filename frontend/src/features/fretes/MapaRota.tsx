@@ -34,13 +34,13 @@ export function MapaRota({ resultado }: { resultado: ResultadoFrete }) {
       const tiles = new TilesAutenticados({ attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19, keepBuffer: 0, updateWhenIdle: true });
       tiles.addTo(map);
       const cor = (token: string) => getComputedStyle(document.documentElement).getPropertyValue(token).trim();
-      const ida = L.polyline(resultado.trajetoIda.map(p => [p.lat, p.lon] as Leaflet.LatLngTuple), { color: cor('--ul-chart-cyan'), weight: 5 }).addTo(map);
-      if (resultado.trajetoRetorno.length) L.polyline(resultado.trajetoRetorno.map(p => [p.lat, p.lon] as Leaflet.LatLngTuple), { color: cor('--ul-mint-700'), weight: 4, dashArray: '8 8' }).addTo(map);
+      const ida = L.polyline(resultado.trajetoIda.map(p => [p.lat, p.lon] as Leaflet.LatLngTuple), { color: cor('--color-accent'), weight: 5 }).addTo(map);
+      if (resultado.trajetoRetorno.length) L.polyline(resultado.trajetoRetorno.map(p => [p.lat, p.lon] as Leaflet.LatLngTuple), { color: cor('--color-success-ink'), weight: 4, dashArray: '8 8' }).addTo(map);
       resultado.enderecos.forEach((e, i) => {
         if (!e.ponto) return;
         // Tooltip usa nó de texto, nunca HTML retornado pelo geocodificador.
         const tooltip = document.createElement('span'); tooltip.textContent = `${i + 1}. ${e.texto}`;
-        L.circleMarker([e.ponto.lat, e.ponto.lon], { radius: 7, color: cor('--ul-navy-600'), fillColor: cor('--ul-bg-card'), fillOpacity: 1 }).bindTooltip(tooltip).addTo(map!);
+        L.circleMarker([e.ponto.lat, e.ponto.lon], { radius: 7, color: cor('--color-brand'), fillColor: cor('--color-bg-grouped-secondary'), fillOpacity: 1 }).bindTooltip(tooltip).addTo(map!);
       });
       if (ida.getBounds().isValid()) map.fitBounds(ida.getBounds().extend(resultado.trajetoRetorno.map(p => [p.lat, p.lon] as Leaflet.LatLngTuple)), { padding: [24, 24], maxZoom: 14 });
       const observer = new ResizeObserver(() => map?.invalidateSize()); observer.observe(container.current);

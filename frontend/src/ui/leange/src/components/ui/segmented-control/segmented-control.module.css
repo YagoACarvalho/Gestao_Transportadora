@@ -1,0 +1,72 @@
+/* ---------- Escolha entre poucas (seletor segmentado) ---------- */
+
+.segmented {
+  display: inline-flex;
+  justify-self: start;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: var(--space-half);
+  background-color: var(--color-fill-quaternary);
+  border-radius: var(--radius-md);
+}
+
+.segmented[data-fill] {
+  display: flex;
+  justify-self: stretch;
+}
+
+.segmented[data-fill] .segment {
+  flex: 1;
+}
+
+.segment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 1.875rem;
+  padding-inline: var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-footnote);
+  font-weight: var(--weight-medium);
+  color: var(--color-label-secondary);
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.segment svg {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+}
+
+/* No escuro a sombra some e o terciário sólido, sobre um cartão terciário, ficava mais escuro que o trilho:
+   lá a escolha usa a tinta de preenchimento, que clareia sobre qualquer superfície. */
+.segment[data-on] {
+  color: var(--color-label);
+  background-color: light-dark(var(--color-bg-tertiary), var(--color-fill));
+  box-shadow: var(--shadow-sm);
+}
+
+.segment:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (hover: hover) {
+  .segment:not([data-on]):not(:disabled):hover {
+    color: var(--color-label);
+  }
+
+  .segment:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 1px;
+  }
+}

@@ -1,0 +1,328 @@
+:root {
+  color-scheme: light dark;
+
+  --font-body: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Uma família só para texto (decisão de 2026-09-04): display aponta para a Inter, e os tokens ficam,
+     porque quem os usa continua dizendo o papel do texto. **Código é a exceção, desde 2026-09-22**: ali a
+     monoespaçada não é estilo, é função, porque é o alinhamento das colunas que faz a indentação de um
+     trecho de código ser legível, e com a Inter cada linha começava num lugar. */
+  --font-code: ui-monospace, "SF Mono", Menlo, monospace;
+  --font-display: var(--font-body);
+
+  --text-caption-2: 0.6875rem;
+  --text-caption-1: 0.75rem;
+  --text-footnote: 0.8125rem;
+  --text-subheadline: 0.9375rem;
+  --text-callout: 1rem;
+  --text-body: 1.0625rem;
+  --text-headline: 1.0625rem;
+  --text-title-3: 1.25rem;
+  --text-title-2: 1.375rem;
+  --text-title-1: 1.75rem;
+  --text-large-title: 2.125rem;
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.45;
+  --leading-relaxed: 1.6;
+  --tracking-tightest: -0.06em;
+  --tracking-tighter: -0.04em;
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --space-half: 0.125rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 0.875rem;
+  --radius-3xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Hexágono de emblema, por máscara SVG e não por polígono: topo e base retos, pontas nos lados e
+     cantos levemente arredondados por curvas, o que `clip-path: polygon` não desenha. A máscara estica
+     para a caixa do elemento: numa caixa mais larga que alta (altura igual à largura vezes 0,866) vira
+     um hexágono regular, na quadrada fica esticado. */
+  --shape-hexagon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M21.5 7 Q25 0 32 0L68 0 Q75 0 78.5 7L96.5 43 Q100 50 96.5 57L78.5 93 Q75 100 68 100L32 100 Q25 100 21.5 93L3.5 57 Q0 50 3.5 43Z'/%3E%3C/svg%3E");
+
+  /* A barra flutuante do celular: acima da tela cheia do menu (50) e abaixo de tudo o mais. Com ela em
+     modo de ações, as janelas descem para logo abaixo dela, em vez de a barra subir. */
+  --z-floating-bar: 60;
+  /* A tela cheia do menu, logo abaixo da barra que a abre: as duas são a mesma peça no celular, e o menu
+     nunca cobre a barra, que é onde mora o X que o fecha. Com uma janela aberta as duas sobem juntas, a
+     tela para `--z-modal` e a barra para um degrau acima dela. */
+  --z-menu-screen: 50;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  /* Menus, listas e dicas que abrem a partir de algo: acima das janelas, porque abrem de dentro delas. */
+  --z-popover: 450;
+  --z-toast: 500;
+
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  /* Para o que percorre distância de verdade, como a barra do celular indo para o centro. Parece longo
+     escrito, mas com a curva que assenta a peça já andou dois terços do caminho no primeiro quarto do
+     tempo: o resto é só o pouso. */
+  --duration-glide: 420ms;
+  --ease-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* A curva que assenta: sai rápido e chega devagar, sem passar do ponto. É o que dá sensação de
+     sistema em vez de site, porque a velocidade que a pessoa sente vem do começo do movimento, e não
+     da duração total; a cauda longa é o que faz parecer macio. Onde a peça anda, é esta; `--ease-standard`
+     continua valendo para troca de cor e de fundo, que não percorrem espaço. */
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  /* A curva de quem sai: acelera de leve e chega macia, sem o arranque da curva que assenta. Saída com a
+     curva de entrada saía num tranco, porque a que assenta gasta quase todo o movimento no primeiro quarto
+     do tempo e, saindo, isso lê como a camada sumindo de repente (2026-09-08). */
+  --ease-leave: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --control-height-sm: 2.25rem;
+  --control-height-md: 2.75rem;
+  --control-height-lg: 3.25rem;
+  --control-padding-sm: var(--space-3);
+  --control-padding-md: var(--space-4);
+  --control-padding-lg: var(--space-5);
+  --control-radius-sm: 0.375rem;
+  --control-radius-md: 0.5rem;
+  --control-radius-lg: 0.625rem;
+  --icon-button-radius-sm: 0.375rem;
+  --icon-button-radius-md: 0.5rem;
+  --icon-button-radius-lg: 0.625rem;
+  --touch-target: 2.75rem;
+
+  --sidebar-width: 16rem;
+  --topbar-height: 3.25rem;
+  --content-max: 80rem;
+  /* Quanto a barra flutuante do celular toma do rodapé quando está com ações (salvar e sair) e sobe para
+     cima das janelas: a altura dela mais o recuo de baixo e um respiro. O conteúdo que rola dentro de uma
+     janela aberta nessa situação leva essa folga embaixo, para o último item fechar acima da barra. */
+  --floating-bar-inset: calc(var(--control-height-md) + var(--space-2) + var(--space-4) * 2 + env(safe-area-inset-bottom));
+}
+
+/* A paleta, o vidro e as sombras num bloco de dois seletores: a raiz e qualquer ilha que peça o tema claro.
+   Todo valor de cor aqui é `light-dark()`, e ele resolve pelo `color-scheme` do elemento **onde a variável é
+   declarada**, e não onde ela é usada: declarar a mesma lista dentro de uma ilha com `color-scheme: light` dá
+   a paleta clara ali dentro, sem duplicar valor nenhum (2026-09-09). É assim que o documento do orçamento é
+   sempre papel branco, mesmo com a tela no escuro; `color-scheme: light` sozinho na folha não bastava,
+   porque as variáveis chegavam lá já resolvidas pela raiz. O vidro e a tinta da gamificação vêm junto porque
+   nascem das cores. */
+:root,
+[data-scheme="light"] {
+  --sys-red: light-dark(#ff3b30, #ff453a);
+  --sys-orange: light-dark(#ff9500, #ff9f0a);
+  --sys-yellow: light-dark(#ffcc00, #ffd60a);
+  --sys-green: light-dark(#34c759, #30d158);
+  --sys-mint: light-dark(#00c7be, #63e6e2);
+  --sys-teal: light-dark(#30b0c7, #40c8e0);
+  --sys-cyan: light-dark(#32ade6, #64d2ff);
+  --sys-blue: light-dark(#007aff, #0a84ff);
+  --sys-indigo: light-dark(#5856d6, #5e5ce6);
+  --sys-purple: light-dark(#af52de, #bf5af2);
+  --sys-pink: light-dark(#ff2d55, #ff375f);
+  --sys-brown: light-dark(#a2845e, #ac8e68);
+  --sys-gray: #8e8e93;
+  --sys-gray-2: light-dark(#aeaeb2, #636366);
+  --sys-gray-3: light-dark(#c7c7cc, #48484a);
+  --sys-gray-4: light-dark(#d1d1d6, #3a3a3c);
+  --sys-gray-5: light-dark(#e5e5ea, #2c2c2e);
+  --sys-gray-6: light-dark(#f2f2f7, #1c1c1e);
+
+  /* Marca de fora, na cor oficial dela: o botão de chamar no WhatsApp. */
+  --color-whatsapp: #25d366;
+  --color-on-whatsapp: #ffffff;
+
+  /* A cor da IA (2026-09-14): um azul calmo, mais lavado e mais frio que o azul de acento, que é o da ação e
+     não podia virar marca de outra coisa. É ela que veste a marca da casa dentro do assistente, o cursor da
+     resposta e o brilho que sobe do pé da coluna. Mais fechada no claro e mais aberta no escuro, como toda
+     cor daqui, para o contraste ser o mesmo nos dois temas. */
+  --color-ai: light-dark(#5b84b8, #8fb6e0);
+  /* A marca da casa dentro do SpeculAI não é chapada: ela é este degradê, que **varre do frio ao quente**,
+     do azul ao amarelo passando pelo ciano e pelo verde. É o espírito da marca do Gemini, que o usuário deu
+     de referência, sem ser a paleta dela: o vermelho, que é o que a identifica de relance, fica de fora, e as
+     quatro paradas são as cores do sistema da casa. Duas rodadas só de cores frias saíram antes desta, e o
+     que faltava nelas era justamente a ponta quente. */
+  --gradient-ai: linear-gradient(
+    135deg,
+    var(--sys-blue) 0%,
+    var(--sys-cyan) 28%,
+    var(--sys-green) 62%,
+    var(--sys-yellow) 100%
+  );
+
+  --color-label: light-dark(#000000, #ffffff);
+  --color-label-secondary: light-dark(rgb(60 60 67 / 0.6), rgb(235 235 245 / 0.6));
+  /* No escuro, 45% e não os 30% do iOS (2026-10-08): o terciário aqui carrega informação (mínimo do estoque, data,
+     etiqueta, legenda), e a 30% sobre o preto ficava com contraste 2,25, ilegível. 45% passa de 3 e continua abaixo
+     do secundário (60%). O texto de exemplo dos campos (`--color-placeholder`) segue a 30%. */
+  --color-label-tertiary: light-dark(rgb(60 60 67 / 0.3), rgb(235 235 245 / 0.45));
+  --color-label-quaternary: light-dark(rgb(60 60 67 / 0.18), rgb(235 235 245 / 0.16));
+  --color-placeholder: light-dark(rgb(60 60 67 / 0.3), rgb(235 235 245 / 0.3));
+  --color-link: light-dark(#007aff, #0984ff);
+
+  --color-separator: light-dark(rgb(60 60 67 / 0.29), rgb(84 84 88 / 0.6));
+  --color-border: light-dark(rgb(60 60 67 / 0.12), rgb(235 235 245 / 0.13));
+  --color-separator-opaque: light-dark(#c6c6c8, #38383a);
+
+  /* O escuro num grafite, e não no preto puro (2026-10-19, a pedido: "um preto menos preto, para ser mais visível"):
+     os níveis sobem na mesma distância de antes, para os cartões e as janelas seguirem se destacando do fundo */
+  --color-bg: light-dark(#fbfbfc, #17181b);
+  --color-bg-secondary: light-dark(#f2f2f7, #212226);
+  --color-bg-tertiary: light-dark(#ffffff, #2d2e33);
+  --color-bg-grouped: light-dark(#f2f2f7, #17181b);
+  --color-bg-grouped-secondary: light-dark(#ffffff, #212226);
+  --color-bg-grouped-tertiary: light-dark(#f2f2f7, #2d2e33);
+  /* O fundo dos cartões que moram na página (painéis do dashboard, quadros, cartões de lista), separado dos painéis
+     que flutuam (menu, lista de opções, cartão de passar o mouse), que seguem opacos em --color-bg-tertiary. No claro
+     é o mesmo branco; no escuro é quase transparente (2026-10-08, a pedido), com a borda fina fazendo o contorno. */
+  --color-card: light-dark(#ffffff, rgb(255 255 255 / 0.045));
+  /* A mesma cor do cartão, opaca: para o que precisa cobrir conteúdo dentro dele (cabeçalho que gruda ao rolar, faixa
+     por cima da lista) sem destoar do cartão quase transparente. No escuro é o preto com os 4,5% de branco. */
+  --color-card-solid: light-dark(#ffffff, #1e1f23);
+
+  --color-fill: light-dark(rgb(120 120 128 / 0.2), rgb(120 120 128 / 0.36));
+  --color-fill-secondary: light-dark(rgb(120 120 128 / 0.16), rgb(120 120 128 / 0.32));
+  --color-fill-tertiary: light-dark(rgb(118 118 128 / 0.12), rgb(118 118 128 / 0.24));
+  --color-fill-quaternary: light-dark(rgb(116 116 128 / 0.08), rgb(118 118 128 / 0.18));
+
+  --color-brand: light-dark(#000000, #ffffff);
+  --color-accent: var(--sys-blue);
+  --color-on-accent: #ffffff;
+  --color-focus: var(--sys-blue);
+  --color-success: var(--sys-green);
+  --color-warning: var(--sys-orange);
+  --color-danger: var(--sys-red);
+  --color-danger-solid: light-dark(#d70015, #ff6961);
+  --color-on-danger: light-dark(#ffffff, #000000);
+  --color-info: var(--sys-cyan);
+  --color-scrim: light-dark(rgb(0 0 0 / 0.4), rgb(0 0 0 / 0.6));
+  --color-scrim-soft: light-dark(rgb(0 0 0 / 0.3), rgb(0 0 0 / 0.5));
+
+  /* As situações da reserva no mapa (2026-10-19, a pedido: "cada status com uma cor que se distinga bem"). Uma cor por
+     situação, longe uma da outra e do rosa dos pacotes, do roxo dos eventos e do laranja de hoje; `-ink` é o texto por
+     cima. Serra e Mar são claros e usam os valores claros. Os tons seguem os selos de situação da ficha (pendente em
+     amarelo, confirmada em verde, hospedada em azul). Trocar a cor de uma situação é trocar só aqui. */
+  --reservation-pending: light-dark(#f2b225, #d99a12);
+  --reservation-pending-ink: light-dark(#3d2a00, #1f1500);
+  --reservation-confirmed: light-dark(#14894a, #22a85b);
+  --reservation-confirmed-ink: #ffffff;
+  --reservation-in-house: light-dark(#1d6fe0, #3b82f6);
+  --reservation-in-house-ink: #ffffff;
+  --reservation-checked-out: light-dark(#d5d8de, #464a52);
+  --reservation-checked-out-ink: light-dark(#4a4f59, #d6d8dd);
+  --reservation-block: light-dark(#6b7280, #9aa1ad);
+  --reservation-block-ink: light-dark(#3f4550, #d6d8dd);
+  /* Em espera: a reserva confirmada que saiu das datas; o verde-azulado, longe do verde da confirmada e do azul */
+  --reservation-waiting: light-dark(#0e7f86, #2aa9ad);
+  --reservation-waiting-ink: #ffffff;
+
+  /* Vidro leve da casa: mantém o contexto, mas já traz corpo suficiente nos dois temas. */
+  --glass-bg: color-mix(in oklab, var(--color-bg) 78%, transparent);
+  --glass-blur: blur(12px);
+  /* Camadas com leitura e escolha: o fundo é encorpado para o conteúdo de trás não competir. */
+  --glass-layer-bg: color-mix(in oklab, var(--color-bg) 82%, transparent);
+  --glass-layer-blur: blur(16px);
+  /* Bandeja no celular: mais perto do conteúdo de trás, portanto recebe ainda mais corpo. */
+  --glass-sheet-bg: color-mix(in oklab, var(--color-bg) 90%, transparent);
+  /* O fundo de uma janela aberta (2026-09-21, a pedido: "está muito blur e ficando feio"). É outro papel
+     que o do vidro de uma superfície: ali o borrão é o material da peça, e aqui é só o que tira a página
+     de foco, atrás de um véu que já escurece. Com os 12px do vidro, a tela inteira virava uma mancha de
+     cor, e o que ficava atrás da janela deixava de ser reconhecível como a página de onde se veio. */
+  --glass-scrim-blur: blur(4px);
+
+  /* Tinta e vidro do controle de arrastar da gamificação: os genéricos da casa, para o bloco assentar no
+     fundo de cada tema. Um degradê próprio nas cores do adesivo holográfico existiu por umas horas em
+     2026-09-07 e saiu a pedido. */
+  --gamification-ink: var(--color-label);
+  --gamification-pill: var(--color-fill-quaternary);
+
+  --shadow-sm: 0 1px 2px light-dark(rgb(0 0 0 / 0.06), rgb(0 0 0 / 0.5));
+  --shadow-md: 0 4px 16px light-dark(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.6));
+  --shadow-lg: 0 12px 40px light-dark(rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.7));
+}
+
+/* A ilha de tema claro: quem marca o atributo recebe a paleta acima nos valores claros, e os controles de
+   formulário e a barra de rolagem de dentro seguem junto. */
+[data-scheme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Serra e Mar (2026-10-08, a pedido): o tema claro com um tingido suave, verde-sálvia na Serra e azul-névoa no Mar.
+   Mudam só os fundos, os cartões, as bordas, os preenchimentos e o botão principal; texto e cores de estado são os do
+   claro. O vidro e o resto que nasce de --color-bg acompanham sozinhos. Uma ilha clara dentro deles (papel, prévia)
+   volta ao branco, porque redeclara a paleta clara. */
+:root[data-theme="serra"],
+:root[data-theme="mar"] {
+  color-scheme: light;
+}
+
+:root[data-theme="serra"] {
+  --color-bg: #f5f8ef;
+  --color-bg-secondary: #ebf0e1;
+  --color-bg-tertiary: #fcfdf9;
+  --color-bg-grouped: #ebf0e1;
+  --color-bg-grouped-secondary: #fcfdf9;
+  --color-bg-grouped-tertiary: #ebf0e1;
+  --color-card: #fcfdf9;
+  --color-card-solid: #fcfdf9;
+  --color-border: rgb(71 83 35 / 0.14);
+  --color-separator: rgb(71 83 35 / 0.24);
+  --color-separator-opaque: #d3dbc3;
+  --color-fill: rgb(98 112 62 / 0.2);
+  --color-fill-secondary: rgb(98 112 62 / 0.16);
+  --color-fill-tertiary: rgb(98 112 62 / 0.12);
+  --color-fill-quaternary: rgb(98 112 62 / 0.08);
+  --color-brand: #2f3a14;
+}
+
+:root[data-theme="mar"] {
+  --color-bg: #f2f7fb;
+  --color-bg-secondary: #e5eef6;
+  --color-bg-tertiary: #fbfdff;
+  --color-bg-grouped: #e5eef6;
+  --color-bg-grouped-secondary: #fbfdff;
+  --color-bg-grouped-tertiary: #e5eef6;
+  --color-card: #fbfdff;
+  --color-card-solid: #fbfdff;
+  --color-border: rgb(10 61 107 / 0.13);
+  --color-separator: rgb(10 61 107 / 0.22);
+  --color-separator-opaque: #cbd9e6;
+  --color-fill: rgb(44 92 140 / 0.2);
+  --color-fill-secondary: rgb(44 92 140 / 0.16);
+  --color-fill-tertiary: rgb(44 92 140 / 0.12);
+  --color-fill-quaternary: rgb(44 92 140 / 0.08);
+  --color-brand: #0f3352;
+}
+
+/* A ilha clara precisa declarar o esquema aqui, numa folha que o LightningCSS processa: ele troca o `light-dark()`
+   por um par de variáveis (`--lightningcss-light`/`-dark`) que só muda onde há `color-scheme` escrito em CSS dele.
+   Declarado só no Emotion, a ilha ficava com fundo claro e os tokens ainda escuros (texto branco no branco). */
+[data-scheme="light"] {
+  color-scheme: light;
+}

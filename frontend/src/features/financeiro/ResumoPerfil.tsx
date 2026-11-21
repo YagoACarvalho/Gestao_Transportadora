@@ -1,3 +1,4 @@
+import { Input } from '../../ui';
 import { useEffect, useId, useState } from 'react';
 import { Button, Card, LinkButton } from '../../ui';
 import { viagensApi } from '../viagens/viagensApi';
@@ -33,8 +34,8 @@ export function ResumoPerfil({ tipo, id }: { tipo: TipoPerfil; id: string }) {
   return <section className={perfil.operacao} aria-label="Operação do perfil">
     <Card span={12} title="Período do perfil">
       <div className={perfil.filters}>
-        <div className={styles.field}><label htmlFor={`${prefix}-inicio`}>Data inicial</label><input id={`${prefix}-inicio`} type="date" value={inicio} onChange={e => setInicio(e.target.value)} /></div>
-        <div className={styles.field}><label htmlFor={`${prefix}-fim`}>Data final</label><input id={`${prefix}-fim`} type="date" value={fim} onChange={e => setFim(e.target.value)} /></div>
+        <div className={styles.field}><label htmlFor={`${prefix}-inicio`}>Data inicial</label><Input id={`${prefix}-inicio`} type="date" value={inicio} onChange={e => setInicio(e.target.value)} /></div>
+        <div className={styles.field}><label htmlFor={`${prefix}-fim`}>Data final</label><Input id={`${prefix}-fim`} type="date" value={fim} onChange={e => setFim(e.target.value)} /></div>
         <Button variant="secondary" onClick={() => { setInicio(''); setFim(''); }}>Todo o histórico</Button>
         <Button variant="secondary" onClick={() => setRevision(r => r + 1)}>Atualizar operação</Button>
         <LinkButton href={`#/financeiro?${new URLSearchParams({ ...(inicio ? { inicio } : {}), ...(fim ? { fim } : {}) })}`}>Ver dashboard no período</LinkButton>

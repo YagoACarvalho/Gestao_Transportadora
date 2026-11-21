@@ -1,3 +1,4 @@
+import { Select } from '../../ui';
 import { Button } from '../../ui';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
@@ -18,9 +19,9 @@ export function DespesaAutomaticaForm({ despesa, busy, onSave }: { despesa: Desp
     <dl><dt>Valor previsto</dt><dd>{moeda(despesa.valor ?? 0)}</dd><dt>Data da viagem</dt><dd>{formatarData(despesa.dataDespesa)}</dd></dl>
     {error && <p role="alert" className={styles.error}>{error}</p>}
     <fieldset disabled={busy}><legend>Situação financeira</legend><div className={styles.field}>
-      <label htmlFor="incluir-automatica">Incluir no financeiro</label><select id="incluir-automatica" value={incluir ? 'sim' : 'nao'} onChange={event => setIncluir(event.target.value === 'sim')}>
+      <label htmlFor="incluir-automatica">Incluir no financeiro</label><Select id="incluir-automatica" value={incluir ? 'sim' : 'nao'} onChange={event => setIncluir(event.target.value === 'sim')}>
         <option value="sim">Sim, considerar nos totais</option><option value="nao">Não, preservar apenas no histórico</option>
-      </select><span>Este lançamento não confirma pagamento ao motorista.</span>
+      </Select><span>Este lançamento não confirma pagamento ao motorista.</span>
     </div></fieldset>
     <Button type="submit" disabled={busy}>{busy ? 'Salvando…' : 'Salvar situação financeira'}</Button>
   </form>;

@@ -1,3 +1,4 @@
+import { Input, Select } from '../ui';
 import { useEffect, useRef, useState } from 'react';
 import { PageHeader } from '../components/PageHeader';
 import { SidePanel } from '../components/SidePanel';
@@ -88,10 +89,10 @@ export function ViagensPage() {
       <CollectionHeader title="Acompanhamento de viagens" count={loading || error ? undefined : filtered.length} description="Organize o percurso e acompanhe cada etapa da operação." />
       <div className={styles.statusFilters}><Tabs label="Filtrar andamento" value={status} onChange={setStatus} options={[{ value: '', label: 'Todas' }, ...situacoes.map(s => ({ value: s, label: s }))]} /></div>
       <div className={styles.toolbar}>
-        <div className={styles.field}><label htmlFor="busca">Buscar percurso, motorista ou placa</label><input id="busca" type="search" value={busca} onChange={e => setBusca(e.target.value)} /></div>
-        <div className={styles.field}><label htmlFor="situacao">Situação</label><select id="situacao" value={status} onChange={e => setStatus(e.target.value)}><option value="">Todas</option>{situacoes.map(s => <option key={s}>{s}</option>)}</select></div>
-        <div className={styles.field}><label htmlFor="inicio">Data inicial</label><input id="inicio" type="date" value={inicio} onChange={e => setInicio(e.target.value)} /></div>
-        <div className={styles.field}><label htmlFor="fim">Data final</label><input id="fim" type="date" value={fim} onChange={e => setFim(e.target.value)} /></div>
+        <div className={styles.field}><label htmlFor="busca">Buscar percurso, motorista ou placa</label><Input id="busca" type="search" value={busca} onChange={e => setBusca(e.target.value)} /></div>
+        <div className={styles.field}><label htmlFor="situacao">Situação</label><Select id="situacao" value={status} onChange={e => setStatus(e.target.value)}><option value="">Todas</option>{situacoes.map(s => <option key={s}>{s}</option>)}</Select></div>
+        <div className={styles.field}><label htmlFor="inicio">Data inicial</label><Input id="inicio" type="date" value={inicio} onChange={e => setInicio(e.target.value)} /></div>
+        <div className={styles.field}><label htmlFor="fim">Data final</label><Input id="fim" type="date" value={fim} onChange={e => setFim(e.target.value)} /></div>
       </div>
       {inicio && fim && inicio > fim && <p role="alert" className={styles.message}>A data inicial está depois da data final. Ajuste o período.</p>}
       {error && panel !== 'status' && <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <Button variant="secondary" onClick={() => setRevision(v => v + 1)}>Atualizar lista</Button></div>}
@@ -106,8 +107,8 @@ export function ViagensPage() {
       {target === 'Cancelada' && cancelamento && <>
         <p>Esta viagem possui {cancelamento.quantidadeDespesas} despesa(s), totalizando {moeda(cancelamento.totalDespesas)}.</p>
         {cancelamento.quantidadeDespesas > 0 && <fieldset disabled={busy}><legend>Como deseja tratar essas despesas?</legend>
-          <p><label><input type="radio" name="manterDespesas" value="sim" checked={manterDespesas === 'sim'} onChange={e => setManterDespesas(e.target.value)} /> Manter no financeiro</label></p>
-          <p><label><input type="radio" name="manterDespesas" value="nao" checked={manterDespesas === 'nao'} onChange={e => setManterDespesas(e.target.value)} /> Desconsiderar no financeiro e preservar no histórico</label></p>
+          <p><label><Input type="radio" name="manterDespesas" value="sim" checked={manterDespesas === 'sim'} onChange={e => setManterDespesas(e.target.value)} /> Manter no financeiro</label></p>
+          <p><label><Input type="radio" name="manterDespesas" value="nao" checked={manterDespesas === 'nao'} onChange={e => setManterDespesas(e.target.value)} /> Desconsiderar no financeiro e preservar no histórico</label></p>
         </fieldset>}
       </>}
       {error && <p role="alert" className={styles.error}>{error}</p>}

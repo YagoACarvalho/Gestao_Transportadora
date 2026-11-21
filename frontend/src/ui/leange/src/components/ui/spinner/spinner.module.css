@@ -1,0 +1,27 @@
+.spinner {
+  --diameter: 1.25rem;
+  --thickness: 2px;
+  --spin-duration: 1s;
+  display: inline-block;
+  flex-shrink: 0;
+  width: var(--diameter);
+  height: var(--diameter);
+  color: var(--color-label-secondary);
+  border: var(--thickness) solid transparent;
+  border-block-color: currentColor;
+  border-radius: var(--radius-full);
+  animation: dualArc var(--spin-duration) linear infinite;
+}
+
+.spinner[data-size="sm"] {
+  --diameter: 1rem;
+}
+
+.spinner[data-size="lg"] {
+  --diameter: 2rem;
+  --thickness: 3px;
+}
+
+@keyframes dualArc {
+  to { rotate: 360deg; }
+}

@@ -1,3 +1,4 @@
+import { Input, Select } from '../../ui';
 import { Button } from '../../ui';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
@@ -32,7 +33,7 @@ export function ViagemForm({ viagem, busy, onSave, regularizando = false }: { vi
   let remuneracao: number | null = null;
   try { remuneracao = calcularRemuneracao(parseFrete(values.frete)); } catch { /* Prévia só com frete válido. */ }
   const input = (name: 'origem' | 'destino' | 'dataViagem', label: string, type = 'text') => <div className={styles.field}>
-    <label htmlFor={name}>{label} (obrigatório)</label><input id={name} required type={type} maxLength={type === 'text' ? 150 : undefined} value={values[name]} aria-invalid={!!fieldError(name)} aria-describedby={fieldError(name) ? `${name}-error` : undefined} onChange={event => setValues({ ...values, [name]: event.target.value })} />
+    <label htmlFor={name}>{label} (obrigatório)</label><Input id={name} required type={type} maxLength={type === 'text' ? 150 : undefined} value={values[name]} aria-invalid={!!fieldError(name)} aria-describedby={fieldError(name) ? `${name}-error` : undefined} onChange={event => setValues({ ...values, [name]: event.target.value })} />
     {fieldError(name) && <span id={`${name}-error`} className={styles.error}>{fieldError(name)}</span>}
   </div>;
   async function submit(event: FormEvent) {
@@ -49,21 +50,21 @@ export function ViagemForm({ viagem, busy, onSave, regularizando = false }: { vi
     <fieldset disabled={busy || loading || !!lookupError}><legend>Percurso</legend>{input('origem', 'Origem')}{input('destino', 'Destino')}{input('dataViagem', 'Data da viagem', 'date')}</fieldset>
     <fieldset disabled={busy || loading || !!lookupError}><legend>Equipe e veículo</legend>
       <div className={styles.field}><label htmlFor="motoristaId">Motorista (obrigatório)</label>
-        <select id="motoristaId" required value={values.motoristaId} aria-invalid={!!fieldError('motoristaId')} aria-describedby="motorista-ajuda" onChange={event => setValues({ ...values, motoristaId: event.target.value })}>
+        <Select id="motoristaId" required value={values.motoristaId} aria-invalid={!!fieldError('motoristaId')} aria-describedby="motorista-ajuda" onChange={event => setValues({ ...values, motoristaId: event.target.value })}>
           <option value="">Selecione um motorista</option>
           {viagem?.motoristaId && !motoristas.some(m => m.id === viagem.motoristaId) && <option value={viagem.motoristaId}>{viagem.motoristaNome || 'Vínculo atual'} (mantido do cadastro)</option>}
           {motoristas.map(m => <option key={m.id} value={m.id}>{m.nome}</option>)}
-        </select><span id="motorista-ajuda">{fieldError('motoristaId') || 'Novos vínculos exigem motorista ativo.'}</span>
+        </Select><span id="motorista-ajuda">{fieldError('motoristaId') || 'Novos vínculos exigem motorista ativo.'}</span>
       </div>
       <div className={styles.field}><label htmlFor="caminhaoId">Caminhão (obrigatório)</label>
-        <select id="caminhaoId" required value={values.caminhaoId} aria-invalid={!!fieldError('caminhaoId')} aria-describedby="caminhao-ajuda" onChange={event => setValues({ ...values, caminhaoId: event.target.value })}>
+        <Select id="caminhaoId" required value={values.caminhaoId} aria-invalid={!!fieldError('caminhaoId')} aria-describedby="caminhao-ajuda" onChange={event => setValues({ ...values, caminhaoId: event.target.value })}>
           <option value="">Selecione um caminhão</option>
           {viagem?.caminhaoId && !caminhoes.some(c => c.id === viagem.caminhaoId) && <option value={viagem.caminhaoId}>{viagem.caminhaoPlaca || 'Vínculo atual'} (mantido do cadastro)</option>}
           {caminhoes.map(c => <option key={c.id} value={c.id}>{c.placa} — {c.modelo}</option>)}
-        </select><span id="caminhao-ajuda">{fieldError('caminhaoId') || 'Novos vínculos exigem caminhão ativo.'}</span>
+        </Select><span id="caminhao-ajuda">{fieldError('caminhaoId') || 'Novos vínculos exigem caminhão ativo.'}</span>
       </div>
     </fieldset>
-    <fieldset disabled={busy}><legend>Frete</legend><div className={styles.field}><label htmlFor="frete">Valor do frete (opcional)</label><input id="frete" inputMode="decimal" value={values.frete} aria-invalid={!!fieldError('valorFrete')} aria-describedby="frete-ajuda" onChange={event => setValues({ ...values, frete: event.target.value })} /><span id="frete-ajuda">{fieldError('valorFrete') || 'Valor não negativo, com até duas casas decimais. Exemplo de formato: 1500,50.'}</span></div></fieldset>
+    <fieldset disabled={busy}><legend>Frete</legend><div className={styles.field}><label htmlFor="frete">Valor do frete (opcional)</label><Input id="frete" inputMode="decimal" value={values.frete} aria-invalid={!!fieldError('valorFrete')} aria-describedby="frete-ajuda" onChange={event => setValues({ ...values, frete: event.target.value })} /><span id="frete-ajuda">{fieldError('valorFrete') || 'Valor não negativo, com até duas casas decimais. Exemplo de formato: 1500,50.'}</span></div></fieldset>
     {regularizando ? <p>A regularização preserva a remuneração existente e não gera novos lançamentos.</p> : viagem && !viagem.gerarRemuneracaoAutomatica ? <p>Viagem anterior à regra automática: nenhum lançamento de remuneração será gerado ao editar.</p> : <p role="status">Remuneração prevista do motorista (15%): <strong>{remuneracao === null ? 'Informe um frete válido' : moeda(remuneracao)}</strong>. O valor entra nas despesas da viagem e não confirma pagamento.</p>}
     <p>A viagem {viagem && !regularizando ? 'permanece planejada ao salvar os dados' : 'será salva como planejada'}.</p>
     <Button type="submit" disabled={busy || loading || !!lookupError}>{busy ? 'Salvando…' : regularizando ? 'Regularizar viagem' : viagem ? 'Salvar alterações' : 'Cadastrar viagem'}</Button>

@@ -1,3 +1,4 @@
+import { Input } from '../../ui';
 import { useEffect, useId, useState } from 'react';
 import { fretesApi } from './fretesApi';
 import type { Endereco } from './types';
@@ -25,7 +26,7 @@ export function CampoEndereco({ label, value, onChange, disabled, buscar = true 
   const visivel = aberto && sugestoes.length > 0;
   return <div className={styles.field} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setAberto(false); }}>
     <label htmlFor={id}>{label}</label>
-    <input id={id} role="combobox" autoComplete="off" required minLength={4} maxLength={250} value={value.texto} disabled={disabled}
+    <Input id={id} role="combobox" autoComplete="off" required minLength={4} maxLength={250} value={value.texto} disabled={disabled}
       aria-autocomplete="list" aria-expanded={visivel} aria-controls={`${id}-opcoes`} aria-activedescendant={visivel && ativo >= 0 ? `${id}-${ativo}` : undefined} aria-describedby={`${id}-ajuda`}
       onFocus={() => setAberto(true)} onChange={e => { onChange({ texto: e.target.value }); setAberto(true); }}
       onKeyDown={e => {

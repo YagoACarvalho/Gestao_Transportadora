@@ -1,0 +1,404 @@
+
+
+
+import styled from "@emotion/styled";
+import { LockIcon } from '@phosphor-icons/react/dist/csr/Lock';
+import type { ComponentPropsWithoutRef, ComponentType, CSSProperties, HTMLAttributeAnchorTarget, ReactNode, Ref } from "react";
+import { concentric, cornerRadius, controlCornerRadius, iconButtonCornerRadius, rounded, roundedPx } from "../../../lib/corners";
+import { matchIconWeight } from "../icons";
+import { Spinner } from "../spinner";
+import { controlGlyph, controlMetrics, controlSquare, disabledState, focusRing, hoverMotion, type ControlSize } from "../styles";
+import { VisuallyHidden } from "../visually-hidden";
+
+/** `soft`: o fundo do hover do fantasma, sempre aceso (2026-10-02, para os botões de voltar). */
+export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "soft" | "danger" | "plain";
+
+export type ButtonRadius = "auto" | "md" | "lg" | "xl" | "full";
+
+export type ButtonProps = ComponentPropsWithoutRef<"button"> & {
+  variant?: ButtonVariant;
+  size?: ControlSize;
+  radius?: ButtonRadius;
+  fullWidth?: boolean;
+  iconStart?: ReactNode;
+  iconEnd?: ReactNode;
+  iconOnly?: boolean;
+  loading?: boolean;
+  locked?: boolean;
+  href?: string;
+  /** Só com `href`: onde o link abre, como em uma âncora. `_blank` é o que os links de fora usam. */
+  target?: HTMLAttributeAnchorTarget;
+  rel?: string;
+  /** Com `href`, faz o clique baixar o endereço em vez de navegar, e o texto é o nome sugerido do arquivo. */
+  download?: string | boolean;
+  plan?: string;
+  background?: string;
+  foreground?: string;
+  border?: string;
+  ref?: Ref<HTMLButtonElement>;
+};
+
+const iconWeight = "regular";
+
+/* Cartões, linhas clicáveis e ferramentas de arraste usam o mesmo contrato de ação, mas o desenho
+   pertence ao conteúdo. Esta variante preserva os filhos e o layout, sem impor medidas de botão. */
+const PlainRoot = styled.button`
+  ${focusRing};
+  ${disabledState};
+
+  &[data-loading]:disabled {
+    cursor: progress;
+  }
+`;
+
+function matchTextWeight(node: ReactNode) {
+  return matchIconWeight(node, iconWeight);
+}
+
+function autoCorner(size: ControlSize, iconOnly: boolean) {
+  return iconOnly ? iconButtonCornerRadius[size] : controlCornerRadius[size];
+}
+
+function planCorner(radius: ButtonRadius, size: ControlSize) {
+  const outer = radius === "auto" || radius === "full" ? controlCornerRadius[size] : cornerRadius[radius];
+  return concentric(outer, 2);
+}
+
+function cornerAttributes(radius: ButtonRadius, size: ControlSize, iconOnly: boolean) {
+  if (radius === "full") return {};
+  if (radius !== "auto") return rounded(radius);
+  return roundedPx(autoCorner(size, iconOnly));
+}
+
+const Root = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  max-width: 100%;
+  padding-block: var(--space-2);
+  font-family: var(--font-body);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-tighter);
+  text-align: center;
+  /* O rótulo do botão nunca quebra linha (2026-10-21, a pedido: "os botões de cancelar e tudo mais, não pode pular
+     linha"): quem não cabe lado a lado empilha, como a confirmação faz */
+  white-space: nowrap;
+  color: var(--button-foreground);
+  background-color: var(--button-background);
+  /* A espessura do fio vem de fora quando o botão precisa casar com um campo de fio fino ao lado, como na
+     barra de busca; por padrão é o 1px da casa. */
+  border: var(--button-line, 1px) solid var(--button-border);
+  border-radius: var(--button-radius);
+
+  ${hoverMotion};
+  ${focusRing};
+  ${disabledState};
+
+  &[data-loading]:disabled {
+    opacity: 0.75;
+    cursor: progress;
+  }
+
+  & [data-button-icon] {
+    display: inline-flex;
+    flex-shrink: 0;
+    line-height: 0;
+    color: inherit;
+  }
+
+  & [data-button-icon] [role="status"] {
+    --diameter: 1.2em;
+    color: currentColor;
+  }
+
+  & [data-button-icon] svg {
+    width: 1.2em;
+    height: 1.2em;
+    fill: currentColor;
+  }
+
+  &[data-icon-only][data-size="sm"] [data-button-icon] svg {
+    ${controlGlyph("sm")};
+  }
+
+  &[data-icon-only][data-size="md"] [data-button-icon] svg {
+    ${controlGlyph("md")};
+  }
+
+  &[data-icon-only][data-size="lg"] [data-button-icon] svg {
+    ${controlGlyph("lg")};
+  }
+
+  &[data-radius="auto"][data-size="sm"] {
+    --button-radius: var(--control-radius-sm);
+  }
+
+  &[data-radius="auto"][data-size="md"] {
+    --button-radius: var(--control-radius-md);
+  }
+
+  &[data-radius="auto"][data-size="lg"] {
+    --button-radius: var(--control-radius-lg);
+  }
+
+  &[data-radius="auto"][data-icon-only][data-size="sm"] {
+    --button-radius: var(--icon-button-radius-sm);
+  }
+
+  &[data-radius="auto"][data-icon-only][data-size="md"] {
+    --button-radius: var(--icon-button-radius-md);
+  }
+
+  &[data-radius="auto"][data-icon-only][data-size="lg"] {
+    --button-radius: var(--icon-button-radius-lg);
+  }
+
+  &[data-radius="md"] {
+    --button-radius: var(--radius-md);
+  }
+
+  &[data-radius="lg"] {
+    --button-radius: var(--radius-lg);
+  }
+
+  &[data-radius="xl"] {
+    --button-radius: var(--radius-xl);
+  }
+
+  &[data-radius="full"] {
+    --button-radius: var(--radius-full);
+  }
+
+  &[data-size="sm"] {
+    ${controlMetrics("sm")};
+    gap: var(--space-2);
+    padding-inline: var(--space-4);
+  }
+
+  &[data-size="md"] {
+    ${controlMetrics("md")};
+    gap: var(--space-2);
+    padding-inline: var(--space-5);
+  }
+
+  &[data-size="lg"] {
+    ${controlMetrics("lg")};
+    gap: var(--space-3);
+    padding-inline: var(--space-6);
+  }
+
+  &[data-icon-only][data-size="sm"] {
+    ${controlSquare("sm")};
+  }
+
+  &[data-icon-only][data-size="md"] {
+    ${controlSquare("md")};
+  }
+
+  &[data-icon-only][data-size="lg"] {
+    ${controlSquare("lg")};
+  }
+
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background-color: var(--button-background-hover);
+    }
+  }
+
+  &[data-variant="primary"] {
+    --button-background: var(--color-brand);
+    --button-background-hover: color-mix(in oklab, var(--color-brand) 88%, var(--color-bg));
+    --button-foreground: var(--color-bg);
+    --button-border: transparent;
+  }
+
+  &[data-variant="secondary"] {
+    --button-background: var(--color-fill-quaternary);
+    --button-background-hover: var(--color-fill-tertiary);
+    --button-foreground: var(--color-label);
+    --button-border: var(--color-border);
+  }
+
+  &[data-variant="outline"] {
+    --button-background: transparent;
+    --button-background-hover: var(--color-fill-quaternary);
+    --button-foreground: var(--color-label);
+    --button-border: var(--color-border);
+  }
+
+  &[data-variant="ghost"] {
+    --button-background: transparent;
+    --button-background-hover: var(--color-fill-quaternary);
+    --button-foreground: var(--color-label);
+    --button-border: transparent;
+  }
+
+  &[data-variant="soft"] {
+    --button-background: var(--color-fill-quaternary);
+    --button-background-hover: var(--color-fill-tertiary);
+    --button-foreground: var(--color-label);
+    --button-border: transparent;
+  }
+
+  &[data-variant="danger"] {
+    --button-background: var(--color-danger-solid);
+    --button-background-hover: color-mix(in oklab, var(--color-danger-solid) 88%, var(--color-bg));
+    --button-foreground: var(--color-on-danger);
+    --button-border: transparent;
+  }
+
+  &[data-full-width] {
+    display: flex;
+    width: 100%;
+  }
+`;
+
+/* Mesmo estilo do botão num link, para chamada que navega sem duplicar CSS. Link da casa, e não `<a>` cru: navegação de cliente com prefetch, e o estado pendente do próprio link
+   para o giro aparecer enquanto a página de destino não chega (2026-09-08; até então cada botão com
+   endereço era recarga inteira, e parecia travado). */
+type AnchorProps = Omit<ComponentPropsWithoutRef<"a">, "href"> & { href: string };
+/* O endereço chega como texto, e não como rota tipada: o botão é genérico e serve a qualquer link, e o
+   `Link` por baixo aceita o texto normalmente. */
+const Anchor = Root.withComponent("a") as unknown as ComponentType<AnchorProps>;
+const PlainAnchor = PlainRoot.withComponent("a") as unknown as ComponentType<AnchorProps>;
+
+/* Dentro do link, quem sabe se a navegação está andando é o `useLinkStatus`: o corpo é desenhado de novo
+   com o giro no lugar do glifo enquanto ela não termina. */
+function LinkBody({ render }: { render: (busy: boolean) => ReactNode }) {
+  const pending = false; // Navegacao hash do projeto, sem Next.js.
+  return <>{render(pending)}</>;
+}
+
+const Plan = styled.span`
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-1);
+  margin-inline-start: var(--space-1);
+  padding-block: var(--space-1);
+  padding-inline: var(--space-2);
+  font-family: var(--font-code);
+  font-size: var(--text-caption-2);
+  font-weight: var(--weight-regular);
+  line-height: 1.2;
+  letter-spacing: var(--tracking-normal);
+  color: inherit;
+  background-color: var(--color-fill-tertiary);
+  border-radius: var(--plan-radius);
+
+  & svg {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+  }
+`;
+
+export function Button({
+  variant = "primary",
+  size = "md",
+  radius = "auto",
+  fullWidth = false,
+  iconStart,
+  iconEnd,
+  iconOnly = false,
+  loading = false,
+  locked = false,
+  href,
+  download,
+  plan,
+  background,
+  foreground,
+  border,
+  type = "button",
+  disabled,
+  style,
+  children,
+  ...props
+}: ButtonProps) {
+  if (variant === "plain") {
+    const content = (busy: boolean) => <>{busy ? <Spinner size="sm" label="" /> : iconStart}{(!iconOnly || !busy) && children}{iconEnd}</>;
+    if (href) {
+      return (
+        <PlainAnchor href={href} download={download} data-variant="plain" aria-busy={loading || undefined} style={style} {...(props as ComponentPropsWithoutRef<"a">)}>
+          {download === undefined ? <LinkBody render={(pending) => content(loading || pending)} /> : content(loading)}
+        </PlainAnchor>
+      );
+    }
+    return (
+      <PlainRoot
+        type={type}
+        disabled={disabled || loading}
+        data-variant="plain"
+        data-loading={loading || undefined}
+        aria-busy={loading || undefined}
+        style={style}
+        {...props}
+      >
+        {content(loading)}
+      </PlainRoot>
+    );
+  }
+
+  const planStyle = { "--plan-radius": `${planCorner(radius, size)}px` } as CSSProperties;
+
+  const colors = {
+    ...style,
+    "--button-background": background,
+    "--button-background-hover": background && `color-mix(in oklab, ${background} 88%, var(--color-bg))`,
+    "--button-foreground": foreground,
+    "--button-border": border,
+  } as CSSProperties;
+
+  const shared = {
+    "data-variant": variant,
+    "data-size": size,
+    "data-radius": radius,
+    "data-icon-only": iconOnly || undefined,
+    "data-loading": loading || undefined,
+    "data-locked": locked || undefined,
+    "data-full-width": fullWidth || undefined,
+    "aria-busy": loading || undefined,
+    style: colors,
+    ...cornerAttributes(radius, size, iconOnly),
+  };
+
+  const renderContent = (busy: boolean) => (
+    <>
+      {busy && (
+        <span data-button-icon>
+          <Spinner size="sm" label="" />
+        </span>
+      )}
+      {iconStart && !busy && <span data-button-icon>{matchTextWeight(iconStart)}</span>}
+      {/* Só ícone carregando: o giro toma o lugar do glifo, senão os dois apareciam lado a lado. */}
+      {iconOnly ? !busy && <span data-button-icon>{matchTextWeight(children)}</span> : children}
+      {iconEnd && <span data-button-icon>{matchTextWeight(iconEnd)}</span>}
+      {locked && (
+        <Plan style={planStyle} {...roundedPx(planCorner(radius, size))}>
+          <LockIcon weight={iconWeight} aria-hidden="true" />
+          <VisuallyHidden>{plan ? "Disponível no plano" : "Recurso bloqueado"}</VisuallyHidden>
+          {plan}
+        </Plan>
+      )}
+    </>
+  );
+
+  if (href) {
+    /* Baixando um arquivo, o clique é transferência e não navegação: o `download` no elemento é o que faz o
+       navegador cuidar disso, sem o `next/link` por baixo interceptar, e o giro do link pendente não vale,
+       porque a página não sai do lugar. */
+    return (
+      <Anchor href={href} download={download} {...shared} {...(props as ComponentPropsWithoutRef<"a">)}>
+        {download === undefined ? <LinkBody render={(pending) => renderContent(loading || pending)} /> : renderContent(loading)}
+      </Anchor>
+    );
+  }
+
+  return (
+    <Root type={type} disabled={disabled || loading} {...shared} {...props}>
+      {renderContent(loading)}
+    </Root>
+  );
+}

@@ -1,3 +1,4 @@
+import { Input } from '../../ui';
 import { Button } from '../../ui';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
@@ -25,12 +26,12 @@ export function CaminhaoForm({ caminhao, busy, onSave }: { caminhao?: Caminhao; 
         const errors = Object.entries(fields).filter(([key]) => key.toLowerCase() === name).flatMap(([, messages]) => messages);
         return <div key={name} className={styles.field}>
           <label htmlFor={name}>{name === 'placa' ? 'Placa' : 'Modelo'}</label>
-          <input id={name} name={name} required maxLength={name === 'placa' ? 10 : 100} value={values[name]} aria-invalid={errors.length > 0} aria-describedby={errors.length ? `${name}-error` : undefined} onChange={event => setValues({ ...values, [name]: event.target.value })} />
+          <Input id={name} name={name} required maxLength={name === 'placa' ? 10 : 100} value={values[name]} aria-invalid={errors.length > 0} aria-describedby={errors.length ? `${name}-error` : undefined} onChange={event => setValues({ ...values, [name]: event.target.value })} />
           {errors.length > 0 && <span id={`${name}-error`} className={styles.error}>{errors.join(' ')}</span>}
         </div>;
       })}
     </fieldset>
-    {caminhao ? <fieldset disabled={busy}><legend>Situação</legend><label><input type="checkbox" checked={ativo} onChange={e => setAtivo(e.target.checked)} /> Cadastro ativo</label><p>Marque para reativar ou desmarque para desativar. O histórico é preservado.</p></fieldset> : <p>O caminhão será cadastrado como ativo.</p>}
+    {caminhao ? <fieldset disabled={busy}><legend>Situação</legend><label><Input type="checkbox" checked={ativo} onChange={e => setAtivo(e.target.checked)} /> Cadastro ativo</label><p>Marque para reativar ou desmarque para desativar. O histórico é preservado.</p></fieldset> : <p>O caminhão será cadastrado como ativo.</p>}
     <Button type="submit" disabled={busy}>{busy ? 'Salvando…' : caminhao ? 'Salvar alterações' : 'Cadastrar caminhão'}</Button>
   </form>;
 }

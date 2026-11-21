@@ -1,73 +1,46 @@
-﻿# Design system — Gestão de Transportadora
+# Design system vigente: Leange
 
-## Direção vigente
+A migracao integral do frontend foi autorizada pelo usuario. Esta decisao substitui
+as diretrizes visuais Ultraleads anteriores; nao altera regras de negocio ou API.
 
-A reformulação completa usa o kit Ultraleads recebido pelo usuário. Esta direção
-substitui a paleta e o layout anteriores. A referência original permanece em
-`src/ui/`; a implementação utilizada pelo React está em `frontend/src/ui/`.
+## Fonte de verdade
 
-A interface combina fundo cinza claro, painel de trabalho arredondado, cartões
-claros e navegação horizontal em pílulas. Azul-marinho estabelece hierarquia,
-ciano identifica ações e menta sinaliza resultados positivos. Não há novas
-regras de negócio ou contratos HTTP nesta reformulação.
+- Componentes: `frontend/src/ui/`, primitivas portadas em `ui/leange/`.
+- Origem: DCSEmpresarial/LEANGE_sistema-erp, commit 140ce44332854c64a2151a17aede69e9dcdecaf2.
+- Tokens: `ui/leange/src/styles/tokens.css` e extensoes semanticas em `ui/tokens.css`.
+- Tipografia: Inter Variable, arquivo de fonte servido pelo proprio projeto.
+- Temas: Claro, Escuro e Sistema; preferencia local preservada em gt.ui.theme.
 
-## Tokens e componentes
+Usar botoes, cards, badges, campos, tabelas e Dialog exportados pelo kit. Os
+layouts de dominio continuam compondo esses componentes e os mesmos contratos.
+Nao adicionar cores ou fontes de outro kit, nem restaurar tokens --ul-*.
 
-Todas as cores, famílias tipográficas, raios, sombras e espaçamentos visuais
-partem de `frontend/src/ui/tokens.css`, com prefixo `--ul-*`. O antigo arquivo
-`styles/tokens.css` somente importa esses tokens, sem aliases do design antigo.
+## Layout e acessibilidade
 
-- Fonte: `Plus Jakarta Sans`, com fallback local Inter e fontes de sistema.
-  O arquivo da fonte não está distribuído no repositório; não há download de fontes
-  de terceiros no navegador. A família efetivamente usada depende da instalação local.
-- Fundo: `--ul-bg-page`; painel: `--ul-bg-surface`; cartões: `--ul-bg-card`.
-- Hierarquia: `--ul-navy-600`; ações: `--ul-cyan-600`, com contraste para texto branco.
-- Sinais positivos: `--ul-mint-100` e `--ul-mint-700`; negativos: `--ul-red-*`.
-- Raios: `--ul-radius-lg` em cartões, `--ul-radius-xl` no painel e `--ul-radius-full`
-  em botões, badges e navegação. Controles de entrada usam `--ul-radius-sm`.
-- `AppShell` e `PageHeader` estruturam as telas, incluindo autenticação.
-- `Card`, `Grid`, `Badge`, `Avatar`, `Button`, `LinkButton` e `Tabs` compõem os módulos.
-- `CollectionHeader`, `CollectionSummary` e `EmptyState` padronizam consultas.
-- `ChartBar` fornece a forma arredondada dos gráficos com raios do kit.
+Navegacao lateral no desktop, menu modal no mobile, cabecalho e conteudo fluido.
+Superficies neutras, tipografia e cantos do kit Leange. As telas permanecem
+responsivas em 360 px; tabelas tem rolagem local. Foco visivel, controles rotulados,
+reduced-motion e retorno de foco dos dialogs permanecem obrigatorios.
 
-Os componentes são compartilhados; estilos específicos continuam em CSS Modules.
-Não adicionar cores literais em telas nem importar o CSS global do kit original.
-No máximo um cartão de destaque navy por tela. Não adicionar animações decorativas.
+Botoes de navegacao usam ancoras, sem dependencia de Next.js. Campos e seletores
+preservam validacao nativa e eventos; nenhuma mascara ou regra de dados nova foi
+introduzida. Tabelas preservam os totais, filtros e a semantica original.
 
-## Telas e comportamento
+## Dependencias
 
-- Motoristas e Caminhões: totais do conjunto carregado, busca, filtro de situação,
-  avatares quando aplicáveis, badges e ações de cadastro, edição e situação.
-  A consulta de ativos não permite deduzir o total de inativos; nenhum total global
-  é inferido a partir dela.
-- Viagens: resumo por andamento, atalhos de situação sincronizados com o select,
-  período, percurso, ações de transição e detalhes. Dados, confirmação, despesas e
-  remuneração seguem as regras existentes da API.
-- Despesas: resumo por vínculo, filtros, inclusão financeira e formulários existentes.
-- Financeiro: período, saldo previsto, fretes e despesas em cards do kit; remuneração
-  destacada como parcela já incluída. Gráficos usam Recharts sob demanda, cores do
-  kit e valores textuais alternativos. Valores negativos permanecem consultáveis.
-- Acesso: identidade visual compartilhada para login, recuperação, definição de
-  senha, sessão pendente, acesso negado, erro e ausência de configuração.
+Emotion React/styled, Phosphor Icons, react-number-format e Inter Variable.
+Motion foi removido por nao ser mais utilizado. React, Vite, Supabase, Leaflet e
+Recharts permanecem; o ERP tambem usa Recharts. Nenhuma dependencia de servidor,
+banco, IA, pagamentos ou Next.js do ERP foi trazida.
 
-Contagens exibem um traço durante carregamento ou erro, sem apresentar zero falso.
-Dados ilustrativos do `ExamplePage.tsx` não são usados na aplicação.
+## Verificacao
 
-## Responsividade e acessibilidade
+Testes de fluxo preservados; testes de controles atualizados para a biblioteca
+ativa. Vitest usa dois workers e timeout de 15 s para a renderizacao Emotion no
+jsdom, evitando disputa de recursos nas consultas de acessibilidade.
+Evidencias visuais isoladas em .local/harness/leange-visual/, sem dados reais ou
+banco externo. Revisao nos dois temas em desktop/mobile, incluindo perfis,
+calculadora, fechamentos, login e modal.
 
-O grid vira uma coluna abaixo de 900 px. A navegação passa a um menu em diálogo;
-resumos ficam compactos no celular. Tabelas mantêm semântica e rolagem horizontal
-restrita à região dos dados, sem alargar a página. Formulários e confirmações usam
-diálogos nativos, com contenção de foco, Escape quando não há envio e retorno ao
-acionador. Todos os botões usam o componente do kit; submissões têm tipo explícito.
-
-Manter nomes acessíveis, labels, mensagens de status e erro, foco visível em
-controles e `prefers-reduced-motion`. Rótulos e valores distinguem as séries além
-da cor. Gráficos vazios ou incompatíveis com valores negativos têm explicação textual.
-
-## Verificação
-
-Executar o harness oficial documentado em `desenvolvimento.md`. Revisão visual
-isolada usa dados fictícios identificados, sem acessar banco ou autenticação real.
-Capturas e relatórios da reformulação ficam em `.local/harness/reformulacao-visual/`.
-A validação visual isolada não comprova configuração Supabase, PostgreSQL ou deploy.
+O kit original em src/ui/ na raiz e apenas arquivo historico, nao e importado no
+frontend. Detalhes de procedencia/adaptacoes em frontend/src/ui/leange/README.md.

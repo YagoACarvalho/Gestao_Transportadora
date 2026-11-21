@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
-import { Avatar, BarChartCard, Button, Card, CollectionSummary, GaugeChart, ProgressCard, Tabs } from './index';
+import { Avatar, Button, Card, CollectionSummary, Input, Select, Tabs } from './index';
 
 it('nao apresenta menu sem acao e botoes nao submetem formularios por padrao', () => {
   render(<Card title="Custos"><Button>Consultar</Button></Card>);
@@ -16,18 +16,18 @@ it('apresenta filtros como grupo de botoes com selecao acessivel', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Ano' })); expect(alterar).toHaveBeenCalledWith('ano');
 });
 
-it('limita progresso e medidor e usa iniciais sem imagem inexistente', () => {
-  render(<><ProgressCard title="Progresso" value="Completo" percent={150} /><GaugeChart value={-10} label="Volume" segments={0} /><Avatar name="Nome Teste" /></>);
-  expect(screen.getByRole('progressbar', { name: 'Progresso' }).getAttribute('aria-valuenow')).toBe('100');
-  expect(screen.getByRole('img', { name: 'Volume: 0%' })).toBeTruthy();
+it('usa iniciais sem imagem inexistente', () => {
+  render(<Avatar name="Nome Teste" />);
   expect(screen.getByRole('img', { name: 'Nome Teste' }).textContent).toBe('NT');
 });
 
-it('explica grafico vazio e fornece valores textuais para barras negativas', () => {
-  render(<><BarChartCard title="Vazio" data={[]} /><BarChartCard title="Valores" data={[{ label: 'Janeiro', value: -25 }]} /></>);
-  expect(screen.getByText('Nenhum valor disponível.')).toBeTruthy();
-  fireEvent.click(screen.getByText('Ver valores do gráfico'));
-  expect(screen.getByText('-25')).toBeTruthy();
+it('campos Leange preservam rotulos e alteracao nativa', () => {
+  const change = vi.fn();
+  render(<><label htmlFor="nome">Nome</label><Input id="nome" required aria-invalid="true" onChange={change} /><label htmlFor="opcao">Opção</label><Select id="opcao"><option value="a">A</option><option value="b">B</option></Select></>);
+  fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Teste' } });
+  expect(change).toHaveBeenCalled(); expect(screen.getByLabelText('Nome').getAttribute('aria-invalid')).toBe('true');
+  fireEvent.change(screen.getByLabelText('Opção'), { target: { value: 'b' } });
+  expect((screen.getByLabelText('Opção') as HTMLSelectElement).value).toBe('b');
 });
 
 it('nao apresenta contagens como zero enquanto a consulta carrega ou falha', () => {

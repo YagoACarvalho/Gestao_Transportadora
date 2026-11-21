@@ -1,3 +1,5 @@
+import { Table, TableHeadCell, TableCell } from '../ui';
+import { Input, Select } from '../ui';
 import { useEffect, useRef, useState } from 'react';
 import { Avatar, Badge, Button, Card, EmptyState, Grid, LinkButton, PageHeader, StatCard, Tabs } from '../ui';
 import { SidePanel } from '../components/SidePanel';
@@ -92,9 +94,9 @@ export function MotoristaPerfilPage({ motoristaId, aba = 'cadastro' }: { motoris
           </Card> : <Card span={12} aria-label={aba === 'viagens' ? 'Viagens do motorista' : 'Remuneração do motorista'} title={aba === 'viagens' ? 'Viagens vinculadas' : 'Remuneração das viagens'}>
             <p className={styles.note}>{aba === 'viagens' ? 'Consulte os percursos atualmente vinculados a este motorista, em qualquer situação.' : 'Valores previstos dos lançamentos automáticos registrados. Não representam pagamentos realizados.'}</p>
             <div className={styles.filters} role="group" aria-label="Filtros do perfil">
-              <div className={cadastro.field}><label htmlFor="perfil-inicio">Data inicial</label><input id="perfil-inicio" type="date" value={inicio} onChange={event => setInicio(event.target.value)} /></div>
-              <div className={cadastro.field}><label htmlFor="perfil-fim">Data final</label><input id="perfil-fim" type="date" value={fim} onChange={event => setFim(event.target.value)} /></div>
-              {aba === 'viagens' && <div className={cadastro.field}><label htmlFor="perfil-situacao">Situação da viagem</label><select id="perfil-situacao" value={status} onChange={event => setStatus(event.target.value)}><option value="">Todas</option>{situacoes.map(situacao => <option key={situacao}>{situacao}</option>)}</select></div>}
+              <div className={cadastro.field}><label htmlFor="perfil-inicio">Data inicial</label><Input id="perfil-inicio" type="date" value={inicio} onChange={event => setInicio(event.target.value)} /></div>
+              <div className={cadastro.field}><label htmlFor="perfil-fim">Data final</label><Input id="perfil-fim" type="date" value={fim} onChange={event => setFim(event.target.value)} /></div>
+              {aba === 'viagens' && <div className={cadastro.field}><label htmlFor="perfil-situacao">Situação da viagem</label><Select id="perfil-situacao" value={status} onChange={event => setStatus(event.target.value)}><option value="">Todas</option>{situacoes.map(situacao => <option key={situacao}>{situacao}</option>)}</Select></div>}
               <Button variant="secondary" onClick={() => { setInicio(''); setFim(''); setStatus(''); }}>Limpar filtros</Button>
             </div>
             <p className={styles.note}>O período considera {aba === 'viagens' ? 'a data da viagem' : 'a data do lançamento de remuneração'}. Registros sem data aparecem apenas sem limites de período.</p>
@@ -117,12 +119,12 @@ export function MotoristaPerfilPage({ motoristaId, aba = 'cadastro' }: { motoris
                           </Grid></div>
                           <p className={styles.note}>A remuneração prevista soma os lançamentos incluídos no financeiro. Viagens canceladas respeitam a escolha de inclusão de cada despesa. Nenhum valor retroativo é estimado para viagens sem lançamento.</p>
                           {remuneracao.totalPrevisto === null || remuneracao.totalHistorico === null ? <p role="alert" className={cadastro.error}>Há lançamentos sem valor válido. O total correspondente não pode ser informado.</p> : null}
-                          {remuneracao.lancamentos.length ? <div className={cadastro.tableScroll} role="region" aria-label="Lançamentos de remuneração" tabIndex={0}><table className={cadastro.table}>
-                            <caption className={cadastro.srOnly}>Remuneração automática das viagens vinculadas</caption><thead><tr><th scope="col">Viagem</th><th scope="col">Data</th><th scope="col" className={cadastro.numeric}>Valor previsto</th><th scope="col">Inclusão financeira</th><th scope="col">Ação</th></tr></thead>
-                            <tbody>{remuneracao.lancamentos.map(item => <tr key={item.id}><th scope="row">{item.percurso.origem || 'Origem não informada'} → {item.percurso.destino || 'Destino não informado'}<span className={cadastro.secondary}>{item.percurso.status || 'Situação não informada'}</span></th>
-                              <td>{formatarData(item.dataDespesa)}</td><td className={cadastro.numeric}>{valor(item.valor)}</td><td><Badge tone={item.considerarNoFinanceiro === false ? 'neutral' : 'positive'}>{item.considerarNoFinanceiro === false ? 'Somente histórico' : 'Incluída'}</Badge></td>
-                              <td><Button variant="secondary" onClick={() => setSelecionada(item.percurso)} aria-label={`Ver viagem ${item.percurso.origem || 'sem origem'} para ${item.percurso.destino || 'sem destino'}`}>Ver viagem</Button></td></tr>)}</tbody>
-                          </table></div> : <EmptyState title="Nenhum lançamento automático neste período." description="Viagens antigas não geram remuneração retroativa. Ajuste o período para consultar outros lançamentos." />}
+                          {remuneracao.lancamentos.length ? <div className={cadastro.tableScroll} role="region" aria-label="Lançamentos de remuneração" tabIndex={0}><Table className={cadastro.table}>
+                            <caption className={cadastro.srOnly}>Remuneração automática das viagens vinculadas</caption><thead><tr><TableHeadCell scope="col">Viagem</TableHeadCell><TableHeadCell scope="col">Data</TableHeadCell><TableHeadCell scope="col" className={cadastro.numeric}>Valor previsto</TableHeadCell><TableHeadCell scope="col">Inclusão financeira</TableHeadCell><TableHeadCell scope="col">Ação</TableHeadCell></tr></thead>
+                            <tbody>{remuneracao.lancamentos.map(item => <tr key={item.id}><TableHeadCell scope="row">{item.percurso.origem || 'Origem não informada'} → {item.percurso.destino || 'Destino não informado'}<span className={cadastro.secondary}>{item.percurso.status || 'Situação não informada'}</span></TableHeadCell>
+                              <TableCell>{formatarData(item.dataDespesa)}</TableCell><TableCell className={cadastro.numeric}>{valor(item.valor)}</TableCell><TableCell><Badge tone={item.considerarNoFinanceiro === false ? 'neutral' : 'positive'}>{item.considerarNoFinanceiro === false ? 'Somente histórico' : 'Incluída'}</Badge></TableCell>
+                              <TableCell><Button variant="secondary" onClick={() => setSelecionada(item.percurso)} aria-label={`Ver viagem ${item.percurso.origem || 'sem origem'} para ${item.percurso.destino || 'sem destino'}`}>Ver viagem</Button></TableCell></tr>)}</tbody>
+                          </Table></div> : <EmptyState title="Nenhum lançamento automático neste período." description="Viagens antigas não geram remuneração retroativa. Ajuste o período para consultar outros lançamentos." />}
                         </>}
             <p className={styles.note}>Os vínculos são os atuais: mudar o motorista de uma viagem também muda sua associação neste perfil. Não há histórico separado de beneficiários.</p>
           </Card>}

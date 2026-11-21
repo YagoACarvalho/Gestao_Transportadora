@@ -1,3 +1,4 @@
+import { Input, Select } from '../../ui';
 import { Button } from '../../ui';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
@@ -55,14 +56,14 @@ export function DespesaForm({ despesa, viagemInicial, tipoInicial = 'geral', bus
     {error && <p role="alert" className={styles.error}>{error}</p>}
     <fieldset disabled={busy}><legend>Lançamento</legend>
       <div className={styles.field}><label htmlFor="tipoDespesa">Tipo de despesa</label>
-        <select id="tipoDespesa" value={tipo} onChange={e => setTipo(e.target.value as 'geral' | 'viagem')}>
+        <Select id="tipoDespesa" value={tipo} onChange={e => setTipo(e.target.value as 'geral' | 'viagem')}>
           <option value="geral">Despesa geral</option><option value="viagem">Despesa de viagem</option>
-        </select>
+        </Select>
         <span>{tipo === 'geral' ? 'Custo da transportadora sem vínculo com uma viagem.' : 'Custo vinculado à viagem selecionada abaixo.'}</span>
       </div>
       {(['descricao', 'categoria', 'dataDespesa', 'valor'] as const).map(name => <div className={styles.field} key={name}>
         <label htmlFor={name}>{{ descricao: 'Descrição', categoria: 'Categoria', dataDespesa: 'Data da despesa', valor: 'Valor' }[name]} (obrigatório)</label>
-        <input id={name} required type={name === 'dataDespesa' ? 'date' : 'text'} inputMode={name === 'valor' ? 'decimal' : undefined}
+        <Input id={name} required type={name === 'dataDespesa' ? 'date' : 'text'} inputMode={name === 'valor' ? 'decimal' : undefined}
           maxLength={name === 'descricao' ? 200 : name === 'categoria' ? 50 : undefined} value={values[name]}
           aria-invalid={!!fieldError(name)} aria-describedby={fieldError(name) ? `${name}-error` : name === 'valor' ? 'valor-ajuda' : undefined}
           onChange={e => setValues({ ...values, [name]: e.target.value })} />
@@ -74,29 +75,29 @@ export function DespesaForm({ despesa, viagemInicial, tipoInicial = 'geral', bus
       {carregandoCaminhoes && <p role="status">Carregando caminhões…</p>}
       {erroCaminhoes && <p role="alert">{erroCaminhoes} <Button variant="secondary" type="button" onClick={() => setRevision(v => v + 1)}>Carregar caminhões novamente</Button></p>}
       <div className={styles.field}><label htmlFor="caminhaoId">Caminhão (opcional)</label>
-        <select id="caminhaoId" value={caminhaoId} disabled={carregandoCaminhoes || !!erroCaminhoes} onChange={e => setCaminhaoId(e.target.value)} aria-invalid={!!fieldError('caminhaoId')} aria-describedby="caminhao-ajuda">
+        <Select id="caminhaoId" value={caminhaoId} disabled={carregandoCaminhoes || !!erroCaminhoes} onChange={e => setCaminhaoId(e.target.value)} aria-invalid={!!fieldError('caminhaoId')} aria-describedby="caminhao-ajuda">
           <option value="">Sem vínculo com caminhão</option>
           {caminhaoId && !caminhoes.some(c => c.id === caminhaoId) && <option value={caminhaoId}>{despesa?.caminhao?.placa || 'Vínculo atual'}</option>}
           {caminhoes.map(c => <option key={c.id} value={c.id}>{c.placa} · {c.modelo}{!c.ativo ? ' (inativo)' : ''}</option>)}
-        </select><span id="caminhao-ajuda">{fieldError('caminhaoId') || 'Associe este custo a um caminhão, sem vincular a uma viagem.'}</span>
+        </Select><span id="caminhao-ajuda">{fieldError('caminhaoId') || 'Associe este custo a um caminhão, sem vincular a uma viagem.'}</span>
       </div>
     </fieldset>}
     {tipo === 'viagem' && <fieldset disabled={busy}><legend>Viagem</legend>
       {loading && <p role="status">Carregando viagens…</p>}
       {lookupError && <div role="alert">{lookupError} <Button variant="secondary" type="button" onClick={() => setRevision(v => v + 1)}>Carregar viagens novamente</Button></div>}
       <div className={styles.field}><label htmlFor="viagemId">Viagem (obrigatório)</label>
-        <select id="viagemId" required value={values.viagemId} disabled={loading || !!lookupError} aria-invalid={!!fieldError('viagemId')} aria-describedby="viagem-ajuda" onChange={e => { setValues({ ...values, viagemId: e.target.value }); if (!despesa) setSituacaoFinanceira(''); }}>
+        <Select id="viagemId" required value={values.viagemId} disabled={loading || !!lookupError} aria-invalid={!!fieldError('viagemId')} aria-describedby="viagem-ajuda" onChange={e => { setValues({ ...values, viagemId: e.target.value }); if (!despesa) setSituacaoFinanceira(''); }}>
           <option value="">Selecione uma viagem</option>
           {values.viagemId && !viagens.some(v => v.id === values.viagemId) && <option value={values.viagemId}>Vínculo atual</option>}
           {viagens.map(v => <option key={v.id} value={v.id}>{v.origem || 'Origem não informada'} → {v.destino || 'Destino não informado'} · {formatarData(v.dataViagem)} · {v.status || 'Situação não informada'} · {v.id.slice(0, 8)}</option>)}
-        </select><span id="viagem-ajuda">{fieldError('viagemId') || 'Você pode lançar despesas em qualquer fase da viagem, inclusive após conclusão ou cancelamento.'}</span>
+        </Select><span id="viagem-ajuda">{fieldError('viagemId') || 'Você pode lançar despesas em qualquer fase da viagem, inclusive após conclusão ou cancelamento.'}</span>
       </div>
     </fieldset>}
     {(despesa || viagemCancelada) && <fieldset disabled={busy}><legend>Situação financeira</legend><div className={styles.field}>
       <label htmlFor="considerarNoFinanceiro">Incluir no financeiro (obrigatório)</label>
-      <select id="considerarNoFinanceiro" required value={situacaoFinanceira} onChange={e => setSituacaoFinanceira(e.target.value)} aria-describedby="situacao-financeira-ajuda">
+      <Select id="considerarNoFinanceiro" required value={situacaoFinanceira} onChange={e => setSituacaoFinanceira(e.target.value)} aria-describedby="situacao-financeira-ajuda">
         <option value="">Selecione uma opção</option><option value="sim">Sim, considerar nos totais</option><option value="nao">Não, preservar apenas no histórico</option>
-      </select><span id="situacao-financeira-ajuda">{fieldError('considerarNoFinanceiro') || 'Desconsiderar não apaga o lançamento. Você pode incluí-lo novamente pela edição.'}</span>
+      </Select><span id="situacao-financeira-ajuda">{fieldError('considerarNoFinanceiro') || 'Desconsiderar não apaga o lançamento. Você pode incluí-lo novamente pela edição.'}</span>
     </div></fieldset>}
     <Button type="submit" disabled={busy || tipo === 'viagem' && (loading || !!lookupError)}>{busy ? 'Salvando…' : despesa ? 'Salvar alterações' : 'Cadastrar despesa'}</Button>
   </form>;

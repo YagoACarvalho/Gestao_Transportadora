@@ -1,5 +1,12 @@
 # Guia de trabalho dos agentes
 
+## Design vigente - Leange
+- Migracao completa para o kit de DCSEmpresarial/LEANGE_sistema-erp aprovada pelo usuario.
+- Usar componentes de frontend/src/ui/, primitivas portadas em ui/leange e tokens Leange.
+- As diretrizes Ultraleads abaixo sao historicas e foram substituidas por esta decisao visual.
+- Preservar regras de negocio, autenticacao, temas, acessibilidade e seguranca.
+
+
 ## Workspace de trabalho
 - Trabalhe na raiz `G:\projetos\Gestao_Transportadora-main`, na branch de consolidação `consolidation/workspace-unificado` enquanto esta organização estiver vigente.
 - Os diretórios em `.local/worktrees/` foram preservados como referências; não são o workspace de desenvolvimento diário. Contexto e mapa das pastas em `docs/workspace.md`.

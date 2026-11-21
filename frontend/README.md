@@ -1,3 +1,10 @@
+# Frontend da transportadora
+
+Design vigente: componentes Leange adaptados para React/Vite. Guia atual em
+[design-system](../docs/design-system.md) e [procedencia do kit](src/ui/leange/README.md).
+Temas claro/escuro, fonte Inter local, Emotion e Phosphor. As referencias abaixo
+sobre o kit anterior documentam etapas historicas; nao usar Ultraleads em novas telas.
+
 # Frontend — Gestão de Transportadora
 
 React, TypeScript, Vite, CSS Modules e Motion. Motoristas e Caminhões possuem consulta, busca

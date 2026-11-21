@@ -1,3 +1,5 @@
+import { Table, TableHeadCell, TableCell } from '../ui';
+import { Input, Select } from '../ui';
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { createPortal } from 'react-dom';
@@ -36,7 +38,7 @@ function Folha({ cenario }: { cenario: Cenario }) {
     <section><h2>Carga e contratação</h2><p>{e.eixos} eixos · {e.contratacao === 'tracao' ? 'Unidade de tração' : 'Composição veicular'} · Tabela {r.coeficientes.tabela} · Tipo de carga {e.tipoCarga}</p>
       <p>CCD: {r.coeficientes.ccd.toLocaleString('pt-BR', { minimumFractionDigits: 4 })} R$/km · CC: {moeda(r.coeficientes.cc)}</p>
       <p>Altura: {e.altura ?? 'não informada'} m; largura: {e.largura ?? 'não informada'} m; comprimento: {e.comprimento ?? 'não informado'} m; peso: {e.peso ?? 'não informado'} t.</p></section>
-    <section><h2>Valores</h2><table><tbody>{[['Piso de ida', moeda(r.pisoIda)], ['Retorno vazio', moeda(r.retornoVazio)], ['Piso ANTT total', moeda(r.pisoTotal)], ['Pedágio', r.pedagio === null ? 'Pendente' : moeda(r.pedagio)], ['Adicionais', moeda(r.adicionais)], ['Total da operação', moeda(r.totalOperacao)]].map(([k, v]) => <tr key={k}><th>{k}</th><td>{v}</td></tr>)}</tbody></table>
+    <section><h2>Valores</h2><Table><tbody>{[['Piso de ida', moeda(r.pisoIda)], ['Retorno vazio', moeda(r.retornoVazio)], ['Piso ANTT total', moeda(r.pisoTotal)], ['Pedágio', r.pedagio === null ? 'Pendente' : moeda(r.pedagio)], ['Adicionais', moeda(r.adicionais)], ['Total da operação', moeda(r.totalOperacao)]].map(([k, v]) => <tr key={k}><TableHeadCell>{k}</TableHeadCell><TableCell>{v}</TableCell></tr>)}</tbody></Table>
       <h2>Preço sugerido</h2><Preco resultado={r} custos={custos} /><p>Consumo: {custos.consumo} km/l; diesel: {moeda(custos.diesel)}/l; outros custos: {moeda(custos.outrosPorKm)}/km; fixos: {moeda(custos.fixos)}.</p></section>
     <section><h2>Observações</h2>{r.avisos.map(a => <p key={a}>{a}</p>)}<p>Fonte: {r.fonte}</p><p>Simulação sem reserva ou registro financeiro. Confira as condições reais da operação.</p></section>
   </article>, document.body);
@@ -90,10 +92,10 @@ export function CalcularFretePage() {
   }
   function imprimir() { document.body.classList.add('imprimindo-frete'); try { window.print(); } finally { document.body.classList.remove('imprimindo-frete'); } }
   const numero = (campo: 'eixos' | 'altura' | 'largura' | 'comprimento' | 'peso' | 'pedagio' | 'adicionais', label: string, max: number, step = '.01') => <div className={styles.field}>
-    <label htmlFor={`frete-${campo}`}>{label}</label><input id={`frete-${campo}`} type="number" min={campo === 'eixos' ? 2 : ['altura', 'largura', 'comprimento', 'peso'].includes(campo) ? .1 : 0} max={max} step={step} required={campo === 'eixos' || campo === 'adicionais'} value={entrada[campo] ?? ''} onChange={e => mudar({ [campo]: e.target.value === '' ? null : Number(e.target.value) })} />
+    <label htmlFor={`frete-${campo}`}>{label}</label><Input id={`frete-${campo}`} type="number" min={campo === 'eixos' ? 2 : ['altura', 'largura', 'comprimento', 'peso'].includes(campo) ? .1 : 0} max={max} step={step} required={campo === 'eixos' || campo === 'adicionais'} value={entrada[campo] ?? ''} onChange={e => mudar({ [campo]: e.target.value === '' ? null : Number(e.target.value) })} />
   </div>;
   const custoCampo = (campo: keyof CustosFrete, label: string, max: number, min = 0) => <div className={styles.field}>
-    <label htmlFor={`custo-${campo}`}>{label}</label><input id={`custo-${campo}`} type="number" min={min} max={max} step=".01" value={custos[campo]} onChange={e => setCustos(c => ({ ...c, [campo]: Number(e.target.value) }))} />
+    <label htmlFor={`custo-${campo}`}>{label}</label><Input id={`custo-${campo}`} type="number" min={min} max={max} step=".01" value={custos[campo]} onChange={e => setCustos(c => ({ ...c, [campo]: Number(e.target.value) }))} />
   </div>;
   return <>
     <PageHeader title="Calcular frete" subtitle="Planeje o trajeto e compare o piso ANTT com os custos da sua operação." />
@@ -114,15 +116,15 @@ export function CalcularFretePage() {
           </Card>
           <Card title="Carga e contratação" span={12}>
             <fieldset disabled={busy} className={`${styles.fields} ${styles.fieldset}`}><legend className={styles.caption}>Dados para selecionar a tabela ANTT</legend>
-              <div className={styles.field}><label htmlFor="tipo-carga">Tipo de carga</label><select id="tipo-carga" value={entrada.tipoCarga} onChange={e => mudar({ tipoCarga: Number(e.target.value) })}>{opcoes?.tiposCarga.map(t => <option value={t.id} key={t.id}>{t.nome}</option>)}</select></div>
+              <div className={styles.field}><label htmlFor="tipo-carga">Tipo de carga</label><Select id="tipo-carga" value={entrada.tipoCarga} onChange={e => mudar({ tipoCarga: Number(e.target.value) })}>{opcoes?.tiposCarga.map(t => <option value={t.id} key={t.id}>{t.nome}</option>)}</Select></div>
               {numero('eixos', 'Eixos da composição (inclua suspensos)', 20, '1')}
-              <div className={styles.field}><label htmlFor="contratacao">Contratação</label><select id="contratacao" value={entrada.contratacao} onChange={e => mudar({ contratacao: e.target.value as EntradaFrete['contratacao'] })}><option value="composicao">Composição veicular / caminhão simples</option><option value="tracao">Somente unidade de tração</option></select></div>
-              <div className={styles.field}><label htmlFor="referencia">Data de referência</label><input id="referencia" required type="date" min={opcoes?.primeiraVigencia} max={opcoes?.hoje} value={entrada.dataReferencia} onChange={e => mudar({ dataReferencia: e.target.value })} /></div>
+              <div className={styles.field}><label htmlFor="contratacao">Contratação</label><Select id="contratacao" value={entrada.contratacao} onChange={e => mudar({ contratacao: e.target.value as EntradaFrete['contratacao'] })}><option value="composicao">Composição veicular / caminhão simples</option><option value="tracao">Somente unidade de tração</option></Select></div>
+              <div className={styles.field}><label htmlFor="referencia">Data de referência</label><Input id="referencia" required type="date" min={opcoes?.primeiraVigencia} max={opcoes?.hoje} value={entrada.dataReferencia} onChange={e => mudar({ dataReferencia: e.target.value })} /></div>
             </fieldset>
             <details className={styles.details} open={avancado} onToggle={e => setAvancado(e.currentTarget.open)}><summary>Enquadramento e medidas do veículo</summary>
               <fieldset disabled={busy} className={styles.fieldset}><legend className={styles.caption}>Parâmetros opcionais</legend>
-                <label className={styles.check}><input type="checkbox" checked={entrada.altoDesempenho} onChange={e => mudar({ altoDesempenho: e.target.checked })} />Operação de alto desempenho</label><p className={styles.caption}>Use apenas quando a operação cumprir os critérios da ANTT e houver comprovação do enquadramento.</p>
-                <label className={styles.check}><input type="checkbox" checked={entrada.retornoEspecial} onChange={e => mudar({ retornoEspecial: e.target.checked })} />Frota específica, dedicada ou fidelizada com retorno vazio obrigatório</label><p className={styles.caption}>Por razões sanitárias ou certificações que delimitem o produto transportado. Para contêineres, o retorno é incluído automaticamente.</p>
+                <label className={styles.check}><Input type="checkbox" checked={entrada.altoDesempenho} onChange={e => mudar({ altoDesempenho: e.target.checked })} />Operação de alto desempenho</label><p className={styles.caption}>Use apenas quando a operação cumprir os critérios da ANTT e houver comprovação do enquadramento.</p>
+                <label className={styles.check}><Input type="checkbox" checked={entrada.retornoEspecial} onChange={e => mudar({ retornoEspecial: e.target.checked })} />Frota específica, dedicada ou fidelizada com retorno vazio obrigatório</label><p className={styles.caption}>Por razões sanitárias ou certificações que delimitem o produto transportado. Para contêineres, o retorno é incluído automaticamente.</p>
                 <div className={styles.fields}>{numero('altura', 'Altura (m)', 6)}{numero('largura', 'Largura (m)', 4)}{numero('comprimento', 'Comprimento (m)', 40)}{numero('peso', 'Peso bruto (t)', 100)}</div>
               </fieldset>
             </details>
@@ -145,7 +147,7 @@ export function CalcularFretePage() {
           {resultado && <div className={styles.actions}><Button disabled={cenarios.length >= 4 || !custosValidos(custos)} onClick={() => { setCenarios(c => [...c, cenarioAtual()]); setMensagem('Cenário adicionado à comparação desta sessão.'); }}>Comparar cenário ({cenarios.length}/4)</Button><Button variant="secondary" onClick={copiar}>Copiar link</Button><Button variant="secondary" onClick={imprimir}>Imprimir / salvar PDF</Button></div>}
         </div>
       </div>
-      {cenarios.length > 0 && <Card title="Comparação de cenários" span={12}><div className={styles.tableWrap}><table className={styles.table}><caption>Cenários calculados nesta sessão; não são salvos no sistema.</caption><thead><tr><th>Indicador</th>{cenarios.map((c, i) => <th key={i}>Cenário {i + 1}<p>{c.entrada.origem.texto} → {c.entrada.destino.texto}</p><Button variant="secondary" onClick={() => setCenarios(cs => cs.filter((_, j) => i !== j))}>Remover cenário {i + 1}</Button></th>)}</tr></thead><tbody>{['Ida', 'Retorno', 'Piso ANTT', 'Pedágio', 'Total da operação', 'Preço sugerido'].map((nome, linha) => <tr key={nome}><th>{nome}</th>{cenarios.map((c, i) => { const r = c.resultado; let preco = 'Custos incompletos'; try { preco = moeda(precoFrete(r, c.custos).sugerido); } catch { /* Não inventar preço. */ } return <td key={i}>{[km(r.distanciaKm), km(r.distanciaRetornoKm), moeda(r.pisoTotal), r.pedagio === null ? 'Pendente' : moeda(r.pedagio), moeda(r.totalOperacao), preco][linha]}{r.pedagio === null && linha >= 4 ? ' (parcial)' : ''}</td>; })}</tr>)}</tbody></table></div></Card>}
+      {cenarios.length > 0 && <Card title="Comparação de cenários" span={12}><div className={styles.tableWrap}><Table className={styles.table}><caption>Cenários calculados nesta sessão; não são salvos no sistema.</caption><thead><tr><TableHeadCell>Indicador</TableHeadCell>{cenarios.map((c, i) => <TableHeadCell key={i}>Cenário {i + 1}<p>{c.entrada.origem.texto} → {c.entrada.destino.texto}</p><Button variant="secondary" onClick={() => setCenarios(cs => cs.filter((_, j) => i !== j))}>Remover cenário {i + 1}</Button></TableHeadCell>)}</tr></thead><tbody>{['Ida', 'Retorno', 'Piso ANTT', 'Pedágio', 'Total da operação', 'Preço sugerido'].map((nome, linha) => <tr key={nome}><TableHeadCell>{nome}</TableHeadCell>{cenarios.map((c, i) => { const r = c.resultado; let preco = 'Custos incompletos'; try { preco = moeda(precoFrete(r, c.custos).sugerido); } catch { /* Não inventar preço. */ } return <TableCell key={i}>{[km(r.distanciaKm), km(r.distanciaRetornoKm), moeda(r.pisoTotal), r.pedagio === null ? 'Pendente' : moeda(r.pedagio), moeda(r.totalOperacao), preco][linha]}{r.pedagio === null && linha >= 4 ? ' (parcial)' : ''}</TableCell>; })}</tr>)}</tbody></Table></div></Card>}
     </div>
     {resultado && <Folha cenario={cenarioAtual()} />}
   </>;
