@@ -1,0 +1,2 @@
+.select { width: 100%; min-width: 0; height: var(--ce-entrada); border: 0; background: transparent; color: var(--aleph-texto-padrao); font: inherit; outline: none; }
+.select option { background: var(--aleph-superficie); color: var(--aleph-texto-padrao); }

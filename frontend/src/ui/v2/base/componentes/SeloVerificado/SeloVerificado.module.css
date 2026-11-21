@@ -1,0 +1,10 @@
+.selo {
+  display: inline-block;
+  flex: none;
+  color: var(--aleph-verificado);
+  vertical-align: middle;
+}
+
+.marca {
+  stroke: var(--aleph-verificado-marca);
+}

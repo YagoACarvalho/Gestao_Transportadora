@@ -1,0 +1,38 @@
+.painel {
+  --surgir-x: 0px;
+  --surgir-y: -4px;
+
+  position: fixed;
+  z-index: 1000;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  max-width: calc(100vw - 16px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--aleph-borda);
+  border-radius: 18px;
+  background: var(--aleph-superficie);
+  box-shadow: var(--aleph-sombra-3);
+  font-family: var(--aleph-fonte);
+  color: var(--aleph-texto-padrao);
+  outline: none;
+  animation: surgir 140ms ease;
+}
+
+.painel[data-lado='cima'] { --surgir-y: 4px; }
+.painel[data-lado='direita'] { --surgir-x: -4px; --surgir-y: 0px; }
+.painel[data-lado='esquerda'] { --surgir-x: 4px; --surgir-y: 0px; }
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: translate(var(--surgir-x), var(--surgir-y)) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .painel {
+    animation: none;
+  }
+}

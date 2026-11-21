@@ -1,0 +1,199 @@
+.dica,
+.detalhada {
+  --dica-fundo: #1c1c1f;
+  --dica-texto: #ffffff;
+  --dica-suave: rgb(255 255 255 / 0.68);
+  --dica-borda: rgb(255 255 255 / 0.08);
+  --dica-botao: rgb(255 255 255 / 0.1);
+  --dica-botao-hover: rgb(255 255 255 / 0.16);
+
+  position: fixed;
+  z-index: 1100;
+  box-sizing: border-box;
+  font-family: var(--aleph-fonte);
+  color: var(--dica-texto);
+  background: var(--dica-fundo);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12), 0 10px 28px rgb(0 0 0 / 0.22);
+  animation: surgir 150ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.dica[data-tom='claro'],
+.detalhada[data-tom='claro'] {
+  --dica-fundo: var(--aleph-superficie);
+  --dica-texto: var(--aleph-texto-padrao);
+  --dica-suave: var(--aleph-texto-suave);
+  --dica-borda: var(--aleph-borda);
+  --dica-botao: var(--aleph-trilho);
+  --dica-botao-hover: var(--aleph-superficie-ativa);
+
+  box-shadow: 0 0 0 1px var(--aleph-borda), 0 10px 28px rgb(16 16 24 / 0.12);
+}
+
+/* simples */
+.dica {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  font-size: var(--aleph-fonte-13);
+  font-weight: var(--aleph-peso-medio);
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+.conteudo {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dica[data-variante='pilula'] {
+  gap: 10px;
+  padding: 6px 6px 6px 14px;
+  border-radius: 14px;
+  font-size: var(--aleph-fonte-15);
+}
+
+.dica[data-variante='pilula'] .conteudo {
+  gap: 8px;
+}
+
+/* detalhada */
+.detalhada {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  outline: none;
+}
+
+.titulo {
+  margin: 0;
+  font-size: var(--aleph-fonte-15);
+  font-weight: var(--aleph-peso-semibold);
+  line-height: 1.35;
+}
+
+.midia {
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.midia > img,
+.midia > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.descricao {
+  font-size: var(--aleph-fonte-14);
+  line-height: 1.5;
+  color: var(--dica-suave);
+}
+
+.acao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 38px;
+  margin: 0;
+  padding: 0 14px;
+  border: 1px solid var(--dica-borda);
+  border-radius: 10px;
+  background: var(--dica-botao);
+  color: var(--dica-texto);
+  font: inherit;
+  font-size: var(--aleph-fonte-14);
+  font-weight: var(--aleph-peso-medio);
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  transition: background-color var(--aleph-duracao) ease;
+}
+
+.acao:hover {
+  background: var(--dica-botao-hover);
+}
+
+.acao:focus-visible {
+  box-shadow: 0 0 0 2px var(--aleph-foco);
+}
+
+.meta {
+  color: var(--dica-suave);
+  font-weight: var(--aleph-peso-regular);
+}
+
+.externo {
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  color: var(--dica-suave);
+}
+
+.acao:has(.externo) span:first-child {
+  margin-left: auto;
+}
+
+/* seta: quadrado girado que acompanha o centro do gatilho */
+.seta {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  rotate: 45deg;
+  pointer-events: none;
+}
+
+.dica[data-tom='claro'] .seta,
+.detalhada[data-tom='claro'] .seta {
+  box-shadow: 1px 1px 0 var(--aleph-borda);
+}
+
+[data-lado='cima'] > .seta {
+  bottom: -4px;
+  left: clamp(12px, calc(var(--seta) - 5px), calc(100% - 22px));
+}
+
+[data-lado='baixo'] > .seta {
+  top: -4px;
+  left: clamp(12px, calc(var(--seta) - 5px), calc(100% - 22px));
+  rotate: 225deg;
+}
+
+[data-lado='esquerda'] > .seta {
+  right: -4px;
+  top: clamp(8px, calc(var(--seta) - 5px), calc(100% - 18px));
+  rotate: -45deg;
+}
+
+[data-lado='direita'] > .seta {
+  left: -4px;
+  top: clamp(8px, calc(var(--seta) - 5px), calc(100% - 18px));
+  rotate: 135deg;
+}
+
+:is(.dica, .detalhada)[data-lado='cima'] { --surgir-y: 4px; }
+:is(.dica, .detalhada)[data-lado='baixo'] { --surgir-y: -4px; }
+:is(.dica, .detalhada)[data-lado='esquerda'] { --surgir-x: 4px; }
+:is(.dica, .detalhada)[data-lado='direita'] { --surgir-x: -4px; }
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: translate(var(--surgir-x, 0), var(--surgir-y, 0)) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dica,
+  .detalhada {
+    animation: none;
+  }
+}

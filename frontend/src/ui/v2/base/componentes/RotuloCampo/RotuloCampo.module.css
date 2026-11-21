@@ -1,0 +1,18 @@
+.rotulo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--aleph-fonte);
+  font-size: var(--aleph-fonte-14);
+  font-weight: var(--aleph-peso-medio);
+  color: var(--aleph-texto-suave);
+}
+
+.obrigatorio {
+  color: var(--aleph-perigo);
+}
+
+.opcional {
+  font-weight: var(--aleph-peso-regular);
+  color: var(--aleph-texto-fraco);
+}

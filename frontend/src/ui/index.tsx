@@ -1,13 +1,10 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, HTMLAttributes, ReactNode, Ref } from 'react';
 import styles from './components.module.css';
-import { Button as LeangeButton } from './leange/src/components/ui/button';
-import { Card as LeangeCard } from './leange/src/components/ui/card';
-import { Badge as LeangeBadge } from './leange/src/components/ui/badge';
-import { EmptyState as LeangeEmptyState } from './leange/src/components/ui/empty-state';
-import { DotsThreeIcon } from '@phosphor-icons/react/dist/csr/DotsThree';
-import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
-import type { ComponentProps } from 'react';
-import segments from './leange/src/components/ui/segmented-control/segmented-control.module.css';
+import { Botao, Cartao, CartaoCabecalho, CartaoCorpo, Selo, EstadoVazio, CabecalhoPagina, GrupoAlternavel, ItemAlternavel, Avatar as AvatarV2 } from './v2/base';
+import { Ellipsis, Search } from 'lucide-react';
+import buttonStyles from './v2/base/componentes/Botao/Botao.module.css';
+import { MolduraIndicador, GradeIndicadores, ValorIndicador, RodapeIndicador } from './v2/indicadores';
+export * from './v2/indicadores';
 export { Input, Select, Textarea } from './Fields';
 export { Table, TableHeadCell, TableCell } from './Table';
 export { ThemeSelector } from './ThemeSelector';
@@ -21,7 +18,7 @@ export function AppShell({ children, className }: { children: ReactNode; classNa
 }
 
 export function PageHeader({ title, subtitle, actions, headingRef }: { title: string; subtitle?: string; actions?: ReactNode; headingRef?: Ref<HTMLHeadingElement> }) {
-  return <header className={styles.header}><div><h1 ref={headingRef} tabIndex={headingRef ? -1 : undefined}>{title}</h1>{subtitle && <p className={styles.subtitle}>{subtitle}</p>}</div>{actions && <div className={styles.actions}>{actions}</div>}</header>;
+  return <CabecalhoPagina titulo={title} refTitulo={headingRef} descricao={subtitle} acoes={actions} className={styles.header} />;
 }
 
 export function Grid({ children }: { children: ReactNode }) { return <div className={styles.grid}>{children}</div>; }
@@ -29,19 +26,19 @@ export function Grid({ children }: { children: ReactNode }) { return <div classN
 export function Card({ title, variant, span = 4, onMenu, className, children, ...rest }: {
   title?: string; variant?: 'navy'; span?: Span; onMenu?: () => void; className?: string; children: ReactNode;
 } & Omit<HTMLAttributes<HTMLElement>, 'title'>) {
-  return <LeangeCard {...rest} title={title} action={onMenu && <LeangeButton variant="ghost" iconOnly aria-label={`Opções de ${title}`} onClick={onMenu}><DotsThreeIcon /></LeangeButton>} className={join(styles[`span${span}`], variant && styles.featured, className)}>{children}</LeangeCard>;
+  return <Cartao {...rest} como="section" variante={variant ? 'destaque' : 'padrao'} className={join(styles[`span${span}`], className)}>{title && <CartaoCabecalho titulo={title} nivelTitulo={2} acoes={onMenu && <Botao variante="fantasma" aria-label={`Opções de ${title}`} onClick={onMenu}><Ellipsis /></Botao>} />}<CartaoCorpo data-ui-card-body>{children}</CartaoCorpo></Cartao>;
 }
 
 export function Badge({ tone = 'neutral', children }: { tone?: 'positive' | 'negative' | 'neutral' | 'warning'; children: ReactNode }) {
-  return <LeangeBadge tone={tone === 'positive' ? 'success' : tone === 'negative' ? 'danger' : tone}>{children}</LeangeBadge>;
+  return <Selo tom={tone === 'positive' ? 'verde' : tone === 'negative' ? 'vermelho' : tone === 'warning' ? 'laranja' : 'cinza'} style={{ color: `var(${tone === 'positive' ? '--app-sucesso-texto' : tone === 'negative' ? '--app-perigo-texto' : tone === 'warning' ? '--app-aviso-texto' : '--aleph-texto-suave'})` }}>{children}</Selo>;
 }
 
 export function Button({ variant = 'primary', icon, children, className, type = 'button', ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'icon'; icon?: ReactNode; ref?: Ref<HTMLButtonElement> }) {
-  return <LeangeButton {...rest} type={type} variant={variant === 'icon' ? 'ghost' : variant} iconStart={icon} className={className}>{children}</LeangeButton>;
+  return <Botao {...rest} type={type} variante={variant === 'icon' ? 'fantasma' : variant === 'secondary' ? 'suave' : 'solido'} iconeEsquerda={icon} className={className}>{children}</Botao>;
 }
 
 export function LinkButton({ children, className, variant = 'secondary', ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { variant?: 'primary' | 'secondary' }) {
-  return <LeangeButton {...(rest as unknown as ComponentProps<typeof LeangeButton>)} href={rest.href ?? '#'} variant={variant} className={join(styles.linkButton, className)}>{children}</LeangeButton>;
+  return <a {...rest} data-variante={variant === 'primary' ? 'solido' : 'suave'} data-tom="neutro" data-tamanho="medio" data-forma="pilula" className={join(buttonStyles.botao, styles.linkButton, className)}>{children}</a>;
 }
 
 export function CollectionHeader({ title, count, description }: { title: string; count?: number; description: string }) {
@@ -49,30 +46,28 @@ export function CollectionHeader({ title, count, description }: { title: string;
 }
 
 export function EmptyState({ title, description }: { title: string; description: string }) {
-  return <LeangeEmptyState icon={MagnifyingGlassIcon} title={title} description={description} size="sm" />;
+  return <EstadoVazio icone={<Search />} titulo={title} descricao={description} tamanho="pequeno" />;
 }
 
 /** Forma SVG compartilhada pelos gráficos; aceita barras em ambos os sentidos. */
 export function ChartBar({ x = 0, y = 0, width = 0, height = 0, fill }: { x?: number; y?: number; width?: number; height?: number; fill?: string }) {
-  return <rect x={width < 0 ? x + width : x} y={height < 0 ? y + height : y} width={Math.abs(width)} height={Math.abs(height)} rx="var(--radius-md)" fill={fill} />;
+  return <rect x={width < 0 ? x + width : x} y={height < 0 ? y + height : y} width={Math.abs(width)} height={Math.abs(height)} rx="var(--aleph-raio-m)" fill={fill} />;
 }
 
 /** Totais do conjunto carregado, sem mostrar zero durante carregamento ou falha. */
 export function CollectionSummary({ items, loading, error }: { items: { title: string; value: number; description: string }[]; loading: boolean; error: string }) {
-  return <div className={styles.collectionSummary}><Grid>{items.map((item, index) => <Card key={item.title} span={items.length === 4 ? 3 : 4} variant={index === 0 ? 'navy' : undefined}>
-    <div className={styles.cardHead}><h2>{item.title}</h2></div><strong className={styles.value}>{loading || error ? '—' : item.value.toLocaleString('pt-BR')}</strong><p className={styles.caption}>{loading ? 'Carregando registros…' : error ? 'Dados indisponíveis' : item.description}</p>
-  </Card>)}</Grid></div>;
+  return <div className={styles.collectionSummary}><GradeIndicadores colunas={items.length === 4 ? 4 : 3}>{items.map(item => <MolduraIndicador key={item.title} rotulo={item.title}><ValorIndicador valor={loading || error ? '—' : item.value.toLocaleString('pt-BR')} /><RodapeIndicador nota={loading ? 'Carregando registros…' : error ? 'Dados indisponíveis' : item.description} /></MolduraIndicador>)}</GradeIndicadores></div>;
 }
 
 /** Grupo de filtros, sem simular tabpanels que não existem. */
 export function Tabs<T extends string>({ options, value, onChange, label }: { options: { value: T; label: string }[]; value: T; onChange: (value: T) => void; label: string }) {
-  return <div className={segments.segmented} role="group" aria-label={label}>{options.map(option => <Button key={option.value} variant="secondary" className={segments.segment} data-on={option.value === value || undefined} aria-pressed={option.value === value} onClick={() => onChange(option.value)}>{option.label}</Button>)}</div>;
+  return <GrupoAlternavel rotulo={label} valor={value} obrigatorio onMudar={next => { if (next) onChange(next as T); }}>{options.map(option => <ItemAlternavel key={option.value} valor={option.value} rotulo={option.label}>{option.label}</ItemAlternavel>)}</GrupoAlternavel>;
 }
 
 export function Avatar({ src, name }: { src?: string; name: string }) {
-  return src ? <img className={styles.avatar} src={src} alt={name} /> : <span className={styles.avatar} role="img" aria-label={name}>{name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('')}</span>;
+  return <AvatarV2 nome={name} src={src} style={{ color: 'var(--aleph-texto-padrao)' }} />;
 }
 
 export function StatCard({ title, value, change, changeLabel = 'vs último mês', variant, span = 4 }: { title: string; value: string; change?: string; changeLabel?: string; variant?: 'navy'; span?: Span }) {
-  return <Card title={title} variant={variant} span={span}><div className={styles.kpi}><span className={styles.value}>{value}</span>{change && <><Badge tone={change.trim().startsWith('-') ? 'negative' : 'positive'}>{change}</Badge><span className={styles.caption}>{changeLabel}</span></>}</div></Card>;
+  return <div className={styles[`span${span}`]} data-destaque={variant || undefined}><MolduraIndicador rotulo={title}><ValorIndicador valor={value} comparacao={change && <><Badge tone={change.trim().startsWith('-') ? 'negative' : 'positive'}>{change}</Badge> {changeLabel}</>} /></MolduraIndicador></div>;
 }

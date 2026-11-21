@@ -1,0 +1,95 @@
+.texto {
+  flex: none;
+  font-family: var(--aleph-fonte);
+  font-size: var(--aleph-fonte-13);
+  color: var(--aleph-texto-fraco);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.texto[data-tamanho='medio'] { font-size: var(--aleph-fonte-14); }
+.texto[data-tamanho='grande'] { font-size: var(--aleph-fonte-16); }
+
+.teclas {
+  --at-altura: 20px;
+  --at-fonte: 11.5px;
+  --at-simbolo: 13px;
+  --at-raio: 5px;
+  --at-gap: 3px;
+  --at-fundo: color-mix(in srgb, var(--aleph-trilho) 80%, var(--aleph-superficie));
+  --at-cor: var(--aleph-texto-suave);
+
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--at-gap);
+  vertical-align: middle;
+}
+
+.teclas[data-tamanho='medio'] { --at-altura: 24px; --at-fonte: 12.5px; --at-simbolo: 14px; --at-raio: 6px; --at-gap: 4px; }
+.teclas[data-tamanho='grande'] { --at-altura: 32px; --at-fonte: 15px; --at-simbolo: 17px; --at-raio: 8px; --at-gap: 6px; }
+
+.tecla {
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--at-altura);
+  height: var(--at-altura);
+  padding: 0 calc(var(--at-altura) / 4);
+  border-radius: var(--at-raio);
+  background: var(--at-fundo);
+  font-family: var(--aleph-fonte);
+  font-size: var(--at-fonte);
+  font-weight: var(--aleph-peso-medio);
+  line-height: 1;
+  color: var(--at-cor);
+  white-space: nowrap;
+}
+
+.tecla[data-simbolo] {
+  font-size: var(--at-simbolo);
+}
+
+.teclas[data-variante='contorno'] .tecla {
+  border: 1px solid var(--aleph-borda);
+  background: var(--aleph-superficie);
+  box-shadow: 0 1px 0 var(--aleph-borda);
+}
+
+.teclas[data-variante='unico'] .tecla {
+  padding: 0 calc(var(--at-altura) / 3.2);
+  letter-spacing: 0.06em;
+}
+
+.teclas[data-variante='escuro'] {
+  --at-fundo: rgb(255 255 255 / 0.14);
+  --at-cor: rgb(255 255 255 / 0.86);
+}
+
+.separador,
+.depois {
+  font-family: var(--aleph-fonte);
+  font-size: calc(var(--at-fonte) + 0.5px);
+  color: var(--aleph-texto-fraco);
+}
+
+.separador {
+  margin: 0 1px;
+}
+
+.depois {
+  margin: 0 3px;
+}
+
+.teclas[data-variante='escuro'] .separador,
+.teclas[data-variante='escuro'] .depois {
+  color: rgb(255 255 255 / 0.55);
+}
+
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

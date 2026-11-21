@@ -27,6 +27,7 @@ it('salva escolha explicita e restaura depois de recarregar', () => {
   initializeTheme(); const page = render(<ThemeSelector />);
   fireEvent.change(screen.getByLabelText('Tema'), { target: { value: 'dark' } });
   expect(document.documentElement.dataset.theme).toBe('dark');
+  expect(document.documentElement.dataset.tema).toBe('escuro');
   expect(localStorage.getItem(themeStorageKey)).toBe('dark');
   page.unmount(); delete document.documentElement.dataset.themePreference;
   initializeTheme(); render(<ThemeSelector />);
@@ -41,6 +42,7 @@ it('acompanha o sistema ao vivo, preserva escolha explicita e remove listeners',
   fireEvent.change(screen.getByLabelText('Tema'), { target: { value: 'light' } });
   act(() => { listeners.forEach(listener => listener()); });
   expect(document.documentElement.dataset.theme).toBe('light');
+  expect(document.documentElement.dataset.tema).toBe('claro');
   fireEvent.change(screen.getByLabelText('Tema'), { target: { value: 'system' } });
   expect(document.documentElement.dataset.theme).toBe('dark');
   page.unmount(); expect(listeners.size).toBe(0);

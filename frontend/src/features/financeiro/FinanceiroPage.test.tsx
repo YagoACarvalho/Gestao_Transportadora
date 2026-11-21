@@ -70,10 +70,10 @@ it('destaca saldo acumulado e soma total sem inventar participacao quando nao ha
   expect(screen.queryByText('NaN%')).toBeNull(); expect(screen.queryByRole('img')).toBeNull();
 });
 
-it('preserva saldo negativo e nao desenha rosca enganosa para despesas legadas negativas', async () => {
+it('preserva saldo negativo e nao desenha composicao enganosa para despesas legadas negativas', async () => {
   vi.spyOn(financeiroApi, 'resumo').mockResolvedValue({ ...resumo, totalDespesas: 150, totalDespesasViagens: -5, totalDespesasGerais: 155, lucro: -50 });
   render(<FinanceiroPage />);
-  await screen.findByText(/A composição em rosca não representa valores negativos/);
+  await screen.findByText(/A composição segmentada não representa valores negativos/);
   const totais = screen.getByRole('region', { name: 'Resumo financeiro' });
   expect(within(totais).getByText(/-R\$\s*50,00/)).toBeTruthy();
   expect(screen.queryByRole('img')).toBeNull();

@@ -16,6 +16,7 @@ function applyTheme(preference: ThemePreference) {
   const dark = preference === 'dark' || preference === 'system' && !!window.matchMedia?.('(prefers-color-scheme: dark)').matches;
   document.documentElement.dataset.themePreference = preference;
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  document.documentElement.dataset.tema = dark ? 'escuro' : 'claro';
   const color = getComputedStyle(document.body).backgroundColor;
   const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
   if (meta && color) meta.content = color;

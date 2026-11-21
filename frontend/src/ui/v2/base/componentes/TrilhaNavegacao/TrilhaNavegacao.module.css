@@ -1,0 +1,131 @@
+.trilha {
+  --trilha-fonte: var(--aleph-fonte-14);
+  --trilha-icone: 16px;
+
+  min-width: 0;
+  font-family: var(--aleph-fonte);
+  font-size: var(--trilha-fonte);
+}
+
+.trilha[data-tamanho='pequeno'] { --trilha-fonte: var(--aleph-fonte-13); --trilha-icone: 14px; }
+.trilha[data-tamanho='grande'] { --trilha-fonte: var(--aleph-fonte-16); --trilha-icone: 18px; }
+
+.lista {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.separador {
+  display: inline-flex;
+  color: var(--aleph-separador);
+}
+
+.separador svg {
+  width: calc(var(--trilha-icone) - 2px);
+  height: calc(var(--trilha-icone) - 2px);
+}
+
+.barra {
+  color: var(--aleph-separador);
+  font-size: 1.05em;
+}
+
+.link,
+.atual {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 4px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.link {
+  color: var(--aleph-texto-fraco);
+  text-decoration: none;
+  transition: color var(--aleph-duracao) ease;
+}
+
+.link:not([data-estatico]):hover {
+  color: var(--aleph-texto-padrao);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--aleph-foco);
+  outline-offset: 2px;
+}
+
+.atual {
+  color: var(--aleph-texto-padrao);
+  font-weight: var(--aleph-peso-medio);
+}
+
+.icone {
+  display: inline-flex;
+  flex: none;
+}
+
+/* o texto em span próprio: em flex, a reticência só funciona no filho */
+.texto {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.icone svg {
+  width: var(--trilha-icone);
+  height: var(--trilha-icone);
+}
+
+.reticencias,
+.copiar {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--aleph-texto-fraco);
+  cursor: pointer;
+  outline: none;
+  transition: background-color var(--aleph-duracao) ease, color var(--aleph-duracao) ease;
+}
+
+.reticencias:hover,
+.copiar:hover,
+.reticencias[aria-expanded='true'] {
+  background: var(--aleph-superficie-hover);
+  color: var(--aleph-texto-padrao);
+}
+
+.reticencias:focus-visible,
+.copiar:focus-visible {
+  box-shadow: 0 0 0 2px var(--aleph-foco);
+}
+
+.reticencias svg,
+.copiar svg {
+  width: var(--trilha-icone);
+  height: var(--trilha-icone);
+}
+
+.copiar[data-copiado] {
+  color: var(--aleph-sucesso);
+}

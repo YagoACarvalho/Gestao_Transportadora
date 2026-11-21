@@ -1,6 +1,8 @@
+import { MolduraIndicador, GradeIndicadores, ValorIndicador, RodapeIndicador, ListaSegmentos } from '../ui';
+import { Wallet, Truck, Receipt, Users } from 'lucide-react';
 import { Table, TableHeadCell, TableCell } from '../ui';
 import { Input } from '../ui';
-import { Button, Card, Grid, LinkButton, Tabs } from '../ui';
+import { Button, Card, LinkButton, Tabs } from '../ui';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { PageHeader } from '../components/PageHeader';
 import { financeiroApi } from '../features/financeiro/financeiroApi';
@@ -63,15 +65,12 @@ export function FinanceiroPage() {
     <section aria-label="Resumo financeiro" aria-busy={loading}>
       {loading ? <p role="status" className={styles.message}>Carregando resumo financeiro…</p> : error ? <div role="alert" className={`${styles.message} ${styles.error}`}>{error} <Button variant="secondary" onClick={() => setRevision(v => v + 1)}>Tentar novamente</Button></div> : resumo && <>
         <p className={page.periodLabel}>Período aplicado: {periodo.inicio ? formatarData(periodo.inicio) : 'sem data inicial'} a {periodo.fim ? formatarData(periodo.fim) : 'sem data final'}.</p>
-        <div className={page.summary}><Grid>
-          <Card span={4} variant="navy" className={page.balance}><dl><dt>Saldo previsto</dt><dd>{moeda(resumo.lucro)}</dd></dl><span>{!periodo.inicio && !periodo.fim ? 'Total acumulado de todo o histórico' : 'Total do período selecionado'}</span><small>Fretes menos todas as despesas</small></Card>
-          <Card span={4} className={page.fretes}><dl><dt>Fretes previstos</dt><dd>{moeda(resumo.totalFretes)}</dd></dl><span>Viagens não canceladas</span></Card>
-          <Card span={4} className={page.expenses}><dl><dt>Total de despesas</dt><dd>{moeda(resumo.totalDespesas)}</dd></dl><div className={page.expenseSplit}><span>Despesas de viagens<strong>{moeda(resumo.totalDespesasViagens)}</strong></span><span>Despesas gerais<strong>{moeda(resumo.totalDespesasGerais)}</strong></span></div></Card>
-        </Grid></div>
-        <Card span={12} className={page.remuneracao} aria-label="Remuneração dos motoristas">
-          <div><h2>Remuneração dos motoristas</h2><p>15% por viagem. Despesas automáticas já incluídas no total, conforme o período selecionado.</p></div>
-          <strong>{moeda(resumo.totalRemuneracaoMotoristas)}</strong>
-        </Card>
+        <div className={page.summary}><GradeIndicadores colunas={3}>
+          <MolduraIndicador rotulo="Saldo previsto" icone={<Wallet />}><ValorIndicador valor={moeda(resumo.lucro)} /><RodapeIndicador nota={<><span>{!periodo.inicio && !periodo.fim ? 'Total acumulado de todo o histórico' : 'Total do período selecionado'}</span><span>Fretes menos todas as despesas</span></>} /></MolduraIndicador>
+          <MolduraIndicador rotulo="Fretes previstos" icone={<Truck />}><ValorIndicador valor={moeda(resumo.totalFretes)} /><RodapeIndicador nota="Viagens não canceladas" /></MolduraIndicador>
+          <MolduraIndicador rotulo="Total de despesas" icone={<Receipt />}><ValorIndicador valor={moeda(resumo.totalDespesas)} /><ListaSegmentos rotulo="Divisão das despesas" itens={[{ chave: 'viagens', rotulo: 'Despesas de viagens', texto: moeda(resumo.totalDespesasViagens), tom: 'azul' }, { chave: 'gerais', rotulo: 'Despesas gerais', texto: moeda(resumo.totalDespesasGerais), tom: 'verde' }]} /></MolduraIndicador>
+        </GradeIndicadores></div>
+        <div className={page.remuneracao}><MolduraIndicador rotulo="Remuneração dos motoristas" icone={<Users />}><ValorIndicador valor={moeda(resumo.totalRemuneracaoMotoristas)} /><RodapeIndicador nota="15% por viagem. Despesas automáticas já incluídas no total, conforme o período selecionado." /></MolduraIndicador></div>
         <p role="status" className={styles.srOnly}>Resumo carregado para o período aplicado.</p>
       </>}
     </section>

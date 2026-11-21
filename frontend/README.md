@@ -1,13 +1,14 @@
 # Frontend da transportadora
 
-Design vigente: componentes Leange adaptados para React/Vite. Guia atual em
-[design-system](../docs/design-system.md) e [procedencia do kit](src/ui/leange/README.md).
-Temas claro/escuro, fonte Inter local, Emotion e Phosphor. As referencias abaixo
-sobre o kit anterior documentam etapas historicas; nao usar Ultraleads em novas telas.
+Design vigente: componentes v2 de `DCSEmpresarial/application`, incluindo os
+dashboards e cards. Guia em [design-system](../docs/design-system.md) e
+[procedência do kit](src/ui/v2/README.md). React/Vite, CSS Modules, Lucide e fonte
+Inter local. As referências visuais abaixo são históricas; não usar Leange ou
+Ultraleads em novas telas.
 
 # Frontend — Gestão de Transportadora
 
-React, TypeScript, Vite, CSS Modules e Motion. Motoristas e Caminhões possuem consulta, busca
+React, TypeScript, Vite e CSS Modules. Motoristas e Caminhões possuem consulta, busca
 local, filtro de situação, cadastro, edição e desativação. Viagens inclui cadastro,
 edição enquanto planejada e acompanhamento de situação. A interface não contém registros ou métricas de demonstração.
 

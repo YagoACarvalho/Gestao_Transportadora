@@ -1,0 +1,7 @@
+.marca {
+  margin: 0 -1px;
+  padding: 0 1px;
+  border-radius: 3px;
+  background: var(--aleph-destaque-fundo);
+  color: var(--aleph-destaque-texto);
+}

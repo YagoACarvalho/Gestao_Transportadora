@@ -1,12 +1,12 @@
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--color-bg-grouped); color: var(--color-label); font-family: var(--font-body); font-size: var(--text-body); line-height: 1.5; }
-a { color: var(--color-link); text-underline-offset: .2em; }
+body { margin: 0; background: var(--aleph-fundo); color: var(--aleph-texto-padrao); font-family: var(--aleph-fonte); font-size: var(--aleph-fonte-15); line-height: 1.5; }
+a { color: var(--app-link); text-underline-offset: .2em; }
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: not-allowed; }
-input[type='checkbox'], input[type='radio'] { accent-color: var(--color-accent); width: var(--space-5); height: var(--space-5); vertical-align: middle; margin: 0 var(--space-2) 0 0; }
+input[type='checkbox'], input[type='radio'] { accent-color: var(--aleph-azul); width: var(--aleph-espaco-5); height: var(--aleph-espaco-5); vertical-align: middle; margin: 0 var(--aleph-espaco-2) 0 0; }
 fieldset { min-width: 0; }
-:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
+:focus-visible { outline: 3px solid var(--aleph-foco); outline-offset: 4px; }
 svg { flex-shrink: 0; }
-::selection { background: var(--color-success-soft); color: var(--color-label); }
+::selection { background: var(--aleph-verde-fundo); color: var(--aleph-texto-padrao); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

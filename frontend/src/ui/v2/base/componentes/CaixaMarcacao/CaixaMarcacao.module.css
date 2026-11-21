@@ -1,0 +1,29 @@
+.caixa {
+  --caixa-tamanho: 18px;
+
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--caixa-tamanho);
+  height: var(--caixa-tamanho);
+  border: 1.5px solid var(--aleph-borda-forte);
+  border-radius: 50%;
+  background: var(--aleph-superficie);
+  color: var(--aleph-sobre-escuro);
+  transition: background-color var(--aleph-duracao) ease, border-color var(--aleph-duracao) ease;
+}
+
+.caixa[data-forma='quadrado'] {
+  border-radius: 5px;
+}
+
+.caixa[data-marcado] {
+  border-color: var(--aleph-escuro);
+  background: var(--aleph-escuro);
+}
+
+.caixa svg {
+  width: 70%;
+  height: 70%;
+  stroke-width: 3;
+}

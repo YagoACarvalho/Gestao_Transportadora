@@ -1,0 +1,249 @@
+:root,
+[data-tema='claro'] {
+  color-scheme: light;
+
+  --aleph-fonte: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --aleph-fonte-mono: 'SF Mono', ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace;
+
+  --aleph-fonte-12: 12px;
+  --aleph-fonte-13: 13px;
+  --aleph-fonte-14: 14px;
+  --aleph-fonte-15: 15px;
+  --aleph-fonte-16: 16px;
+  --aleph-fonte-18: 18px;
+  --aleph-fonte-20: 20px;
+  --aleph-fonte-24: 24px;
+
+  --aleph-peso-regular: 400;
+  --aleph-peso-medio: 500;
+  --aleph-peso-semibold: 600;
+  --aleph-peso-negrito: 700;
+
+  --aleph-altura-linha: 1.4;
+
+  --aleph-espaco-1: 4px;
+  --aleph-espaco-2: 8px;
+  --aleph-espaco-3: 12px;
+  --aleph-espaco-4: 16px;
+  --aleph-espaco-5: 20px;
+  --aleph-espaco-6: 24px;
+
+  --aleph-raio-p: 6px;
+  --aleph-raio-m: 10px;
+  --aleph-raio-g: 14px;
+  --aleph-raio-xg: 22px;
+  --aleph-raio-total: 999px;
+
+  --aleph-duracao: 140ms;
+
+  --aleph-fundo: #f5f5f7;
+  --aleph-moldura: #f4f4f6;
+  --aleph-superficie: #ffffff;
+  --aleph-superficie-hover: #f4f4f6;
+  --aleph-superficie-ativa: #ebebf0;
+  --aleph-trilho: #ececf0;
+  --aleph-borda: #e5e5ea;
+  --aleph-borda-forte: #d2d2d8;
+  --aleph-foco: #3b82f6;
+
+  --aleph-texto-padrao: #1d1d1f;
+  --aleph-texto-suave: #48484e;
+  --aleph-texto-fraco: #8e8e93;
+  --aleph-separador: #aeaeb2;
+  --aleph-sobre-cor: #ffffff;
+
+  --aleph-primaria: #3557e6;
+  --aleph-primaria-hover: #2848d2;
+  --aleph-primaria-fundo: #e5ebfd;
+  --aleph-sobre-primaria: #ffffff;
+
+  --aleph-perigo: #e5484d;
+  --aleph-perigo-hover: #cf3a3f;
+  --aleph-perigo-fundo: #fde4e4;
+  --aleph-sobre-perigo: #ffffff;
+
+  --aleph-escuro: #1d1d1f;
+  --aleph-escuro-hover: #000000;
+  --aleph-sobre-escuro: #ffffff;
+
+  --aleph-sucesso: #1f9d55;
+  --aleph-onda-vazia: #d2d2d8;
+
+  --aleph-ia-inicio: #7b5cf0;
+  --aleph-ia-fim: #2fb5f0;
+  --aleph-ia-fundo: linear-gradient(90deg, #efeaff 0%, #e3eeff 100%);
+  --aleph-ia-borda: #d8cffb;
+  --aleph-pensando: #e0714a;
+
+  --aleph-sombra-1: 0 1px 2px rgb(16 16 24 / 0.06);
+  --aleph-sombra-2: 0 1px 2px rgb(16 16 24 / 0.04), 0 6px 20px rgb(16 16 24 / 0.06);
+  --aleph-sombra-3: 0 2px 6px rgb(16 16 24 / 0.06), 0 16px 40px rgb(16 16 24 / 0.12);
+
+  --aleph-verificado: #3d9cf0;
+  --aleph-verificado-marca: #ffffff;
+
+  --aleph-destaque-fundo: #fff0a6;
+  --aleph-destaque-texto: inherit;
+
+  --aleph-azul: #2f6fde;
+  --aleph-rosa: #d23a78;
+  --aleph-roxo: #5a55d6;
+  --aleph-laranja: #d9770b;
+  --aleph-vermelho: #d93a3a;
+  --aleph-verde: #1f9d55;
+  --aleph-amarelo: #a77a06;
+  --aleph-cinza: #6e6e73;
+
+  --aleph-azul-fundo: #dce8fd;
+  --aleph-rosa-fundo: #fbd3e3;
+  --aleph-roxo-fundo: #e2dcfb;
+  --aleph-laranja-fundo: #fde2c2;
+  --aleph-vermelho-fundo: #fbd9d9;
+  --aleph-verde-fundo: #cdeec9;
+  --aleph-amarelo-fundo: #fde7ab;
+  --aleph-cinza-fundo: #e3e3e8;
+}
+
+[data-tema='escuro'] {
+  color-scheme: dark;
+
+  --aleph-fundo: #0e0e10;
+  --aleph-moldura: #141417;
+  --aleph-superficie: #19191c;
+  --aleph-superficie-hover: #222226;
+  --aleph-superficie-ativa: #2b2b30;
+  --aleph-trilho: #26262b;
+  --aleph-borda: #2e2e33;
+  --aleph-borda-forte: #3d3d44;
+  --aleph-foco: #5b9bff;
+
+  --aleph-texto-padrao: #f5f5f7;
+  --aleph-texto-suave: #c7c7cc;
+  --aleph-texto-fraco: #8e8e93;
+  --aleph-separador: #5c5c62;
+  --aleph-sobre-cor: #0e0e10;
+
+  --aleph-primaria: #6d8bff;
+  --aleph-primaria-hover: #88a0ff;
+  --aleph-primaria-fundo: #1e2846;
+  --aleph-sobre-primaria: #0e0e10;
+
+  --aleph-perigo: #ff6b6f;
+  --aleph-perigo-hover: #ff8689;
+  --aleph-perigo-fundo: #47201f;
+  --aleph-sobre-perigo: #0e0e10;
+
+  --aleph-escuro: #f5f5f7;
+  --aleph-escuro-hover: #ffffff;
+  --aleph-sobre-escuro: #0e0e10;
+
+  --aleph-sucesso: #4fd48c;
+  --aleph-onda-vazia: #45454c;
+
+  --aleph-ia-inicio: #a08bff;
+  --aleph-ia-fim: #5fd0ff;
+  --aleph-ia-fundo: linear-gradient(90deg, #2a2350 0%, #1b2b47 100%);
+  --aleph-ia-borda: #3d3570;
+  --aleph-pensando: #ff9a73;
+
+  --aleph-sombra-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --aleph-sombra-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.35);
+  --aleph-sombra-3: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 40px rgb(0 0 0 / 0.5);
+
+  --aleph-verificado: #4aa8ff;
+  --aleph-verificado-marca: #0e0e10;
+
+  --aleph-destaque-fundo: #5a4a0c;
+  --aleph-destaque-texto: #fff3c4;
+
+  --aleph-azul: #6ea4ff;
+  --aleph-rosa: #ff7eae;
+  --aleph-roxo: #a29bff;
+  --aleph-laranja: #ffae52;
+  --aleph-vermelho: #ff7a7a;
+  --aleph-verde: #4fd48c;
+  --aleph-amarelo: #f2c94c;
+  --aleph-cinza: #a1a1a6;
+
+  --aleph-azul-fundo: #1c2b47;
+  --aleph-rosa-fundo: #46202f;
+  --aleph-roxo-fundo: #2b2752;
+  --aleph-laranja-fundo: #46301a;
+  --aleph-vermelho-fundo: #47201f;
+  --aleph-verde-fundo: #1a3a28;
+  --aleph-amarelo-fundo: #433819;
+  --aleph-cinza-fundo: #2c2c31;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-tema='claro'])) {
+    color-scheme: dark;
+
+    --aleph-fundo: #0e0e10;
+    --aleph-moldura: #141417;
+    --aleph-superficie: #19191c;
+    --aleph-superficie-hover: #222226;
+    --aleph-superficie-ativa: #2b2b30;
+    --aleph-trilho: #26262b;
+    --aleph-borda: #2e2e33;
+    --aleph-borda-forte: #3d3d44;
+    --aleph-foco: #5b9bff;
+
+    --aleph-texto-padrao: #f5f5f7;
+    --aleph-texto-suave: #c7c7cc;
+    --aleph-texto-fraco: #8e8e93;
+    --aleph-separador: #5c5c62;
+    --aleph-sobre-cor: #0e0e10;
+
+    --aleph-primaria: #6d8bff;
+    --aleph-primaria-hover: #88a0ff;
+    --aleph-primaria-fundo: #1e2846;
+    --aleph-sobre-primaria: #0e0e10;
+
+    --aleph-perigo: #ff6b6f;
+    --aleph-perigo-hover: #ff8689;
+    --aleph-perigo-fundo: #47201f;
+    --aleph-sobre-perigo: #0e0e10;
+
+    --aleph-escuro: #f5f5f7;
+    --aleph-escuro-hover: #ffffff;
+    --aleph-sobre-escuro: #0e0e10;
+
+    --aleph-sucesso: #4fd48c;
+    --aleph-onda-vazia: #45454c;
+
+    --aleph-ia-inicio: #a08bff;
+    --aleph-ia-fim: #5fd0ff;
+    --aleph-ia-fundo: linear-gradient(90deg, #2a2350 0%, #1b2b47 100%);
+    --aleph-ia-borda: #3d3570;
+    --aleph-pensando: #ff9a73;
+
+    --aleph-sombra-1: 0 1px 2px rgb(0 0 0 / 0.4);
+    --aleph-sombra-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.35);
+    --aleph-sombra-3: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 40px rgb(0 0 0 / 0.5);
+
+    --aleph-verificado: #4aa8ff;
+    --aleph-verificado-marca: #0e0e10;
+
+    --aleph-destaque-fundo: #5a4a0c;
+    --aleph-destaque-texto: #fff3c4;
+
+    --aleph-azul: #6ea4ff;
+    --aleph-rosa: #ff7eae;
+    --aleph-roxo: #a29bff;
+    --aleph-laranja: #ffae52;
+    --aleph-vermelho: #ff7a7a;
+    --aleph-verde: #4fd48c;
+    --aleph-amarelo: #f2c94c;
+    --aleph-cinza: #a1a1a6;
+
+    --aleph-azul-fundo: #1c2b47;
+    --aleph-rosa-fundo: #46202f;
+    --aleph-roxo-fundo: #2b2752;
+    --aleph-laranja-fundo: #46301a;
+    --aleph-vermelho-fundo: #47201f;
+    --aleph-verde-fundo: #1a3a28;
+    --aleph-amarelo-fundo: #433819;
+    --aleph-cinza-fundo: #2c2c31;
+  }
+}

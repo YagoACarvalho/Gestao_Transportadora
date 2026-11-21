@@ -1,0 +1,455 @@
+.grade {
+  min-width: 0;
+  background: transparent;
+}
+
+.moldura {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 4px;
+  border: 1px solid color-mix(in srgb, var(--aleph-borda) 70%, transparent);
+  border-radius: 16px;
+  background: var(--aleph-moldura);
+}
+
+.topoMoldura {
+  display: flex;
+  min-width: 0;
+  min-height: 34px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 6px 12px;
+  color: var(--aleph-texto-suave);
+}
+
+.iconeRotulo {
+  display: inline-flex;
+  flex: none;
+}
+
+.iconeRotulo svg {
+  width: 15px;
+  height: 15px;
+}
+
+.rotulo {
+  overflow: hidden;
+  min-width: 0;
+  flex: 1 1 auto;
+  margin: 0;
+  color: var(--aleph-texto-suave);
+  font-family: var(--aleph-fonte-mono);
+  font-size: 12px;
+  font-weight: var(--aleph-peso-medio);
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* A ação não aumenta o cabeçalho: molduras lado a lado começam o painel na mesma altura. */
+.acoesMoldura {
+  display: flex;
+  height: 24px;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  margin-inline-end: -4px;
+}
+
+.painel {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--aleph-borda);
+  border-radius: 12px;
+  background: var(--aleph-superficie);
+}
+
+.cabecaValor {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.valor {
+  margin: 0;
+  color: var(--aleph-texto-padrao);
+  font-size: var(--aleph-fonte-24);
+  font-weight: var(--aleph-peso-medio);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.comparacao {
+  margin: 0;
+  color: var(--aleph-texto-suave);
+  font-size: var(--aleph-fonte-14);
+  line-height: 1.4;
+}
+
+.realce {
+  color: var(--indicador-tom);
+  font-weight: var(--aleph-peso-medio);
+}
+
+.divisor {
+  width: 100%;
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--aleph-borda);
+}
+
+.rodape {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.nota {
+  display: flex;
+  overflow: hidden;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--aleph-texto-suave);
+  font-size: var(--aleph-fonte-13);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nota > span {
+  display: inline-flex;
+  flex: none;
+  color: var(--aleph-texto-fraco);
+}
+
+.nota svg {
+  width: 14px;
+  height: 14px;
+}
+
+.acaoRodape {
+  display: flex;
+  flex: none;
+  margin-inline-start: auto;
+}
+
+/* barra segmentada */
+
+.barra {
+  display: flex;
+  width: 100%;
+  height: 10px;
+  gap: 4px;
+}
+
+.segmento {
+  min-width: 6px;
+  flex-basis: 0;
+  border-radius: var(--aleph-raio-total);
+  background: color-mix(in srgb, var(--indicador-tom) var(--indicador-intensidade, 100%), transparent);
+  transition: opacity var(--aleph-duracao);
+}
+
+.barra:hover .segmento:not(:hover) {
+  opacity: 0.55;
+}
+
+.segmento[data-restante] {
+  background: var(--aleph-borda);
+}
+
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.itensLegenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.itensLegenda li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--aleph-fonte-13);
+  white-space: nowrap;
+}
+
+.ponto {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--indicador-tom) var(--indicador-intensidade, 100%), transparent);
+}
+
+.rotuloLegenda {
+  color: var(--aleph-texto-suave);
+}
+
+.textoLegenda {
+  color: var(--aleph-texto-padrao);
+  font-weight: var(--aleph-peso-semibold);
+}
+
+.fimLegenda {
+  color: var(--aleph-texto-suave);
+  font-size: var(--aleph-fonte-13);
+  white-space: nowrap;
+}
+
+/* lista com ponto */
+
+.listaSegmentos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+
+.linhaSegmento {
+  display: grid;
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto minmax(64px, auto);
+  gap: 12px;
+  font-size: var(--aleph-fonte-14);
+}
+
+.linhaSegmento dt {
+  display: flex;
+  overflow: hidden;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  color: var(--aleph-texto-suave);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linhaSegmento dd {
+  margin: 0;
+}
+
+.meio {
+  font-size: var(--aleph-fonte-13);
+}
+
+.valorLinha {
+  color: var(--aleph-texto-padrao);
+  font-weight: var(--aleph-peso-medio);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* traços */
+
+.tracos {
+  display: flex;
+  height: 30px;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--aleph-moldura);
+  box-sizing: content-box;
+}
+
+.tracos > span {
+  flex: 1 1 0;
+  min-width: 2px;
+  max-width: 6px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--aleph-texto-fraco) 28%, transparent);
+}
+
+.tracos > span[data-cheio] {
+  background: var(--indicador-tom);
+}
+
+/* colunas proporcionais */
+
+.colunas {
+  display: flex;
+  min-width: 0;
+  height: 84px;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.coluna {
+  position: relative;
+  display: flex;
+  min-width: 56px;
+  flex-basis: 0;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 0 0 8px;
+  border-left: 1px solid color-mix(in srgb, var(--indicador-tom) var(--coluna-intensidade), transparent);
+}
+
+.rotuloColuna {
+  overflow: hidden;
+  color: var(--aleph-texto-suave);
+  font-size: var(--aleph-fonte-13);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.textoColuna {
+  color: var(--aleph-texto-padrao);
+  font-size: var(--aleph-fonte-13);
+  font-weight: var(--aleph-peso-medio);
+  white-space: nowrap;
+}
+
+.barraColuna {
+  height: 16px;
+  margin-top: auto;
+  margin-inline-start: -9px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--indicador-tom) var(--coluna-intensidade), transparent);
+}
+
+/* faixa de números */
+
+.numeros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px 0;
+  margin: 0;
+}
+
+.numero {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  padding-inline: 20px;
+  border-left: 1px solid var(--aleph-borda);
+}
+
+.numero:first-child {
+  padding-inline-start: 0;
+  border-left: 0;
+}
+
+.numero dt {
+  order: 2;
+  color: var(--aleph-texto-suave);
+  font-size: var(--aleph-fonte-13);
+}
+
+.numero dd {
+  order: 1;
+  margin: 0;
+  color: var(--aleph-texto-padrao);
+  font-size: var(--aleph-fonte-24);
+  font-weight: var(--aleph-peso-medio);
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.numero dd[data-tom] {
+  color: var(--indicador-tom);
+}
+
+/* link do canto e pílulas */
+
+.linkMoldura {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  font-size: var(--aleph-fonte-13);
+  white-space: nowrap;
+}
+
+.acaoMoldura {
+  height: 24px;
+  min-height: 24px;
+  padding: 0 6px;
+  font-size: var(--aleph-fonte-13);
+}
+
+.acaoMoldura svg {
+  width: 14px;
+  height: 14px;
+}
+
+.pilula {
+  display: inline-flex;
+  height: 26px;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--aleph-texto-fraco) 12%, var(--aleph-superficie));
+  color: var(--aleph-texto-padrao);
+  font-size: var(--aleph-fonte-13);
+  font-weight: var(--aleph-peso-medio);
+  white-space: nowrap;
+}
+
+.iconePilula {
+  display: inline-flex;
+  color: var(--aleph-texto-suave);
+}
+
+.iconePilula svg {
+  width: 14px;
+  height: 14px;
+}
+
+.pilula[data-tom],
+.pilula[data-tom] .iconePilula {
+  color: color-mix(in srgb, var(--indicador-tom) 80%, var(--aleph-texto-padrao));
+}
+
+.pilula[data-tom] {
+  background: var(--indicador-tom-fundo);
+}
+
+@media (max-width: 640px) {
+  .numero {
+    padding-inline: 12px;
+  }
+
+  .numero:nth-child(odd) {
+    padding-inline-start: 0;
+    border-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segmento {
+    transition: none;
+  }
+}
+
+.nota { flex-wrap: wrap; white-space: normal; overflow-wrap: anywhere; }
+.nota > span { display: block; width: 100%; }
+.numeros { flex-wrap: wrap; }
+.numero dd { overflow-wrap: anywhere; }

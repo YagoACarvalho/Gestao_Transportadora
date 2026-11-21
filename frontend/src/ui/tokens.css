@@ -1,26 +1,23 @@
-@import './leange/src/styles/tokens.css';
+@import './v2/base/tema/tokens.css';
 :root {
-  --color-label-secondary: light-dark(rgb(60 60 67 / 0.8), rgb(235 235 245 / 0.78));
-  --color-link: light-dark(#005ec9, #80b9ff);
-  --color-control-border: light-dark(#8b8b92, #777980);
-  --font-inter: 'Inter Variable', 'Inter';
+  --aleph-fonte: 'Inter Variable', Inter, system-ui, sans-serif;
+  --aleph-primaria: var(--aleph-escuro);
+  --aleph-primaria-hover: var(--aleph-escuro-hover);
+  --aleph-sobre-primaria: var(--aleph-sobre-escuro);
+  --aleph-primaria-fundo: var(--aleph-superficie-ativa);
+  --aleph-sombra-1: none; --aleph-sombra-2: none; --aleph-sombra-3: none;
+  --aleph-texto-fraco: light-dark(#6e6e75, #aaaab2);
+  --app-link: light-dark(#2457bb, #9cbdff);
+  --app-sucesso-texto: light-dark(#176b33, #75e695);
+  --app-perigo-texto: light-dark(#a12630, #ff9fa6);
+  --app-aviso-texto: light-dark(#805000, #ffc477);
+  --app-scrim: rgb(0 0 0 / 48%);
   --app-text-display: clamp(2rem, 4vw, 3rem);
-  --app-auth-max: 480px;
-  --app-panel-width: 680px;
-  --app-chart-height: 300px;
-  --app-chart-donut-height: 220px;
-  --app-chart-max-height: 360px;
-  --space-7: 1.75rem;
-  --app-transparent: transparent;
+  --app-numero: clamp(1.75rem, 3vw, 2.5rem);
+  --app-auth-max: 480px; --app-panel-width: 680px;
+  --app-chart-height: 300px; --app-chart-donut-height: 220px; --app-chart-max-height: 360px;
   --app-shadow-none: none;
-  --color-on-brand: light-dark(#ffffff, #000000);
-  --color-on-brand-muted: light-dark(#d9d9df, #33343b);
-  --color-accent-soft: color-mix(in srgb, var(--color-accent) 12%, transparent);
-  --color-success-soft: color-mix(in srgb, var(--color-success) 12%, transparent);
-  --color-danger-soft: color-mix(in srgb, var(--color-danger) 12%, transparent);
-  --color-warning-soft: color-mix(in srgb, var(--color-warning) 12%, transparent);
-  --color-success-ink: light-dark(#176b33, #75e695);
-  --color-warning-ink: light-dark(#805000, #ffc477);
+  --app-espaco-8: 32px; --app-espaco-10: 40px; --app-espaco-12: 48px;
+  --content-max: 1440px; --control-height-md: 36px; --glass-blur: blur(12px);
+  --tracking-tight: -.02em; --tracking-tighter: -.035em; --leading-tight: 1.2;
 }
-:root[data-theme='light'] { --color-label: #000000; --color-brand: #000000; }
-:root[data-theme='dark'] { --color-label: #ffffff; --color-brand: #ffffff; }

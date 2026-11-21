@@ -1,0 +1,52 @@
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  font-family: var(--aleph-fonte);
+}
+
+.topo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dica {
+  display: inline-flex;
+  align-self: center;
+  margin-left: 2px;
+  color: var(--aleph-texto-fraco);
+  cursor: help;
+}
+
+.dica svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2;
+}
+
+.acaoRotulo {
+  font-size: var(--aleph-fonte-13);
+}
+
+.rodape {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: var(--aleph-fonte-13);
+}
+
+.mensagem {
+  color: var(--aleph-texto-fraco);
+}
+
+.mensagem[data-erro] {
+  color: var(--aleph-perigo);
+}
+
+.contador {
+  flex: none;
+  color: var(--aleph-texto-fraco);
+}

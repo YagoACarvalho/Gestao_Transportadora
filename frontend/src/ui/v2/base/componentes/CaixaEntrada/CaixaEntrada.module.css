@@ -1,0 +1,198 @@
+.caixa {
+  --ce-altura: 42px;
+  --ce-entrada: 28px;
+  --ce-fonte: var(--aleph-fonte-15);
+  --ce-raio: 12px;
+  --ce-padding: 12px;
+  --ce-anel: var(--aleph-foco);
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ce-altura);
+  padding: 0 var(--ce-padding);
+  border: 1px solid var(--aleph-borda);
+  border-radius: var(--ce-raio);
+  background: var(--aleph-superficie);
+  box-shadow: var(--aleph-sombra-1);
+  font-family: var(--aleph-fonte);
+  font-size: var(--ce-fonte);
+  color: var(--aleph-texto-padrao);
+  cursor: text;
+  transition:
+    border-color var(--aleph-duracao) ease,
+    box-shadow var(--aleph-duracao) ease,
+    background-color var(--aleph-duracao) ease;
+}
+
+.caixa[data-tamanho='pequeno'] {
+  --ce-altura: 34px;
+  --ce-entrada: 24px;
+  --ce-fonte: var(--aleph-fonte-14);
+  --ce-raio: 10px;
+  --ce-padding: 10px;
+}
+
+.caixa[data-tamanho='grande'] {
+  --ce-altura: 52px;
+  --ce-entrada: 34px;
+  --ce-fonte: var(--aleph-fonte-16);
+  --ce-raio: 14px;
+  --ce-padding: 14px;
+}
+
+.caixa:hover:not([data-desabilitado]) {
+  border-color: var(--aleph-borda-forte);
+}
+
+.caixa:focus-within {
+  border-color: var(--ce-anel);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ce-anel) 20%, transparent);
+}
+
+.caixa[data-invalido] {
+  --ce-anel: var(--aleph-perigo);
+  border-color: var(--aleph-perigo);
+}
+
+.caixa[data-arrastando] {
+  border-color: var(--aleph-primaria);
+  border-style: dashed;
+  background: var(--aleph-primaria-fundo);
+}
+
+.caixa[data-desabilitado] {
+  background: var(--aleph-moldura);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.caixa[data-variante='suave'] {
+  border-color: transparent;
+  background: var(--aleph-moldura);
+  box-shadow: none;
+}
+
+.caixa[data-variante='suave']:focus-within {
+  background: var(--aleph-superficie);
+}
+
+.caixa[data-variante='flutuante'] {
+  --ce-raio: 22px;
+  min-height: calc(var(--ce-altura) + 14px);
+  padding: 0 8px 0 16px;
+  border-color: color-mix(in srgb, var(--aleph-borda) 60%, transparent);
+  box-shadow: 0 12px 34px rgb(16 16 24 / 0.1), 0 1px 3px rgb(16 16 24 / 0.06);
+}
+
+.caixa[data-variante='sublinhado'] {
+  --ce-raio: 0;
+  padding: 0 2px;
+  border-width: 0 0 1px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.caixa[data-variante='sublinhado']:focus-within {
+  box-shadow: 0 1px 0 0 var(--ce-anel);
+}
+
+.inicio,
+.fim {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  color: var(--aleph-texto-fraco);
+}
+
+.inicio svg,
+.fim > svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.75;
+}
+
+.miolo {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding-block: calc((var(--ce-altura) - var(--ce-entrada) - 2px) / 2);
+}
+
+.miolo > input,
+.miolo > textarea {
+  flex: 1;
+  min-width: 64px;
+  height: var(--ce-entrada);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.miolo > textarea {
+  height: auto;
+  min-height: var(--ce-entrada);
+  line-height: 1.5;
+  resize: none;
+}
+
+.miolo > input::placeholder,
+.miolo > textarea::placeholder {
+  color: var(--aleph-texto-fraco);
+}
+
+.miolo > input[type='search']::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.miolo > input:disabled,
+.miolo > textarea:disabled {
+  cursor: not-allowed;
+}
+
+.addon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  align-self: stretch;
+  gap: 6px;
+  padding: 0 12px;
+  color: var(--aleph-texto-padrao);
+  font-weight: var(--aleph-peso-medio);
+}
+
+.addon[data-lado='inicio'] {
+  margin-left: calc(var(--ce-padding) * -1);
+  border-right: 1px solid var(--aleph-borda);
+}
+
+.addon[data-lado='fim'] {
+  margin-right: calc(var(--ce-padding) * -1);
+  border-left: 1px solid var(--aleph-borda);
+}
+
+.caixa[data-multilinha],
+.caixa:has(> .miolo > textarea) {
+  align-items: flex-start;
+}
+
+.caixa[data-multilinha] > .miolo,
+.caixa:has(> .miolo > textarea) > .miolo {
+  padding-block: 9px;
+}
+
+.caixa[data-forma='pilula'] {
+  --ce-raio: 999px;
+  padding-inline: 16px;
+}

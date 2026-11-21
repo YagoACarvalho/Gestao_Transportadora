@@ -1,4 +1,4 @@
-.filters { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); padding: 0 var(--space-6) var(--space-5); }
-.filters .selected { background: var(--color-brand); color: var(--color-on-brand); }
-.filters a { margin-left: auto; color: var(--color-accent); font-size: var(--text-footnote); padding: var(--space-3) 0; }
-@media (max-width: 600px) { .filters { padding: 0 var(--space-4) var(--space-4); } .filters a { width: 100%; margin-left: 0; } }
+.filters { display: flex; align-items: center; flex-wrap: wrap; gap: var(--aleph-espaco-2); padding: 0 var(--aleph-espaco-6) var(--aleph-espaco-5); }
+.filters .selected { background: var(--aleph-escuro); color: var(--aleph-sobre-escuro); }
+.filters a { margin-left: auto; color: var(--aleph-azul); font-size: var(--aleph-fonte-13); padding: var(--aleph-espaco-3) 0; }
+@media (max-width: 600px) { .filters { padding: 0 var(--aleph-espaco-4) var(--aleph-espaco-4); } .filters a { width: 100%; margin-left: 0; } }

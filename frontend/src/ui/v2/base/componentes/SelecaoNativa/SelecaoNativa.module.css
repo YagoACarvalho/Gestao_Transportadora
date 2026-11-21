@@ -1,0 +1,51 @@
+.caixa {
+  position: relative;
+  cursor: pointer;
+}
+
+.caixa > svg,
+.caixa > span {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.selecao {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0 calc(var(--ce-padding) + 26px) 0 var(--ce-padding);
+  border: 0;
+  border-radius: inherit;
+  outline: none;
+  appearance: none;
+  background: transparent;
+  color: var(--aleph-texto-padrao);
+  font: inherit;
+  text-overflow: ellipsis;
+  cursor: inherit;
+}
+
+.selecao[data-icone] {
+  padding-left: calc(var(--ce-padding) + 26px);
+}
+
+.selecao[data-vazio] {
+  color: var(--aleph-texto-fraco);
+}
+
+.selecao:disabled {
+  cursor: not-allowed;
+}
+
+.selecao option,
+.selecao optgroup {
+  background: var(--aleph-superficie);
+  color: var(--aleph-texto-padrao);
+}
+
+.selecao optgroup {
+  font-weight: var(--aleph-peso-semibold);
+}

@@ -1,0 +1,91 @@
+.link {
+  --link-cor: var(--aleph-primaria);
+
+  display: inline;
+  color: var(--link-cor);
+  font-weight: var(--aleph-peso-medio);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.22em;
+  border-radius: 3px;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--aleph-duracao) ease,
+    text-decoration-color var(--aleph-duracao) ease;
+}
+
+.link[data-tom='padrao'] { --link-cor: var(--aleph-texto-padrao); }
+.link[data-tom='herdar'] { --link-cor: currentColor; }
+.link[data-tom='azul'] { --link-cor: var(--aleph-azul); }
+.link[data-tom='rosa'] { --link-cor: var(--aleph-rosa); }
+.link[data-tom='roxo'] { --link-cor: var(--aleph-roxo); }
+.link[data-tom='laranja'] { --link-cor: var(--aleph-laranja); }
+.link[data-tom='vermelho'] { --link-cor: var(--aleph-vermelho); }
+.link[data-tom='verde'] { --link-cor: var(--aleph-verde); }
+.link[data-tom='amarelo'] { --link-cor: var(--aleph-amarelo); }
+.link[data-tom='cinza'] { --link-cor: var(--aleph-cinza); }
+
+.link:hover {
+  text-decoration-color: currentColor;
+}
+
+.link[data-variante='sutil'] {
+  --link-cor-base: var(--aleph-texto-suave);
+
+  color: var(--link-cor-base);
+  font-weight: inherit;
+}
+
+.link[data-variante='sutil']:hover {
+  color: var(--link-cor);
+}
+
+.link[data-variante='sublinhado'] {
+  text-decoration-color: color-mix(in srgb, var(--link-cor) 40%, transparent);
+}
+
+.link[data-variante='sublinhado']:hover {
+  text-decoration-color: var(--link-cor);
+}
+
+.link:active {
+  opacity: 0.8;
+}
+
+.link:focus-visible {
+  box-shadow: 0 0 0 2px var(--aleph-foco);
+  text-decoration-color: currentColor;
+}
+
+.seta {
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  margin-left: 0.12em;
+  vertical-align: -0.12em;
+  transition: transform var(--aleph-duracao) ease;
+}
+
+.link:hover .seta {
+  transform: translate(1px, -1px);
+}
+
+.link[data-desabilitado] {
+  color: var(--aleph-texto-fraco);
+  text-decoration: none;
+  cursor: not-allowed;
+}
+
+.link[data-desabilitado]:hover .seta {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link,
+  .seta {
+    transition: none;
+  }
+}

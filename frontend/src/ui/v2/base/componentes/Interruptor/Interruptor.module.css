@@ -1,0 +1,132 @@
+.interruptor {
+  --int-escala: 1;
+  --int-largura: 36px;
+  --int-altura: 20px;
+  --int-botao-largura: 16px;
+  --int-botao-altura: 16px;
+  --int-folga: 2px;
+  --int-desligado: var(--aleph-trilho);
+  --int-ligado: var(--aleph-primaria);
+
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: calc(var(--int-largura) * var(--int-escala));
+  height: calc(var(--int-altura) * var(--int-escala));
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--int-desligado);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--aleph-borda-forte) 60%, transparent);
+  vertical-align: middle;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 180ms ease, box-shadow 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.interruptor[data-tamanho='pequeno'] { --int-escala: 0.82; }
+.interruptor[data-tamanho='grande'] { --int-escala: 1.25; }
+
+.interruptor[data-marcado] {
+  background: var(--int-ligado);
+  box-shadow: none;
+}
+
+.interruptor:focus-visible {
+  box-shadow: 0 0 0 2px var(--aleph-superficie), 0 0 0 4px var(--aleph-foco);
+}
+
+.interruptor:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.botao {
+  position: absolute;
+  top: calc(var(--int-folga) * var(--int-escala));
+  left: calc(var(--int-folga) * var(--int-escala));
+  width: calc(var(--int-botao-largura) * var(--int-escala));
+  height: calc(var(--int-botao-altura) * var(--int-escala));
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2), 0 1px 1px rgb(0 0 0 / 0.06);
+  transition: transform 220ms cubic-bezier(0.3, 0.7, 0.4, 1.2);
+}
+
+.interruptor[data-marcado] .botao {
+  transform: translateX(calc((var(--int-largura) - var(--int-botao-largura) - var(--int-folga) * 2) * var(--int-escala)));
+}
+
+.interruptor:active:not(:disabled) .botao {
+  width: calc((var(--int-botao-largura) + 3px) * var(--int-escala));
+}
+
+.interruptor[data-marcado]:active:not(:disabled) .botao {
+  transform: translateX(calc((var(--int-largura) - var(--int-botao-largura) - 3px - var(--int-folga) * 2) * var(--int-escala)));
+}
+
+.interruptor[data-variante='ios'] {
+  --int-largura: 51px;
+  --int-altura: 31px;
+  --int-botao-largura: 27px;
+  --int-botao-altura: 27px;
+  --int-ligado: #34c759;
+  --int-desligado: color-mix(in srgb, var(--aleph-texto-fraco) 28%, transparent);
+  box-shadow: none;
+}
+
+.interruptor[data-variante='ios26'] {
+  --int-largura: 63px;
+  --int-altura: 28px;
+  --int-botao-largura: 37px;
+  --int-botao-altura: 24px;
+  --int-ligado: #34c759;
+  --int-desligado: color-mix(in srgb, var(--aleph-texto-fraco) 28%, transparent);
+  box-shadow: none;
+}
+
+.interruptor[data-variante='contraste'] {
+  --int-largura: 58px;
+  --int-altura: 30px;
+  --int-botao-largura: 34px;
+  --int-botao-altura: 24px;
+  --int-folga: 3px;
+  --int-ligado: var(--aleph-escuro);
+  --int-desligado: color-mix(in srgb, var(--aleph-texto-fraco) 45%, transparent);
+  box-shadow: inset 0 0 0 2px var(--int-desligado);
+}
+
+.interruptor[data-variante='contraste'][data-marcado] {
+  box-shadow: inset 0 0 0 2px var(--aleph-escuro);
+}
+
+.interruptor[data-variante='contraste'] .botao {
+  background: var(--aleph-superficie);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.18);
+}
+
+.marca {
+  position: absolute;
+  top: 50%;
+  left: calc(11px * var(--int-escala));
+  width: 2px;
+  height: calc(9px * var(--int-escala));
+  border-radius: 1px;
+  background: var(--aleph-sobre-escuro);
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 180ms ease;
+}
+
+.interruptor[data-marcado] .marca {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interruptor,
+  .botao {
+    transition: none;
+  }
+}

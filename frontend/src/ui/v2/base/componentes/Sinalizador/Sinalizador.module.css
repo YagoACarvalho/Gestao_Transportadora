@@ -1,0 +1,92 @@
+.sinalizador {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  vertical-align: middle;
+}
+
+.marca {
+  --sin-cor: var(--aleph-vermelho);
+  --sin-x: 30%;
+  --sin-y: -30%;
+
+  position: absolute;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--aleph-raio-total);
+  background: var(--sin-cor);
+  box-shadow: 0 0 0 2px var(--aleph-superficie);
+  color: var(--aleph-sobre-cor);
+  font-family: var(--aleph-fonte);
+  font-size: 11px;
+  font-weight: var(--aleph-peso-semibold);
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(var(--sin-x), var(--sin-y)) scale(0);
+  transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.marca[data-visivel] {
+  transform: translate(var(--sin-x), var(--sin-y)) scale(1);
+}
+
+.marca[data-ponto] {
+  min-width: 0;
+  width: 9px;
+  height: 9px;
+  padding: 0;
+}
+
+.marca[data-posicao='topo-direita'] { top: 0; right: 0; }
+.marca[data-posicao='topo-esquerda'] { top: 0; left: 0; --sin-x: -30%; }
+.marca[data-posicao='base-direita'] { bottom: 0; right: 0; --sin-y: 30%; }
+.marca[data-posicao='base-esquerda'] { bottom: 0; left: 0; --sin-x: -30%; --sin-y: 30%; }
+
+/* em avatar redondo o canto fica fora do círculo; aproxima a marca da borda */
+.marca[data-sobreposicao='circulo'][data-posicao^='topo'] { top: 14%; }
+.marca[data-sobreposicao='circulo'][data-posicao^='base'] { bottom: 14%; }
+.marca[data-sobreposicao='circulo'][data-posicao$='direita'] { right: 14%; }
+.marca[data-sobreposicao='circulo'][data-posicao$='esquerda'] { left: 14%; }
+
+.marca[data-tom='primaria'] { --sin-cor: var(--aleph-primaria); }
+.marca[data-tom='escuro'] { --sin-cor: var(--aleph-escuro); color: var(--aleph-sobre-escuro); }
+.marca[data-tom='azul'] { --sin-cor: var(--aleph-azul); }
+.marca[data-tom='rosa'] { --sin-cor: var(--aleph-rosa); }
+.marca[data-tom='roxo'] { --sin-cor: var(--aleph-roxo); }
+.marca[data-tom='laranja'] { --sin-cor: var(--aleph-laranja); }
+.marca[data-tom='verde'] { --sin-cor: var(--aleph-verde); }
+.marca[data-tom='amarelo'] { --sin-cor: var(--aleph-amarelo); }
+.marca[data-tom='cinza'] { --sin-cor: var(--aleph-cinza); }
+
+.marca svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 2.4;
+}
+
+.marca:has(svg) {
+  min-width: 22px;
+  height: 22px;
+  padding: 0;
+}
+
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marca {
+    transition: none;
+  }
+}

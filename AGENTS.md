@@ -1,11 +1,12 @@
 # Guia de trabalho dos agentes
 
-## Design vigente - Leange
-- Migracao completa para o kit de DCSEmpresarial/LEANGE_sistema-erp aprovada pelo usuario.
-- Usar componentes de frontend/src/ui/, primitivas portadas em ui/leange e tokens Leange.
-- As diretrizes Ultraleads abaixo sao historicas e foram substituidas por esta decisao visual.
-- Preservar regras de negocio, autenticacao, temas, acessibilidade e seguranca.
-
+## Design vigente - Componentes v2
+- Migração para `DCSEmpresarial/application`, pasta `docs/rh/src/app/componentes-v2`, aprovada pelo usuário, incluindo dashboards e cards.
+- Usar os componentes reais em `frontend/src/ui/v2/` e os adaptadores públicos em `frontend/src/ui/`.
+- Tokens ativos são `--aleph-*` e extensões `--app-*`. Leange e Ultraleads abaixo são referências históricas, sem imports em runtime.
+- Dashboard e resumos usam MolduraIndicador, GradeIndicadores e ValorIndicador; composição usa BarraSegmentada e ListaSegmentos quando os dados permitem.
+- Preservar regras de negócio, autenticação, temas, acessibilidade, consultas e contratos. Não inventar comparações, metas ou valores de exemplo.
+- Origem, adaptações e dependências em `frontend/src/ui/v2/README.md`; orientação atual em `docs/design-system.md`.
 
 ## Workspace de trabalho
 - Trabalhe na raiz `G:\projetos\Gestao_Transportadora-main`, na branch de consolidação `consolidation/workspace-unificado` enquanto esta organização estiver vigente.
