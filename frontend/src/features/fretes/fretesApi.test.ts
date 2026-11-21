@@ -4,6 +4,11 @@ import { entradaInicial } from './simulacao';
 import { setApiSession } from '../../auth/session';
 
 afterEach(() => setApiSession(null));
+it('recusa resposta de API antiga que ignora a distancia ou cobra retorno com nova carga', async () => {
+  const e = { ...entradaInicial('2026-10-01'), distanciaContratadaKm: 500, retornoComNovaCarga: true };
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ distanciaKm: 200, distanciaRetornoKm: 230, retornoVazio: 100 }))));
+  await expect(fretesApi.calcular(e, new AbortController().signal)).rejects.toThrow('A API não respeitou');
+});
 it('envia contrato por URL relativa com token apenas no cabeçalho', async () => {
   setApiSession({ access_token: 'token-ficticio', user: { id: 'teste' } });
   const mock = vi.fn().mockResolvedValue(new Response('{}')); vi.stubGlobal('fetch', mock);

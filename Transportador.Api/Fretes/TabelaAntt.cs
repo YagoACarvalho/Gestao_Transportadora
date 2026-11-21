@@ -38,7 +38,7 @@ public sealed class TabelaAntt
             throw new FalhaFrete(400, "eixos", "Não há coeficientes para esta combinação de carga, eixos e contratação.");
         return new(tabela, eixo, ccd, cc);
     }
-    public static bool ExigeRetorno(EntradaFrete entrada) => entrada.TipoCarga is 4 or 10 || entrada.RetornoEspecial;
+    public static bool ExigeRetorno(EntradaFrete entrada) => entrada.RetornoComNovaCarga != true && (entrada.TipoCarga is 4 or 10 || entrada.RetornoEspecial);
     public static PisoFrete Calcular(CoeficientesFrete coeficientes, decimal idaKm, decimal retornoKm)
     {
         if (idaKm <= 0 || retornoKm < 0) throw new ArgumentOutOfRangeException(nameof(idaKm));

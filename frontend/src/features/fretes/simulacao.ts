@@ -23,7 +23,12 @@ export function guardarCustos(c: CustosFrete) {
   try { if (custosValidos(c)) localStorage.setItem('fretes:custos:v1', JSON.stringify(c)); } catch { /* Cálculo continua sem armazenamento local. */ }
 }
 export function entradaInicial(hoje: string): EntradaFrete {
-  return { origem: { texto: '' }, destino: { texto: '' }, paradas: [], tipoCarga: 5, eixos: 6, contratacao: 'composicao', altoDesempenho: false, retornoEspecial: false, dataReferencia: hoje, altura: null, largura: null, comprimento: null, peso: null, pedagio: null, adicionais: 0 };
+  return { origem: { texto: '' }, destino: { texto: '' }, paradas: [], tipoCarga: 5, eixos: 6, contratacao: 'composicao', altoDesempenho: false, retornoEspecial: false, retornoComNovaCarga: null, distanciaContratadaKm: null, distanciaRetornoContratadaKm: null, dataReferencia: hoje, altura: null, largura: null, comprimento: null, peso: null, pedagio: null, adicionais: 0 };
+}
+export const temHipoteseRetorno = (e: EntradaFrete) => e.tipoCarga === 4 || e.tipoCarga === 10 || e.retornoEspecial;
+export function validarEnquadramento(e: EntradaFrete) {
+  if (temHipoteseRetorno(e) && e.retornoComNovaCarga === null)
+    throw new Error('Confirme se haverá nova contratação de carga na volta para definir o retorno vazio.');
 }
 function endereco(v: unknown): v is Endereco {
   if (!v || typeof v !== 'object') return false;
@@ -39,32 +44,39 @@ export function validarEntrada(v: unknown): asserts v is EntradaFrete {
   const e = v as EntradaFrete;
   const opcional = (v: unknown, max: number) => v === null || numero(v, .1, max);
   const monetario = (v: unknown) => numero(v, 0, 1000000) && Math.abs(v * 100 - Math.round(v * 100)) < .00001;
+  const distancia = (v: unknown) => v === null || numero(v, .001, 50000);
   if (!endereco(e.origem) || !endereco(e.destino) || !Array.isArray(e.paradas) || e.paradas.length > 5 || !e.paradas.every(endereco) ||
     !Number.isInteger(e.tipoCarga) || !numero(e.tipoCarga, 1, 12) || !Number.isInteger(e.eixos) || !numero(e.eixos, 2, 20) ||
     !['composicao', 'tracao'].includes(e.contratacao) || typeof e.altoDesempenho !== 'boolean' || typeof e.retornoEspecial !== 'boolean' || !dataValida(e.dataReferencia) ||
+    !(e.retornoComNovaCarga === null || typeof e.retornoComNovaCarga === 'boolean') || !distancia(e.distanciaContratadaKm) || !distancia(e.distanciaRetornoContratadaKm) ||
     !opcional(e.altura, 6) || !opcional(e.largura, 4) || !opcional(e.comprimento, 40) || !opcional(e.peso, 100) || !(e.pedagio === null || monetario(e.pedagio)) || !monetario(e.adicionais))
     throw new Error('Revise os endereços, a data, os eixos e os valores da simulação.');
+  if (e.distanciaRetornoContratadaKm !== null && (!temHipoteseRetorno(e) || e.retornoComNovaCarga === true))
+    throw new Error('Informe distância de retorno apenas quando houver retorno vazio obrigatório nesta operação.');
 }
 // Apenas campos conhecidos entram no link; nunca incluir respostas, tokens ou opções extras.
 function camposEntrada(e: EntradaFrete): EntradaFrete {
   const ponto = (a: Endereco): Endereco => ({ texto: a.texto, ...(a.ponto ? { ponto: { lat: a.ponto.lat, lon: a.ponto.lon } } : {}) });
   return { origem: ponto(e.origem), destino: ponto(e.destino), paradas: e.paradas.map(ponto), tipoCarga: e.tipoCarga, eixos: e.eixos,
     contratacao: e.contratacao, altoDesempenho: e.altoDesempenho, retornoEspecial: e.retornoEspecial, dataReferencia: e.dataReferencia,
-    altura: e.altura, largura: e.largura, comprimento: e.comprimento, peso: e.peso, pedagio: e.pedagio, adicionais: e.adicionais };
+    altura: e.altura, largura: e.largura, comprimento: e.comprimento, peso: e.peso, pedagio: e.pedagio, adicionais: e.adicionais,
+    retornoComNovaCarga: e.retornoComNovaCarga, distanciaContratadaKm: e.distanciaContratadaKm, distanciaRetornoContratadaKm: e.distanciaRetornoContratadaKm };
 }
 export function codificarSimulacao(entrada: EntradaFrete, custos: CustosFrete): string {
   validarEntrada(entrada);
+  validarEnquadramento(entrada);
   if (!custosValidos(custos)) throw new Error('Custos inválidos.');
-  const bytes = new TextEncoder().encode(JSON.stringify({ v: 1, entrada: camposEntrada(entrada), custos: { consumo: custos.consumo, diesel: custos.diesel, margem: custos.margem, outrosPorKm: custos.outrosPorKm, fixos: custos.fixos } }));
+  const bytes = new TextEncoder().encode(JSON.stringify({ v: 2, entrada: camposEntrada(entrada), custos: { consumo: custos.consumo, diesel: custos.diesel, margem: custos.margem, outrosPorKm: custos.outrosPorKm, fixos: custos.fixos } }));
   return btoa(String.fromCharCode(...bytes)).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
 }
-export function decodificarSimulacao(texto: string): { entrada: EntradaFrete; custos: CustosFrete } {
+export function decodificarSimulacao(texto: string): { entrada: EntradaFrete; custos: CustosFrete; legada: boolean } {
   if (texto.length > 16000 || !/^[\w-]+$/.test(texto)) throw new Error('Link de simulação inválido.');
   try {
     const v = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(atob(texto.replaceAll('-', '+').replaceAll('_', '/')), c => c.charCodeAt(0))));
-    if (v.v !== 1 || !custosValidos(v.custos)) throw new Error();
+    if (![1, 2].includes(v.v) || !custosValidos(v.custos) || !v.entrada || typeof v.entrada !== 'object' || Array.isArray(v.entrada)) throw new Error();
+    if (v.v === 1) v.entrada = { ...v.entrada, retornoComNovaCarga: null, distanciaContratadaKm: null, distanciaRetornoContratadaKm: null };
     validarEntrada(v.entrada);
-    return { entrada: camposEntrada(v.entrada), custos: { consumo: v.custos.consumo, diesel: v.custos.diesel, margem: v.custos.margem, outrosPorKm: v.custos.outrosPorKm, fixos: v.custos.fixos } };
+    return { entrada: camposEntrada(v.entrada), custos: { consumo: v.custos.consumo, diesel: v.custos.diesel, margem: v.custos.margem, outrosPorKm: v.custos.outrosPorKm, fixos: v.custos.fixos }, legada: v.v === 1 };
   } catch { throw new Error('Link de simulação inválido ou incompatível.'); }
 }
 export function linkGoogleMaps(e: EntradaFrete) {

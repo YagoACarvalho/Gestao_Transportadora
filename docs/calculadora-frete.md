@@ -102,9 +102,13 @@ também funciona no publish sem depender do diretório de execução.
 - A/B: composição/unidade de tração; C/D: equivalentes de alto desempenho.
 - Eixos intermediários usam a referência inferior; uma célula vazia recusa o cálculo,
   sem saltar para outra combinação.
-- Retorno obrigatório para cargas conteinerizadas (4 e 10); nas demais, somente
-  pelo enquadramento específico informado. Sempre consulta entrega → coleta,
-  sem repetir paradas ou presumir a mesma distância da ida.
+- Retorno vazio obrigatório para cargas conteinerizadas (4 e 10) ou enquadramento
+  específico informado, quando a volta for vazia. Nova contratação de carga na
+  volta é outra operação e não acrescenta retorno vazio à primeira.
+- Distâncias contratadas, quando informadas, prevalecem no piso. Sem elas, usa-se
+  a rota de ida e, quando necessário, uma consulta própria entrega → coleta.
+  Os trechos e a geometria permanecem referência da rota, não são escalonados para
+  aparentar a distância contratada.
 - Data anterior à primeira tabela ou posterior a hoje é recusada. A versão de maior
   vigência não posterior à referência é usada. Só há a versão de 30/09/2026 incluída;
   acompanhar novas normas é necessário. Não há atualização automática pela rede.
@@ -213,3 +217,48 @@ TypeScript aprovados. Relatórios em
 `.local/harness/test-results/2a33711fe73346df8cbacef86dc70859/` e
 `.local/harness/fretes/validacao-correcao-ors.log`. A simulação autenticada real
 precisa ser repetida após a atualização do serviço Render.
+
+
+## Correção de enquadramento e distâncias (aprovada em 21/11/2026)
+
+Auditoria das quatro tabelas A/B/C/D: as 672 posições de CCD/CC, incluindo null,
+conferem com a Portaria SUROC 22/2026. A fórmula decimal, os coeficientes e o
+arredondamento não foram substituídos. Exemplo: carga geral, composição completa,
+6 eixos e 500 km: CCD 7,5347, CC R$ 671,93, piso de ida R$ 4.439,28.
+
+Base do enquadramento: Resolução 5.867/2020, art. 3º, §§ 1º a 4º; art. 4º e
+art. 5º, e [FAQ oficial CIOT, seção de retorno vazio](https://www.gov.br/antt/pt-br/assuntos/cargas/ciot-para-todos-1/perguntas-frequentes).
+Não há cobrança dos 92% quando existe nova contratação de transporte na volta;
+essa operação precisa do próprio cálculo. A distância de retorno é a fixada em
+contrato. O enquadramento de lotação, a composição e o alto desempenho devem
+corresponder aos documentos reais; pontos de passagem não representam autorização
+para somar contratações ou aplicar o piso de lotação a cargas fracionadas.
+
+### Adição compatível na entrada de POST /api/fretes/calcular
+
+| Campo opcional | Valores e comportamento |
+|---|---|
+| `retornoComNovaCarga` | boolean ou null. true exclui retorno vazio; false confirma ausência de nova contratação. null preserva a hipótese legada, com aviso explícito se houver retorno obrigatório. |
+| `distanciaContratadaKm` | decimal entre 0,001 e 50.000 km, ou null. Substitui a distância de ida usada no piso e nos custos; não modifica a geometria/trechos de referência. |
+| `distanciaRetornoContratadaKm` | mesmo intervalo, ou null. Só aceita quando há retorno vazio obrigatório; evita a consulta de rota de volta, sem inventar geometria. |
+
+Não mudou o formato da resposta nem rotas/status. `distanciaKm` e
+`distanciaRetornoKm` são as distâncias usadas no cálculo; `trechosKm` continua
+descrevendo a rota estimada de ida. Em entrada inválida nos campos novos, a API
+responde 400 antes de chamar o provedor. Autenticação, limites e exigência de
+serviço de mapas configurado permanecem. Nenhum banco ou migration é envolvido.
+
+A interface exige confirmar nova contratação na volta para contêiner/frota
+especial, mostra a memória de cálculo e identifica os valores contratados ou
+estimados. Pedágio pendente continua parcial. Custos e preço sugerido são
+comerciais, distintos do piso normativo; custos da nova operação de volta não
+são incorporados à primeira. A fórmula de acréscimo sobre custo não mudou.
+O cliente recusa respostas que desrespeitem as distâncias informadas ou cobrem
+retorno vazio quando foi enviada nova contratação na volta (proteção em deploy
+com frontend novo e API antiga).
+
+Links novos usam versão 2 e preservam somente entradas/custos conhecidos, sem
+respostas ou tokens. Links v1 continuam carregáveis, identificados como antigos,
+com distâncias contratadas vazias e retorno não confirmado. Não são executados
+automaticamente; é necessário revisar e confirmar antes de calcular os casos
+enquadrados. PDFs e comparação de cenários usam os parâmetros de cada simulação.

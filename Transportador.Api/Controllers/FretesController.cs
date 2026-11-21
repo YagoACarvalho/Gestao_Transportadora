@@ -35,13 +35,21 @@ public sealed class FretesController(TabelaAntt tabela, IMapasFrete mapas, Clien
             foreach (var endereco in new[] { entrada.Origem }.Concat(entrada.Paradas).Append(entrada.Destino))
                 enderecos.Add(await mapas.Localizar(endereco, ct));
             var ida = await mapas.Rota(enderecos.ToArray(), entrada, ct);
-            RotaFrete? retorno = TabelaAntt.ExigeRetorno(entrada) ? await mapas.Rota([enderecos[^1], enderecos[0]], entrada, ct) : null;
-            var piso = TabelaAntt.Calcular(coeficientes, ida.DistanciaKm, retorno?.DistanciaKm ?? 0);
+            var exigeRetorno = TabelaAntt.ExigeRetorno(entrada);
+            RotaFrete? retorno = exigeRetorno && entrada.DistanciaRetornoContratadaKm is null ? await mapas.Rota([enderecos[^1], enderecos[0]], entrada, ct) : null;
+            var distanciaIda = entrada.DistanciaContratadaKm ?? ida.DistanciaKm;
+            var distanciaRetorno = exigeRetorno ? entrada.DistanciaRetornoContratadaKm ?? retorno!.DistanciaKm : 0;
+            var piso = TabelaAntt.Calcular(coeficientes, distanciaIda, distanciaRetorno);
             List<string> avisos = ["Confira os endereços encontrados, as restrições do veículo e as condições reais da via antes de contratar."];
             if (entrada.Pedagio is null) avisos.Add("Pedágio pendente: o total e o preço sugerido são parciais até informar o valor.");
             if (coeficientes.EixosReferencia != entrada.Eixos) avisos.Add($"Utilizada a referência de {coeficientes.EixosReferencia} eixos, imediatamente inferior à informada.");
             if (entrada.AltoDesempenho) avisos.Add("Alto desempenho exige enquadramento e comprovação conforme a Resolução ANTT 5.867/2020.");
-            return Ok(new ResultadoFrete(enderecos.ToArray(), ida.DistanciaKm, retorno?.DistanciaKm ?? 0, ida.TrechosKm, ida.Trajeto, retorno?.Trajeto ?? [], coeficientes,
+            if (entrada.DistanciaContratadaKm.HasValue) avisos.Add("Piso de ida calculado pela distância contratada informada. Os trechos e o mapa são apenas a referência estimada da rota.");
+            if (entrada.DistanciaRetornoContratadaKm.HasValue) avisos.Add("Retorno vazio calculado pela distância contratada informada, sem traçado de retorno no mapa.");
+            if (entrada.RetornoComNovaCarga == true) avisos.Add("A volta com nova carga é outra operação: seu piso, pedágio e custos devem ser calculados separadamente. Não foi acrescido retorno vazio nesta operação.");
+            else if (entrada.RetornoComNovaCarga is null && exigeRetorno) avisos.Add("Retorno não confirmado na entrada antiga: mantida a hipótese de retorno vazio. Confirme se existe nova contratação de carga na volta antes de usar o resultado.");
+            if (exigeRetorno && entrada.DistanciaRetornoContratadaKm is null) avisos.Add("Retorno estimado da entrega até a coleta. Confira se a distância corresponde ao retorno fixado em contrato.");
+            return Ok(new ResultadoFrete(enderecos.ToArray(), distanciaIda, distanciaRetorno, ida.TrechosKm, ida.Trajeto, retorno?.Trajeto ?? [], coeficientes,
                 piso.PisoIda, piso.RetornoVazio, piso.PisoTotal, entrada.Pedagio, entrada.Adicionais, piso.PisoTotal + (entrada.Pedagio ?? 0) + entrada.Adicionais,
                 norma.Norma, norma.Vigencia, norma.Fonte, avisos.ToArray()));
         }

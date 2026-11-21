@@ -29,6 +29,9 @@
 .details summary { cursor: pointer; color: var(--app-link); min-height: var(--control-height-md); }
 .details dl { display: grid; gap: var(--aleph-espaco-3); }
 .details dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.memory { padding-block: var(--aleph-espaco-3); border-top: 1px solid var(--aleph-borda); overflow-wrap: anywhere; }
+.memory h3 { font-size: var(--aleph-fonte-15); margin-block: var(--aleph-espaco-2); }
+.memory p { font-size: var(--aleph-fonte-13); color: var(--aleph-texto-suave); }
 .tableWrap { overflow-x: auto; }
 .table { width: 100%; border-collapse: collapse; font-size: var(--aleph-fonte-13); }
 .table th, .table td { text-align: left; padding: var(--aleph-espaco-3); border-bottom: 1px solid var(--aleph-borda); min-width: 8em; vertical-align: top; }

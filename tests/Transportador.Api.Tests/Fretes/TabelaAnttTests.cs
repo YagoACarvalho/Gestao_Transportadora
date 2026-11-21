@@ -42,6 +42,17 @@ public sealed class TabelaAnttTests
     [Theory]
     [InlineData(4, false, true)] [InlineData(10, false, true)] [InlineData(5, false, false)] [InlineData(5, true, true)]
     public void IncluiRetornoPorEnquadramento(int carga, bool especial, bool esperado) => Assert.Equal(esperado, TabelaAntt.ExigeRetorno(new() { TipoCarga = carga, RetornoEspecial = especial }));
+    [Theory]
+    [InlineData(4, false)] [InlineData(10, false)] [InlineData(5, true)]
+    public void NovaOperacaoNaVoltaNaoAcrescentaRetornoVazio(int carga, bool especial) =>
+        Assert.False(TabelaAntt.ExigeRetorno(new() { TipoCarga = carga, RetornoEspecial = especial, RetornoComNovaCarga = true }));
+    [Fact]
+    public void CargaGeralSeisEixos500KmConfereComPortaria22()
+    {
+        var c = tabela.Coeficientes(new() { Eixos = 6, TipoCarga = 5, DataReferencia = new(2026, 11, 21) });
+        Assert.Equal(new CoeficientesFrete("A", 6, 7.5347m, 671.93m), c);
+        Assert.Equal(new PisoFrete(4439.28m, 0, 4439.28m), TabelaAntt.Calcular(c, 500, 0));
+    }
     [Fact]
     public void TrechosSomamExatamenteADistanciaOficial()
     {

@@ -20,6 +20,9 @@ public sealed class EntradaFrete : IValidatableObject
     [Required, RegularExpression("^(composicao|tracao)$")] public string Contratacao { get; set; } = "composicao";
     public bool AltoDesempenho { get; set; }
     public bool RetornoEspecial { get; set; }
+    public bool? RetornoComNovaCarga { get; set; }
+    [Range(typeof(decimal), "0.001", "50000", ParseLimitsInInvariantCulture = true)] public decimal? DistanciaContratadaKm { get; set; }
+    [Range(typeof(decimal), "0.001", "50000", ParseLimitsInInvariantCulture = true)] public decimal? DistanciaRetornoContratadaKm { get; set; }
     public DateOnly DataReferencia { get; set; }
     [Range(typeof(decimal), "0.1", "6", ParseLimitsInInvariantCulture = true)] public decimal? Altura { get; set; }
     [Range(typeof(decimal), "0.1", "4", ParseLimitsInInvariantCulture = true)] public decimal? Largura { get; set; }
@@ -38,6 +41,8 @@ public sealed class EntradaFrete : IValidatableObject
             yield return new("Use até duas casas decimais.", [nameof(Pedagio)]);
         if (decimal.Round(Adicionais, 2) != Adicionais)
             yield return new("Use até duas casas decimais.", [nameof(Adicionais)]);
+        if (DistanciaRetornoContratadaKm.HasValue && !TabelaAntt.ExigeRetorno(this))
+            yield return new("Informe distância de retorno apenas quando houver retorno vazio obrigatório nesta operação.", [nameof(DistanciaRetornoContratadaKm)]);
     }
 }
 

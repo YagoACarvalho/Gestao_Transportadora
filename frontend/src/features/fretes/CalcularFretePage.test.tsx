@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { CalcularFretePage } from '../../pages/CalcularFretePage';
 import { fretesApi } from './fretesApi';
 import type { ResultadoFrete } from './types';
@@ -23,6 +23,32 @@ async function preencher() {
   fireEvent.change(screen.getByRole('combobox', { name: 'Coleta' }), { target: { value: 'Coleta de teste' } });
   fireEvent.change(screen.getByRole('combobox', { name: 'Entrega' }), { target: { value: 'Entrega de teste' } });
 }
+it('envia distancias contratadas e mostra a memoria com a rota separada', async () => {
+  vi.mocked(fretesApi.calcular).mockResolvedValue({ ...resultado, distanciaKm: 500, pisoIda: 3210.30, retornoVazio: 0, distanciaRetornoKm: 0, pisoTotal: 3210.30, totalOperacao: 3210.30 });
+  const tela = render(<CalcularFretePage />); await preencher();
+  fireEvent.change(screen.getByLabelText('Distância contratada de ida (km, opcional)'), { target: { value: '500' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Calcular frete' }));
+  await screen.findByRole('heading', { name: 'Piso mínimo ANTT' });
+  expect(fretesApi.calcular).toHaveBeenCalledWith(expect.objectContaining({ distanciaContratadaKm: 500 }), expect.any(AbortSignal));
+  expect(within(tela.container).getByRole('region', { name: 'Memória do cálculo' }).textContent).toContain('500 km');
+  expect(screen.getByText(/Referência da rota de ida: 200 km/)).toBeTruthy();
+});
+it('exige confirmar a volta de container e nao cobra retorno quando ha outra carga', async () => {
+  vi.mocked(fretesApi.opcoes).mockResolvedValue({ tiposCarga: [{ id: 5, nome: 'Carga geral' }, { id: 4, nome: 'Conteinerizada' }], hoje: '2026-11-03', primeiraVigencia: '2026-09-30', mapasConfigurados: true });
+  vi.mocked(fretesApi.calcular).mockResolvedValue({ ...resultado, distanciaRetornoKm: 0, retornoVazio: 0, pisoTotal: resultado.pisoIda, totalOperacao: resultado.pisoIda });
+  const tela = render(<CalcularFretePage />); await preencher();
+  fireEvent.change(screen.getByLabelText('Tipo de carga'), { target: { value: '4' } });
+  const retorno = screen.getByLabelText('Haverá nova contratação de carga na volta?') as HTMLSelectElement;
+  expect(retorno.required).toBe(true); expect(retorno.value).toBe('');
+  fireEvent.submit(screen.getByRole('button', { name: 'Calcular frete' }).closest('form')!);
+  expect(await screen.findByText(/Confirme se haverá nova contratação/)).toBeTruthy(); expect(fretesApi.calcular).not.toHaveBeenCalled();
+  fireEvent.change(retorno, { target: { value: 'true' } });
+  expect(screen.queryByLabelText('Distância contratada de retorno vazio (km, opcional)')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Calcular frete' }));
+  await screen.findByRole('heading', { name: 'Piso mínimo ANTT' });
+  expect(fretesApi.calcular).toHaveBeenCalledWith(expect.objectContaining({ tipoCarga: 4, retornoComNovaCarga: true, distanciaRetornoContratadaKm: null }), expect.any(AbortSignal));
+  expect(within(tela.container).getByRole('region', { name: 'Memória do cálculo' }).textContent).toContain('Não há acréscimo de retorno vazio');
+});
 it('informa configuração pendente e permite preparar os endereços', async () => {
   vi.mocked(fretesApi.opcoes).mockResolvedValue({ tiposCarga: [{ id: 5, nome: 'Carga geral' }], hoje: '2026-11-03', primeiraVigencia: '2026-09-30', mapasConfigurados: false });
   render(<CalcularFretePage />); await screen.findByText(/O serviço de rotas precisa ser configurado/);

@@ -53,6 +53,50 @@ public sealed class FretesHttpTests
         Assert.Equal(2737.02m, r.PisoTotal);
     }
     [Fact]
+    public async Task DistanciasContratadasDeterminamPisoSemAlterarTrechosDaRota()
+    {
+        using var factory = new ApiFactory(); var mapas = new MapasFalsos(); using var app = ComMapas(factory, mapas);
+        var e = Entrada(); e.Contratacao = "composicao"; e.Eixos = 6; e.RetornoComNovaCarga = false;
+        e.DistanciaContratadaKm = 500; e.DistanciaRetornoContratadaKm = 450;
+        var resposta = await app.Cliente.PostAsJsonAsync("/api/fretes/calcular", e);
+        Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+        var r = (await resposta.Content.ReadFromJsonAsync<ResultadoFrete>())!;
+        Assert.Equal(500, r.DistanciaKm); Assert.Equal(450, r.DistanciaRetornoKm);
+        Assert.Equal(4439.28m, r.PisoIda); Assert.Equal(3119.37m, r.RetornoVazio); Assert.Equal(7558.65m, r.PisoTotal);
+        Assert.Equal(200, r.TrechosKm.Sum()); Assert.Single(mapas.Rotas); Assert.Empty(r.TrajetoRetorno);
+        Assert.Contains(r.Avisos, a => a.Contains("distância contratada"));
+    }
+    [Theory]
+    [InlineData(4, false)] [InlineData(10, false)] [InlineData(5, true)]
+    public async Task VoltaComNovaCargaNaoGeraRotaNemPisoDeRetorno(int carga, bool especial)
+    {
+        using var factory = new ApiFactory(); var mapas = new MapasFalsos(); using var app = ComMapas(factory, mapas);
+        var e = Entrada(); e.TipoCarga = carga; e.RetornoEspecial = especial; e.RetornoComNovaCarga = true;
+        var resposta = await app.Cliente.PostAsJsonAsync("/api/fretes/calcular", e);
+        Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+        var r = (await resposta.Content.ReadFromJsonAsync<ResultadoFrete>())!;
+        Assert.Equal(0, r.RetornoVazio); Assert.Equal(0, r.DistanciaRetornoKm); Assert.Equal(r.PisoIda, r.PisoTotal);
+        Assert.Single(mapas.Rotas); Assert.Contains(r.Avisos, a => a.StartsWith("A volta com nova carga"));
+    }
+    [Theory]
+    [InlineData(0)] [InlineData(-1)] [InlineData(50001)]
+    public async Task DistanciaContratadaInvalidaNaoConsultaProvedor(decimal distancia)
+    {
+        using var factory = new ApiFactory(); var mapas = new MapasFalsos(); using var app = ComMapas(factory, mapas);
+        var e = Entrada(); e.DistanciaContratadaKm = distancia;
+        Assert.Equal(HttpStatusCode.BadRequest, (await app.Cliente.PostAsJsonAsync("/api/fretes/calcular", e)).StatusCode);
+        Assert.Empty(mapas.Rotas);
+    }
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task DistanciaRetornoSemHipoteseObrigatoriaOuComNovaCargaERecusada(bool novaCarga)
+    {
+        using var factory = new ApiFactory(); var mapas = new MapasFalsos(); using var app = ComMapas(factory, mapas);
+        var e = Entrada(); e.RetornoEspecial = false; e.TipoCarga = novaCarga ? 4 : 5; e.RetornoComNovaCarga = novaCarga; e.DistanciaRetornoContratadaKm = 100;
+        Assert.Equal(HttpStatusCode.BadRequest, (await app.Cliente.PostAsJsonAsync("/api/fretes/calcular", e)).StatusCode);
+        Assert.Empty(mapas.Rotas);
+    }
+    [Fact]
     public async Task SemChaveRetorna503EOpcoesInformaPendencia()
     {
         using var factory = new ApiFactory(); using var app = factory.WithWebHostBuilder(b => b.UseSetting("Fretes:OrsApiKey", ""));

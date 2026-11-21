@@ -4,6 +4,8 @@ export interface EntradaFrete {
   origem: Endereco; destino: Endereco; paradas: Endereco[];
   tipoCarga: number; eixos: number; contratacao: 'composicao' | 'tracao';
   altoDesempenho: boolean; retornoEspecial: boolean; dataReferencia: string;
+  retornoComNovaCarga: boolean | null;
+  distanciaContratadaKm: number | null; distanciaRetornoContratadaKm: number | null;
   altura: number | null; largura: number | null; comprimento: number | null; peso: number | null;
   pedagio: number | null; adicionais: number;
 }
